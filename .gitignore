@@ -1,0 +1,62 @@
+# ===========================
+# Environment & Secrets
+# ===========================
+.env
+.env.local
+.env.*.local
+
+# ===========================
+# Python
+# ===========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ===========================
+# Virtual Environment (uv)
+# ===========================
+.venv/
+venv/
+env/
+
+# ===========================
+# Testing & Coverage
+# ===========================
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.coveragerc
+
+# ===========================
+# Type Checking
+# ===========================
+.pyright/
+.mypy_cache/
+
+# ===========================
+# IDE & Editor
+# ===========================
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ===========================
+# Markdown Docs (local only)
+# ===========================
+*.md
+!README.md
+
+# ===========================
+# Alembic
+# ===========================
+# Keep migration files, ignore auto-generated pycache
+alembic/__pycache__/
