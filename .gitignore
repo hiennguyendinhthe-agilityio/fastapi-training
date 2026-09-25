@@ -54,6 +54,8 @@ coverage.xml
 # ===========================
 *.md
 !README.md
+!.agents/**/*.md
+!.agents/*.md
 
 # ===========================
 # Alembic
