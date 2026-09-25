@@ -1,0 +1,40 @@
+# =============================================================================
+# Cocoloco API — Docker Compose (Local Development)
+# =============================================================================
+# Start:   docker compose up -d
+# Stop:    docker compose down
+# Destroy: docker compose down -v   (also removes volume/data)
+# Logs:    docker compose logs -f db
+# =============================================================================
+
+services:
+  db:
+    image: postgres:16-alpine          # Alpine = smaller image (~80MB vs ~400MB)
+    container_name: cocoloco_db
+    restart: unless-stopped            # Auto-restart unless manually stopped
+
+    environment:
+      POSTGRES_USER: cocoloco          # Must match DATABASE_URL in .env
+      POSTGRES_PASSWORD: cocoloco123   # Must match DATABASE_URL in .env
+      POSTGRES_DB: cocoloco_db         # Must match DATABASE_URL in .env
+      PGDATA: /var/lib/postgresql/data/pgdata
+
+    ports:
+      - "5433:5432"                    # host 5433 → container 5432 (avoids conflict)
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data/pgdata   # Persist data across restarts
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cocoloco -d cocoloco_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+# =============================================================================
+# Named Volumes — Persist data even after container is removed
+# =============================================================================
+volumes:
+  pgdata:
+    driver: local
