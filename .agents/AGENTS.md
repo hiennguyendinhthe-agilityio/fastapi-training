@@ -12,6 +12,7 @@ This file serves as the root index for all agent customizations and governance i
 5. **Modern Python Tooling**: Utilize **`uv`** for lightning-fast package management, virtual environments, and command execution.
 6. **Quality Gate**: Maintain 100% passing tests on Pytest with code coverage ≥ 85%.
 7. **Task Tracking**: After completing any task or sub-task, **always** update [`Cocoloco FastAPI.md`](file:///Volumes/MacData/fastapi-training/Cocoloco%20FastAPI.md) to reflect the current progress — mark checkboxes `[x]`, update the section header with `✅ Done — <date>`, and change the next task label to `🔜 Next`.
+8. **Learning Document**: After completing any task, **always** create a detailed Vietnamese teaching document in [`learn-api-python/`](file:///Volumes/MacData/fastapi-training/learn-api-python/) named after the task (e.g. `Docker PostgreSQL.md`). Explain *what* was built, *why* each decision was made, and *how* it fits into the overall architecture.
 
 ## Workspace Customizations Architecture
 Strict operational constraints are modularized in `.agents/rules/`. **You MUST adhere to them:**
@@ -37,6 +38,22 @@ The file [`Cocoloco FastAPI.md`](file:///Volumes/MacData/fastapi-training/Cocolo
 3. **Mark next task**: Append `🔜 Next` to the heading of the immediately following task.
 4. **Timing**: Do this update **before** the final git commit of the task — so the progress state is always committed alongside the work.
 5. **Never skip**: Even for partial completions, mark only the finished sub-tasks and leave unfinished ones as `- [ ]`.
+
+## 📚 Learning Document Protocol
+
+After completing every task, create a teaching document at `learn-api-python/<Task Name>.md`. Follow this structure:
+
+1. **Header**: Task number, date, and learning objectives (what the student will understand after reading)
+2. **Problem First**: Always start with *the problem* the tool/concept solves — never jump straight to implementation
+3. **Concept Explanation**: Explain the theory with diagrams (ASCII art), analogies, and comparisons
+4. **Each File/Decision**: For every file created, explain: what it is, why it exists, and what each section does
+5. **Pitfalls & Debugging**: Document any errors encountered during the task and how they were diagnosed and resolved
+6. **Architecture Map**: Show how this task's output connects to future tasks
+7. **Golden Rules**: End with 3–5 bullet-point rules the student must remember
+
+> **Language**: Write entirely in **Vietnamese** — clear, friendly, and educational tone.
+> **Depth**: Go deep. A student reading this should fully understand the topic without any prior knowledge.
+> **No skipping**: Every command run, every decision made must be explained.
 
 ## Execution Mandate
 Whenever you start a task, adhere strictly to the designated rules above. If your solution introduces synchronous blocking I/O, leaks raw database exceptions to clients, causes N+1 queries, or breaks test coverage below 85%, you have failed the task.
