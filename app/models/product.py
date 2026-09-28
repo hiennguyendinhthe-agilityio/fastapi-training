@@ -11,12 +11,16 @@ Implements:
 import enum
 import uuid
 from decimal import Decimal
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import Boolean, Enum, Numeric, String, Text, Uuid
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import TimestampedBase
+
+if TYPE_CHECKING:
+    from app.models.order import OrderItem
 
 
 class CategoryType(enum.StrEnum):
@@ -66,6 +70,12 @@ class Product(TimestampedBase):
         Boolean,
         default=True,
         nullable=False,
+    )
+
+    # Relationships
+    order_items: Mapped[list["OrderItem"]] = relationship(
+        "OrderItem",
+        back_populates="product",
     )
 
     def __init__(self, **kw: object) -> None:
