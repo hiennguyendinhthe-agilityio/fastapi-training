@@ -4,42 +4,48 @@ FastAPI application entrypoint — lifespan, CORS middleware, router mounting.
 
 Startup/shutdown lifecycle:
   - lifespan() logs startup and shutdown events.
-  - Database engine and connection pool will be initialized here in Task 2.1.
+  - Verifies database connection on startup and disposes connection pool on shutdown.
 
 CORS:
   - Allows Flutter mobile & web frontends to call the API from any origin
     during development. Tighten in production via ALLOWED_ORIGINS env var.
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
 
+from app.core.database import async_engine
 
 # ---------------------------------------------------------------------------
 # Lifespan — startup & shutdown hooks
 # ---------------------------------------------------------------------------
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
-    Runs code before the first request (startup) and after the last one
-    (shutdown). This is the modern FastAPI replacement for @app.on_event().
-
-    Future tasks will add:
-      - Task 2.1: async database engine initialization
-      - Task 3.2: pre-warming the JWKS client cache
+    Runs code before the first request (startup) and after the last one (shutdown).
     """
     # ── Startup ──────────────────────────────────────────────────────────────
     print("🚀 Cocoloco API starting up...")
+    try:
+        async with async_engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        print("✅ Database connection established.")
+    except Exception as exc:
+        print(f"⚠️  Database connection check failed: {exc}")
 
     yield  # ← Application runs here (handles requests)
 
     # ── Shutdown ─────────────────────────────────────────────────────────────
     print("🛑 Cocoloco API shutting down...")
+    await async_engine.dispose()
+    print("🔌 Database engine connection pool disposed.")
 
 
 # ---------------------------------------------------------------------------
@@ -48,11 +54,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(
     title="Cocoloco API",
-    summary="High-performance async REST API for the Cocoloco food & coffee ordering platform.",
+    summary="Async REST API for Cocoloco food & coffee ordering platform.",
     description="""
 ## 🥐 Cocoloco Food & Coffee Ordering API
 
-Built with **FastAPI**, **SQLAlchemy 2.0 (Async)**, **PostgreSQL 16**, and **Clerk Authentication**.
+Built with FastAPI, SQLAlchemy 2.0 (Async), PostgreSQL 16, and Clerk.
 
 ### Features
 - 🔐 **Clerk RS256 JWT Authentication** — secure, stateless token verification
@@ -80,8 +86,6 @@ Built with **FastAPI**, **SQLAlchemy 2.0 (Async)**, **PostgreSQL 16**, and **Cle
         "name": "MIT",
     },
     lifespan=lifespan,
-    # Swagger UI and ReDoc are enabled in development.
-    # Set to None in production via ENVIRONMENT check (Task 3.1).
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
@@ -94,18 +98,17 @@ Built with **FastAPI**, **SQLAlchemy 2.0 (Async)**, **PostgreSQL 16**, and **Cle
 
 app.add_middleware(
     CORSMiddleware,
-    # Allow all origins in development — restrict in production.
-    # Example production value: ["https://app.cocoloco.io", "https://admin.cocoloco.io"]
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],   # GET, POST, PUT, PATCH, DELETE, OPTIONS
-    allow_headers=["*"],   # Authorization, Content-Type, etc.
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
 # ---------------------------------------------------------------------------
 # Health check — used by Docker, load balancers, and CI pipelines
 # ---------------------------------------------------------------------------
+
 
 @app.get(
     "/health",
@@ -114,10 +117,7 @@ app.add_middleware(
     response_description="Service is alive",
 )
 async def health_check() -> JSONResponse:
-    """
-    Returns HTTP 200 when the service is running.
-    Does NOT check database connectivity — that will be added in Task 2.1.
-    """
+    """Returns HTTP 200 when the service is running."""
     return JSONResponse(content={"status": "ok", "service": "cocoloco-api"})
 
 
