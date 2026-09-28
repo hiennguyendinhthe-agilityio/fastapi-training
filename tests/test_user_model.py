@@ -4,6 +4,7 @@ Unit tests for User model, UserRole enum, and Order relationship.
 """
 
 import uuid
+from decimal import Decimal
 from uuid import UUID
 
 import pytest
@@ -121,8 +122,8 @@ async def test_user_orders_relationship_and_cascade(db_session: AsyncSession):
         email="buyer@cocoloco.com",
         full_name="Buyer Ben",
     )
-    order1 = Order(id=uuid.uuid4())
-    order2 = Order(id=uuid.uuid4())
+    order1 = Order(id=uuid.uuid4(), total_amount=Decimal("5.00"))
+    order2 = Order(id=uuid.uuid4(), total_amount=Decimal("10.00"))
     user.orders.extend([order1, order2])
 
     db_session.add(user)
