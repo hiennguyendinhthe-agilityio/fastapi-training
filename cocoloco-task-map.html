@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-preset="classic">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="archify 2.17.0-dev.1">
+  <title>Cocoloco Food Ordering API — Architecture & Task Map</title>
+  <script>
+    (function () {
+      try {
+        var theme = null;
+        try {
+          var param = new URLSearchParams(window.location.search).get('theme');
+          if (param === 'light' || param === 'dark') theme = param;
+          if (new URLSearchParams(window.location.search).get('embed') === '1') {
+            document.documentElement.setAttribute('data-embed', 'true');
+          }
+          if (new URLSearchParams(window.location.search).get('present') === '1') {
+            document.documentElement.setAttribute('data-present', 'true');
+          }
+        } catch (_) {}
+        if (!theme) {
+          try { theme = localStorage.getItem('archify-theme'); } catch (_) {}
+        }
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (_) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </noscript>
+  <style>
+    :root,
+    [data-theme="dark"] {
+      --bg: #020617;
+      --grid: #1e293b;
+      --text: #ffffff;
+      --text-muted: #94a3b8;
+      --text-dim: #475569;
+      --text-faint: #7d8da1;
+
+      --panel: rgba(15, 23, 42, 0.5);
+      --panel-border: #1e293b;
+      --lane-fill: rgba(15, 23, 42, 0.22);
+      --lane-stroke: #334155;
+
+      --arrow: #64748b;
+      --arrow-emphasis: #34d399;
+      --mask: #0f172a;
+
+      --frontend-fill:    rgba(8, 51, 68, 0.4);
+      --frontend-stroke:  #22d3ee;
+      --backend-fill:     rgba(6, 78, 59, 0.4);
+      --backend-stroke:   #34d399;
+      --database-fill:    rgba(76, 29, 149, 0.4);
+      --database-stroke:  #a78bfa;
+      --cloud-fill:       rgba(120, 53, 15, 0.3);
+      --cloud-stroke:     #fbbf24;
+      --security-fill:    rgba(136, 19, 55, 0.4);
+      --security-stroke:  #fb7185;
+      --messagebus-fill:  rgba(251, 146, 60, 0.3);
+      --messagebus-stroke:#fb923c;
+      --external-fill:    rgba(30, 41, 59, 0.5);
+      --external-stroke:  #94a3b8;
+
+      --toolbar-bg:       rgba(15, 23, 42, 0.8);
+      --toolbar-border:   #334155;
+      --toolbar-text:     #e2e8f0;
+      --toolbar-hover:    rgba(15, 23, 42, 0.95);
+      --toolbar-menu-bg:  #0f172a;
+    }
+
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --grid: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --text-faint: #64748b;
+
+      --panel: #ffffff;
+      --panel-border: #e2e8f0;
+      --lane-fill: rgba(248, 250, 252, 0.65);
+      --lane-stroke: #cbd5e1;
+
+      --arrow: #94a3b8;
+      --arrow-emphasis: #059669;
+      --mask: #ffffff;
+
+      --frontend-fill:    rgba(34, 211, 238, 0.15);
+      --frontend-stroke:  #0891b2;
+      --backend-fill:     rgba(52, 211, 153, 0.18);
+      --backend-stroke:   #059669;
+      --database-fill:    rgba(167, 139, 250, 0.2);
+      --database-stroke:  #7c3aed;
+      --cloud-fill:       rgba(251, 191, 36, 0.18);
+      --cloud-stroke:     #d97706;
+      --security-fill:    rgba(251, 113, 133, 0.15);
+      --security-stroke:  #e11d48;
+      --messagebus-fill:  rgba(251, 146, 60, 0.15);
+      --messagebus-stroke:#ea580c;
+      --external-fill:    rgba(148, 163, 184, 0.18);
+      --external-stroke:  #64748b;
+
+      --toolbar-bg:       rgba(255, 255, 255, 0.92);
+      --toolbar-border:   #cbd5e1;
+      --toolbar-text:     #334155;
+      --toolbar-hover:    #ffffff;
+      --toolbar-menu-bg:  #ffffff;
+    }
+
+    [data-preset="signal-flow"][data-theme="dark"] {
+      --bg: #030711;
+      --grid: #15233a;
+      --panel: rgba(6, 14, 28, 0.78);
+      --panel-border: #1d3350;
+      --lane-fill: rgba(9, 22, 40, 0.5);
+      --lane-stroke: #2c4564;
+      --text: #f5fbff;
+      --text-muted: #9eb0c7;
+      --text-dim: #52667f;
+      --text-faint: #7890ad;
+      --mask: #07101e;
+      --frontend-fill: rgba(6, 182, 212, 0.14);
+      --frontend-stroke: #67e8f9;
+      --backend-fill: rgba(16, 185, 129, 0.14);
+      --backend-stroke: #5eead4;
+      --database-fill: rgba(139, 92, 246, 0.16);
+      --database-stroke: #c4b5fd;
+      --cloud-fill: rgba(245, 158, 11, 0.13);
+      --cloud-stroke: #fcd34d;
+      --security-fill: rgba(244, 63, 94, 0.13);
+      --security-stroke: #fda4af;
+      --messagebus-fill: rgba(249, 115, 22, 0.13);
+      --messagebus-stroke: #fdba74;
+      --external-fill: rgba(71, 85, 105, 0.24);
+      --external-stroke: #a5b4c7;
+      --arrow: #7890ad;
+      --arrow-emphasis: #2dd4bf;
+      --toolbar-bg: rgba(7, 16, 30, 0.86);
+      --toolbar-border: #29415f;
+      --toolbar-menu-bg: #07101e;
+    }
+
+    [data-preset="blueprint"][data-theme="dark"] {
+      --bg: #06131f;
+      --grid: #17425a;
+      --panel: rgba(7, 27, 43, 0.9);
+      --panel-border: #27627f;
+      --lane-fill: rgba(10, 43, 66, 0.36);
+      --lane-stroke: #34799a;
+      --text: #e3f6ff;
+      --text-muted: #91b8ca;
+      --text-dim: #557e92;
+      --text-faint: #739caf;
+      --mask: #0a2031;
+      --frontend-fill: rgba(26, 157, 193, 0.14);
+      --frontend-stroke: #66d9ef;
+      --backend-fill: rgba(31, 155, 124, 0.13);
+      --backend-stroke: #69dfbd;
+      --database-fill: rgba(120, 105, 196, 0.14);
+      --database-stroke: #b4a8ff;
+      --cloud-fill: rgba(197, 145, 43, 0.13);
+      --cloud-stroke: #ffd166;
+      --security-fill: rgba(199, 76, 104, 0.13);
+      --security-stroke: #ff8da1;
+      --messagebus-fill: rgba(207, 112, 49, 0.13);
+      --messagebus-stroke: #ffad66;
+      --external-fill: rgba(84, 119, 139, 0.18);
+      --external-stroke: #a7cad9;
+      --arrow: #78a3b7;
+      --arrow-emphasis: #64dfc1;
+      --toolbar-bg: rgba(7, 28, 45, 0.92);
+      --toolbar-border: #34799a;
+      --toolbar-text: #d8f3ff;
+      --toolbar-hover: rgba(18, 58, 83, 0.95);
+      --toolbar-menu-bg: #0a2031;
+    }
+
+    [data-preset="editorial"][data-theme="dark"] {
+      --bg: #181611;
+      --grid: #39342a;
+      --panel: rgba(35, 31, 24, 0.96);
+      --panel-border: #625a4a;
+      --lane-fill: rgba(52, 46, 35, 0.46);
+      --lane-stroke: #726957;
+      --text: #f4eddf;
+      --text-muted: #b9ae9b;
+      --text-dim: #776e60;
+      --text-faint: #9d917e;
+      --mask: #231f18;
+      --frontend-fill: rgba(43, 133, 142, 0.16);
+      --frontend-stroke: #7fc6c7;
+      --backend-fill: rgba(63, 132, 92, 0.16);
+      --backend-stroke: #8fc29e;
+      --database-fill: rgba(117, 91, 141, 0.17);
+      --database-stroke: #c0a4d0;
+      --cloud-fill: rgba(170, 119, 49, 0.16);
+      --cloud-stroke: #d8ad68;
+      --security-fill: rgba(157, 69, 65, 0.17);
+      --security-stroke: #df9085;
+      --messagebus-fill: rgba(174, 79, 42, 0.16);
+      --messagebus-stroke: #df946f;
+      --external-fill: rgba(126, 115, 96, 0.18);
+      --external-stroke: #b8ad99;
+      --arrow: #948978;
+      --arrow-emphasis: #dd6b3d;
+      --toolbar-bg: rgba(35, 31, 24, 0.92);
+      --toolbar-border: #625a4a;
+      --toolbar-text: #eee5d5;
+      --toolbar-hover: #302a20;
+      --toolbar-menu-bg: #231f18;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: var(--bg);
+      min-height: 100vh;
+      padding: 2rem;
+      color: var(--text);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .container {
+      width: 100%;
+      max-width: var(--archify-reader-width, 1440px);
+      margin: 0 auto;
+    }
+
+    .header { margin-bottom: 1.5rem; padding-right: 29.5rem; }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--backend-stroke);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--backend-stroke);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.85); }
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-left: 1.75rem;
+    }
+
+    .diagram-container {
+      --archify-nav-reserve: 0px;
+      background: var(--panel);
+      border-radius: 1rem;
+      border: 1px solid var(--panel-border);
+      padding: 1.5rem;
+      padding-bottom: calc(1.5rem + var(--archify-nav-reserve));
+      overflow: hidden;
+      position: relative;
+    }
+
+    svg {
+      width: 100%;
+      min-width: min(900px, 100%);
+      display: block;
+      transform-origin: 0 0;
+      transition: transform 0.18s ease;
+    }
+
+    .c-grid       { stroke: var(--grid); fill: none; }
+    .c-mask       { fill: var(--mask); stroke: none; }
+    .c-lane       { fill: var(--lane-fill); stroke: var(--lane-stroke); stroke-dasharray: 6 6; }
+    .c-security-group { fill: transparent; stroke: var(--security-stroke); stroke-dasharray: 4 4; }
+
+    .c-frontend   { fill: var(--frontend-fill);   stroke: var(--frontend-stroke); }
+    .c-backend    { fill: var(--backend-fill);    stroke: var(--backend-stroke); }
+    .c-database   { fill: var(--database-fill);   stroke: var(--database-stroke); }
+    .c-cloud      { fill: var(--cloud-fill);      stroke: var(--cloud-stroke); }
+    .c-security   { fill: var(--security-fill);   stroke: var(--security-stroke); }
+    .c-messagebus { fill: var(--messagebus-fill); stroke: var(--messagebus-stroke); }
+    .c-external   { fill: var(--external-fill);   stroke: var(--external-stroke); }
+
+    .t-primary { fill: var(--text); }
+    .t-muted   { fill: var(--text-muted); }
+    .t-dim     { fill: var(--text-dim); }
+    .t-frontend   { fill: var(--frontend-stroke); }
+    .t-backend    { fill: var(--backend-stroke); }
+    .t-database   { fill: var(--database-stroke); }
+    .t-cloud      { fill: var(--cloud-stroke); }
+    .t-security   { fill: var(--security-stroke); }
+    .t-messagebus { fill: var(--messagebus-stroke); }
+
+    .a-default   { stroke: var(--arrow); fill: none; }
+    .a-emphasis  { stroke: var(--arrow-emphasis); fill: none; }
+    .a-security  { stroke: var(--security-stroke); fill: none; stroke-dasharray: 5 5; }
+    .a-dashed    { stroke: var(--database-stroke); fill: none; stroke-dasharray: 4 4; }
+
+    .m-default   { fill: var(--arrow); }
+    .m-emphasis  { fill: var(--arrow-emphasis); }
+    .m-security  { fill: var(--security-stroke); }
+    .m-dashed    { fill: var(--database-stroke); }
+
+    svg [data-node-id] {
+      cursor: pointer;
+      transition: opacity 0.18s ease, filter 0.18s ease;
+    }
+    svg [data-edge-from] { transition: opacity 0.18s ease, filter 0.18s ease; }
+    svg [data-node-id]:hover,
+    svg [data-node-id]:focus-visible {
+      filter: drop-shadow(0 0 8px var(--frontend-stroke));
+      outline: none;
+    }
+
+    svg[data-focus-active] [data-node-id],
+    svg[data-focus-active] [data-edge-from] { opacity: 0.15; }
+    svg[data-focus-active] [data-focus-match] { opacity: 1; }
+    svg[data-focus-active] [data-focus-selected] {
+      filter: drop-shadow(0 0 12px var(--frontend-stroke));
+    }
+
+    .toolbar {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 100;
+    }
+    .toolbar button {
+      background: var(--toolbar-bg);
+      color: var(--toolbar-text);
+      border: 1px solid var(--toolbar-border);
+      padding: 0.5rem 0.875rem;
+      border-radius: 0.625rem;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      min-height: 2.5rem;
+    }
+    .toolbar button:hover {
+      background: var(--toolbar-hover);
+      border-color: var(--frontend-stroke);
+    }
+
+    .guided-views {
+      display: grid;
+      grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem auto;
+      align-items: stretch;
+      gap: 0.35rem;
+      margin-bottom: 0.75rem;
+      padding: 0.35rem;
+      border: 1px solid var(--toolbar-border);
+      border-radius: 0.85rem;
+      background: var(--toolbar-bg);
+      backdrop-filter: blur(12px);
+    }
+    .guided-views button {
+      border: 0;
+      background: transparent;
+      color: var(--toolbar-text);
+      font: inherit;
+      cursor: pointer;
+      padding: 0.45rem 0.6rem;
+      border-radius: 0.55rem;
+      font-size: 0.75rem;
+    }
+    .guided-views button:hover { background: var(--toolbar-hover); }
+    .guided-view-copy {
+      padding: 0.2rem 0.5rem;
+      border-left: 1px solid var(--toolbar-border);
+      min-width: 0;
+    }
+    .guided-view-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--frontend-stroke);
+      font-size: 0.5625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    .guided-view-copy strong { display: block; color: var(--toolbar-text); font-size: 0.75rem; }
+    .guided-view-copy small { color: var(--text-muted); font-size: 0.625rem; }
+
+    .focus-chip {
+      position: absolute;
+      left: 1rem;
+      top: 1rem;
+      z-index: 12;
+      width: min(22rem, calc(100% - 13rem));
+      border: 1px solid var(--frontend-stroke);
+      border-radius: 0.85rem;
+      background: var(--toolbar-menu-bg);
+      color: var(--toolbar-text);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(16px);
+      padding: 0.85rem;
+    }
+    .focus-chip[hidden] { display: none; }
+    .focus-chip button {
+      border: 0;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      float: right;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .card {
+      background: var(--panel);
+      border-radius: 0.75rem;
+      border: 1px solid var(--panel-border);
+      padding: 1.25rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .card-dot.emerald  { background: var(--backend-stroke); }
+    .card-dot.amber    { background: var(--cloud-stroke); }
+    .card-dot.violet   { background: var(--database-stroke); }
+    .card-dot.cyan     { background: var(--frontend-stroke); }
+    .card h3 { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+    .card ul { list-style: none; color: var(--text-muted); font-size: 0.75rem; }
+    .card li { margin-bottom: 0.375rem; }
+  </style>
+</head>
+<body>
+  <!-- Toolbar -->
+  <div class="toolbar" role="toolbar" aria-label="Diagram actions">
+    <button id="btn-theme" type="button" aria-label="Toggle theme">
+      <span id="theme-label">🌙 Theme</span>
+    </button>
+    <button id="btn-present" type="button" aria-label="Presentation stage">
+      <span>🖥️ Present</span>
+    </button>
+    <button id="btn-export" type="button" aria-label="Export diagram">
+      <span>📥 Export SVG</span>
+    </button>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-row">
+        <div class="pulse-dot"></div>
+        <h1>Cocoloco Food Ordering API — Architecture & Living Task Map</h1>
+      </div>
+      <div class="subtitle">
+        High-Performance Async Backend (FastAPI, SQLAlchemy 2.0 Async, PostgreSQL 16, Clerk RS256 JWKS) &bull; 14-Day Sprint Tracker
+      </div>
+    </div>
+
+    <!-- Guided Views Bar -->
+    <div class="guided-views" id="guided-views">
+      <button id="guided-view-prev" type="button" title="Previous chapter">&#8592;</button>
+      <div class="guided-view-copy">
+        <div class="guided-view-meta">
+          <span>Sprint Story</span>
+          <span id="guided-view-count">1 / 4</span>
+        </div>
+        <strong id="guided-view-label">Shipped Foundation & Domain Core</strong>
+        <small id="guided-view-note">Phase 1 & 2 Models are 100% complete with 26/26 tests passing and 100% coverage.</small>
+      </div>
+      <button id="guided-view-next" type="button" title="Next chapter">&#8594;</button>
+      <div style="display: flex; gap: 0.3rem;">
+        <button id="guided-view-play" style="color: var(--frontend-stroke); font-weight: 700;">▶ Play Story</button>
+        <button id="guided-view-all">Show all</button>
+      </div>
+    </div>
+
+    <!-- Main Diagram Container -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 1260 560" role="img" aria-labelledby="diagram-title">
+        <title id="diagram-title">Cocoloco Architecture Map</title>
+        <defs>
+          <marker id="arrowhead" markerWidth="9" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 9 3, 0 6" class="m-default" />
+          </marker>
+          <marker id="arrowhead-emphasis" markerWidth="9" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 9 3, 0 6" class="m-emphasis" />
+          </marker>
+          <marker id="arrowhead-security" markerWidth="9" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 9 3, 0 6" class="m-security" />
+          </marker>
+          <marker id="arrowhead-dashed" markerWidth="9" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 9 3, 0 6" class="m-dashed" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" class="c-grid" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Grid Background -->
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- 4 Architectural Swimlanes -->
+        <rect x="40" y="50" width="1180" height="100" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="54" y="70" class="t-dim" font-size="10" font-weight="700">01 / Presentation & API (FastAPI Routers)</text>
+
+        <rect x="40" y="170" width="1180" height="100" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="54" y="190" class="t-dim" font-size="10" font-weight="700">02 / Business Logic & Security (Services & Clerk RBAC)</text>
+
+        <rect x="40" y="290" width="1180" height="100" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="54" y="310" class="t-dim" font-size="10" font-weight="700">03 / Domain & Persistence (SQLAlchemy 2.0 Async Models & Repos)</text>
+
+        <rect x="40" y="410" width="1180" height="100" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="54" y="430" class="t-dim" font-size="10" font-weight="700">04 / Database Engine & Migrations (PostgreSQL 16 & Alembic)</text>
+
+        <!-- Edges / Data Flows -->
+        <!-- App Entry -> DB Engine -->
+        <path data-edge-from="app-entry" data-edge-to="db-engine" d="M 115 134 L 115 430" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <!-- DB Engine -> Alembic -->
+        <path data-edge-from="db-engine" data-edge-to="alembic-mig" d="M 180 460 L 330 460" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <!-- Alembic -> PostgreSQL -->
+        <path data-edge-from="alembic-mig" data-edge-to="pg-docker" d="M 460 460 L 950 460" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <!-- Seed Data -> Product Model -->
+        <path data-edge-from="seed-data" data-edge-to="product-model" d="M 645 430 L 645 374" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <!-- User Model -> Order Models -->
+        <path data-edge-from="user-model" data-edge-to="order-models" d="M 180 340 L 410 340" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <!-- Product Model -> Order Models -->
+        <path data-edge-from="product-model" data-edge-to="order-models" d="M 330 340 L 410 340" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <!-- Clerk Auth -> Auth Dep -->
+        <path data-edge-from="clerk-auth" data-edge-to="auth-dep" d="M 500 220 L 670 220" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+        <!-- Auth Dep -> User Model -->
+        <path data-edge-from="auth-dep" data-edge-to="user-model" d="M 735 254 L 735 280 L 115 280 L 115 310" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+        <!-- Order Models -> Order Repo -->
+        <path data-edge-from="order-models" data-edge-to="order-repo" d="M 540 340 L 950 340" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Order Service -> Order Repo -->
+        <path data-edge-from="order-service" data-edge-to="order-repo" d="M 1015 254 L 1015 310" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <!-- API Customer -> Order Service -->
+        <path data-edge-from="api-customer" data-edge-to="order-service" d="M 745 134 L 745 160 L 1015 160 L 1015 190" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- API Customer -> Auth Dep -->
+        <path data-edge-from="api-customer" data-edge-to="auth-dep" d="M 735 134 L 735 190" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+        <!-- API Admin -> Auth Dep -->
+        <path data-edge-from="api-admin" data-edge-to="auth-dep" d="M 1015 134 L 1015 150 L 755 150 L 755 190" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+
+        <!-- Nodes: Lane 0 (API) -->
+        <g id="node-app-entry" data-node-id="app-entry" data-node-label="FastAPI Entrypoint" data-node-kind="frontend" tabindex="0" role="button">
+          <rect x="50" y="70" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="50" y="70" width="130" height="64" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <text x="115" y="93" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">app/main:app</text>
+          <text x="115" y="108" class="t-muted" font-size="8" text-anchor="middle">Lifespan & CORS</text>
+          <text x="115" y="123" class="t-frontend" font-size="7" font-weight="700" text-anchor="middle">✅ SHIPPED · Day 02</text>
+        </g>
+
+        <g id="node-api-customer" data-node-id="api-customer" data-node-label="Customer API" data-node-kind="frontend" tabindex="0" role="button">
+          <rect x="680" y="70" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="680" y="70" width="130" height="64" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <text x="745" y="93" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">Customer Routes</text>
+          <text x="745" y="108" class="t-muted" font-size="8" text-anchor="middle">Catalog & Orders</text>
+          <text x="745" y="123" class="t-muted" font-size="7" text-anchor="middle">Phase 5 · Day 09</text>
+        </g>
+
+        <g id="node-api-admin" data-node-id="api-admin" data-node-label="Admin API" data-node-kind="frontend" tabindex="0" role="button">
+          <rect x="950" y="70" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="950" y="70" width="130" height="64" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <text x="1015" y="93" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">Admin Routes</text>
+          <text x="1015" y="108" class="t-muted" font-size="8" text-anchor="middle">Product CRUD & Stats</text>
+          <text x="1015" y="123" class="t-muted" font-size="7" text-anchor="middle">Phase 5 · Day 10</text>
+        </g>
+
+        <!-- Nodes: Lane 1 (Business Logic & Security) -->
+        <g id="node-clerk-auth" data-node-id="clerk-auth" data-node-label="Clerk RS256 JWKS" data-node-kind="security" tabindex="0" role="button">
+          <rect x="370" y="190" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="370" y="190" width="130" height="64" rx="6" class="c-security" stroke-width="1.5"/>
+          <text x="435" y="213" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">Clerk RS256 JWKS</text>
+          <text x="435" y="228" class="t-muted" font-size="8" text-anchor="middle">Token Verification</text>
+          <text x="435" y="243" class="t-cloud" font-size="7" font-weight="700" text-anchor="middle">🔜 NEXT · Day 05</text>
+        </g>
+
+        <g id="node-auth-dep" data-node-id="auth-dep" data-node-label="Active RBAC Guard" data-node-kind="security" tabindex="0" role="button">
+          <rect x="670" y="190" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="670" y="190" width="130" height="64" rx="6" class="c-security" stroke-width="1.5"/>
+          <text x="735" y="213" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">RBAC Guard</text>
+          <text x="735" y="228" class="t-muted" font-size="8" text-anchor="middle">ADMIN / USER & Active</text>
+          <text x="735" y="243" class="t-security" font-size="7" text-anchor="middle">Phase 3 · Day 07</text>
+        </g>
+
+        <g id="node-order-service" data-node-id="order-service" data-node-label="Order Service" data-node-kind="backend" tabindex="0" role="button">
+          <rect x="950" y="190" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="950" y="190" width="130" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+          <text x="1015" y="213" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">Order Service</text>
+          <text x="1015" y="228" class="t-muted" font-size="8" text-anchor="middle">Checkout Logic</text>
+          <text x="1015" y="243" class="t-backend" font-size="7" text-anchor="middle">Phase 4 · Day 08</text>
+        </g>
+
+        <!-- Nodes: Lane 2 (Domain & Persistence) -->
+        <g id="node-user-model" data-node-id="user-model" data-node-label="User Model" data-node-kind="database" tabindex="0" role="button">
+          <rect x="50" y="310" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="50" y="310" width="130" height="64" rx="6" class="c-database" stroke-width="1.5"/>
+          <text x="115" y="333" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">User Model</text>
+          <text x="115" y="348" class="t-muted" font-size="8" text-anchor="middle">Clerk ID & RBAC Enum</text>
+          <text x="115" y="363" class="t-backend" font-size="7" font-weight="700" text-anchor="middle">✅ SHIPPED · Day 03</text>
+        </g>
+
+        <g id="node-product-model" data-node-id="product-model" data-node-label="Product Model" data-node-kind="database" tabindex="0" role="button">
+          <rect x="200" y="310" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="200" y="310" width="130" height="64" rx="6" class="c-database" stroke-width="1.5"/>
+          <text x="265" y="333" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">Product Model</text>
+          <text x="265" y="348" class="t-muted" font-size="8" text-anchor="middle">Decimal Price & Category</text>
+          <text x="265" y="363" class="t-backend" font-size="7" font-weight="700" text-anchor="middle">✅ SHIPPED · Day 03</text>
+        </g>
+
+        <g id="node-order-models" data-node-id="order-models" data-node-label="Order & OrderItem" data-node-kind="database" tabindex="0" role="button">
+          <rect x="410" y="310" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="410" y="310" width="130" height="64" rx="6" class="c-database" stroke-width="1.5"/>
+          <text x="475" y="333" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">Order & OrderItem</text>
+          <text x="475" y="348" class="t-muted" font-size="8" text-anchor="middle">Price Freeze Snapshot</text>
+          <text x="475" y="363" class="t-backend" font-size="7" font-weight="700" text-anchor="middle">✅ SHIPPED · Day 04</text>
+        </g>
+
+        <g id="node-order-repo" data-node-id="order-repo" data-node-label="Order Repository" data-node-kind="backend" tabindex="0" role="button">
+          <rect x="950" y="310" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="950" y="310" width="130" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+          <text x="1015" y="333" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">Order Repository</text>
+          <text x="1015" y="348" class="t-muted" font-size="8" text-anchor="middle">Atomic Transaction</text>
+          <text x="1015" y="363" class="t-backend" font-size="7" text-anchor="middle">Phase 4 · Day 08</text>
+        </g>
+
+        <!-- Nodes: Lane 3 (Database Engine & Migrations) -->
+        <g id="node-db-engine" data-node-id="db-engine" data-node-label="Async Database Engine" data-node-kind="cloud" tabindex="0" role="button">
+          <rect x="50" y="430" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="50" y="430" width="130" height="64" rx="6" class="c-cloud" stroke-width="1.5"/>
+          <text x="115" y="453" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">Asyncpg Pool</text>
+          <text x="115" y="468" class="t-muted" font-size="8" text-anchor="middle">QueuePool (10+20)</text>
+          <text x="115" y="483" class="t-backend" font-size="7" font-weight="700" text-anchor="middle">✅ SHIPPED · Day 02</text>
+        </g>
+
+        <g id="node-alembic-mig" data-node-id="alembic-mig" data-node-label="Alembic Migrations" data-node-kind="cloud" tabindex="0" role="button">
+          <rect x="330" y="430" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="330" y="430" width="130" height="64" rx="6" class="c-cloud" stroke-width="1.5"/>
+          <text x="395" y="453" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">Alembic Setup</text>
+          <text x="395" y="468" class="t-muted" font-size="8" text-anchor="middle">Async Autogenerate</text>
+          <text x="395" y="483" class="t-backend" font-size="7" font-weight="700" text-anchor="middle">✅ SHIPPED · Day 04</text>
+        </g>
+
+        <g id="node-seed-data" data-node-id="seed-data" data-node-label="Seed Data Script" data-node-kind="messagebus" tabindex="0" role="button">
+          <rect x="580" y="430" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="580" y="430" width="130" height="64" rx="6" class="c-messagebus" stroke-width="1.5"/>
+          <text x="645" y="453" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">Seed Data Script</text>
+          <text x="645" y="468" class="t-muted" font-size="8" text-anchor="middle">6 Menu Products</text>
+          <text x="645" y="483" class="t-backend" font-size="7" font-weight="700" text-anchor="middle">✅ SHIPPED · Day 04</text>
+        </g>
+
+        <g id="node-pg-docker" data-node-id="pg-docker" data-node-label="PostgreSQL 16" data-node-kind="cloud" tabindex="0" role="button">
+          <rect x="950" y="430" width="130" height="64" rx="6" class="c-mask"/>
+          <rect x="950" y="430" width="130" height="64" rx="6" class="c-cloud" stroke-width="1.5"/>
+          <text x="1015" y="453" class="t-primary" font-size="11" font-weight="700" text-anchor="middle">PostgreSQL 16</text>
+          <text x="1015" y="468" class="t-muted" font-size="8" text-anchor="middle">Docker Container :5433</text>
+          <text x="1015" y="483" class="t-backend" font-size="7" font-weight="700" text-anchor="middle">✅ HEALTHY · Day 01</text>
+        </g>
+      </svg>
+
+      <!-- Floating Inspector / Focus Chip -->
+      <div class="focus-chip" id="focus-chip" hidden>
+        <button id="btn-focus-clear" type="button" aria-label="Close inspector">&times;</button>
+        <div style="font-size: 0.55rem; font-weight: 800; color: var(--frontend-stroke); text-transform: uppercase;">Entity Inspector</div>
+        <div id="focus-title" style="font-size: 0.95rem; font-weight: 700; margin-top: 0.2rem;">Node Details</div>
+        <div id="focus-sub" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">Sublabel</div>
+        <div id="focus-desc" style="font-size: 0.68rem; margin-top: 0.5rem; line-height: 1.4; color: var(--text-faint);">
+          Interactive Node Details will appear here.
+        </div>
+      </div>
+    </div>
+
+    <!-- Sprint Summary Cards -->
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Phase 1 & 2 Built (Shipped)</h3>
+        </div>
+        <ul>
+          <li>&bull; <strong>Phase 1 Infrastructure</strong>: uv virtualenv, asyncpg, Docker PG16, CORS & Lifespan.</li>
+          <li>&bull; <strong>Phase 2 Complete</strong>: 4 Domain Models, Alembic Migrations applied, 6 Seeded Products.</li>
+          <li>&bull; <strong>Quality Gate</strong>: 28/28 tests passing, 100% test coverage, 0 Ruff & Pyright errors.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Next Up (Day 05 / 14)</h3>
+        </div>
+        <ul>
+          <li>&bull; <strong>Task 3.1 Pydantic Settings</strong>: Centralized BaseSettings with lru_cache singleton.</li>
+          <li>&bull; <strong>Task 3.2 Clerk RS256 JWKS</strong>: Asynchronous token decoding with 5s clock skew leeway.</li>
+          <li>&bull; <strong>Task 3.3 Global Error Handlers</strong>: RFC 7807 compliant error format (401, 403, 404, 422).</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Architecture Highlights</h3>
+        </div>
+        <ul>
+          <li>&bull; <strong>End-to-End Async</strong>: 100% async def across routes, services & asyncpg driver.</li>
+          <li>&bull; <strong>Eager Loading Mandate</strong>: selectinload for 1-N collections, zero MissingGreenlet.</li>
+          <li>&bull; <strong>Clean Architecture</strong>: Domain Models isolated from DTOs and database sessions.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Sprint Timeline (14 Days)</h3>
+        </div>
+        <ul>
+          <li>&bull; <strong>Schedule</strong>: Wed Sep 23 &rarr; Mon Oct 12, 2026 (Mon-Fri only).</li>
+          <li>&bull; <strong>Current Progress</strong>: Day 04 / 14 (Mon Sep 28) &bull; Phase 2 Database Models Complete.</li>
+          <li>&bull; <strong>Living Document</strong>: File updates incrementally after each ticket completion.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme Switcher
+    const btnTheme = document.getElementById('btn-theme');
+    const themeLabel = document.getElementById('theme-label');
+    btnTheme.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('archify-theme', next);
+      themeLabel.textContent = next === 'dark' ? '🌙 Theme' : '☀️ Theme';
+    });
+
+    // Presentation Toggle (F)
+    const btnPresent = document.getElementById('btn-present');
+    btnPresent.addEventListener('click', () => {
+      const isPresent = document.documentElement.getAttribute('data-present') === 'true';
+      if (isPresent) {
+        document.documentElement.removeAttribute('data-present');
+      } else {
+        document.documentElement.setAttribute('data-present', 'true');
+      }
+    });
+
+    // Node Focus & Inspector
+    const svg = document.querySelector('svg');
+    const focusChip = document.getElementById('focus-chip');
+    const focusTitle = document.getElementById('focus-title');
+    const focusSub = document.getElementById('focus-sub');
+    const focusDesc = document.getElementById('focus-desc');
+    const btnClearFocus = document.getElementById('btn-focus-clear');
+
+    const nodeDescriptions = {
+      'app-entry': 'FastAPI application entrypoint with lifespan events, async connection pool health checks, and permissive CORS configuration.',
+      'db-engine': 'SQLAlchemy 2.0 AsyncEngine backed by asyncpg with QueuePool (pool_size=10, max_overflow=20, pool_pre_ping=True) and scoped get_db dependency.',
+      'user-model': 'User entity with Clerk ID UK, email UK, UserRole enum (ADMIN, USER), is_active soft-disable flag, and 1-N relationship to Order.',
+      'product-model': 'Product catalog entity with Decimal(10,2) precision, CategoryType enum (coffee, pastry, bundle, seasonal), and stock availability flags.',
+      'order-models': 'Order and OrderItem entities. OrderItem freezes unit_price at creation time to prevent price drift and computes subtotal on the fly.',
+      'alembic-mig': 'Database version control with Alembic. Configured to use async_engine with Base.metadata to autogenerate migration versions.',
+      'seed-data': 'Idempotent Python script to seed initial Cocoloco menu items (Cappuccino, Croissant, Breakfast Bundle, etc.) into PostgreSQL.',
+      'pg-docker': 'PostgreSQL 16 running inside Docker container cocoloco_db on port 5433 with healthy container status.'
+    };
+
+    svg.querySelectorAll('[data-node-id]').forEach(node => {
+      node.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = node.getAttribute('data-node-id');
+        const label = node.getAttribute('data-node-label');
+        const sub = node.querySelector('.t-muted')?.textContent || '';
+        
+        svg.querySelectorAll('[data-node-id]').forEach(n => n.removeAttribute('data-focus-selected'));
+        svg.setAttribute('data-focus-active', id);
+        node.setAttribute('data-focus-selected', 'true');
+
+        focusTitle.textContent = label;
+        focusSub.textContent = sub;
+        focusDesc.textContent = nodeDescriptions[id] || 'Architecture entity representing clean architecture component.';
+        focusChip.hidden = false;
+      });
+    });
+
+    btnClearFocus.addEventListener('click', () => {
+      svg.removeAttribute('data-focus-active');
+      svg.querySelectorAll('[data-node-id]').forEach(n => n.removeAttribute('data-focus-selected'));
+      focusChip.hidden = true;
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!focusChip.contains(e.target) && !e.target.closest('[data-node-id]')) {
+        svg.removeAttribute('data-focus-active');
+        svg.querySelectorAll('[data-node-id]').forEach(n => n.removeAttribute('data-focus-selected'));
+        focusChip.hidden = true;
+      }
+    });
+
+    // Guided Views Chapters
+    const chapters = [
+      {
+        title: "Shipped Foundation & Domain Core",
+        note: "Phase 1 & Phase 2 Models are 100% complete with 26/26 tests passing and 100% coverage.",
+        nodes: ["app-entry", "db-engine", "user-model", "product-model", "order-models"]
+      },
+      {
+        title: "Order Placement Data Pipeline",
+        note: "Customer checkout freezes product unit_price into OrderItem, validates User active state, and commits atomically.",
+        nodes: ["api-customer", "order-service", "order-repo", "order-models", "product-model", "user-model"]
+      },
+      {
+        title: "Phase 2 Target: Database & Alembic Migrations",
+        note: "Current Sprint Focus (Days 01-05): Models are built, Next is Alembic migration generation and menu seed data.",
+        nodes: ["db-engine", "user-model", "product-model", "order-models", "alembic-mig", "seed-data", "pg-docker"]
+      },
+      {
+        title: "Clerk Authentication & RBAC Guard",
+        note: "Stateless RS256 JWKS verification with 5s leeway, soft-delete check, and 2-tier RBAC enforcement.",
+        nodes: ["clerk-auth", "auth-dep", "user-model", "api-customer", "api-admin"]
+      }
+    ];
+
+    let currentChapter = 0;
+    const viewLabel = document.getElementById('guided-view-label');
+    const viewNote = document.getElementById('guided-view-note');
+    const viewCount = document.getElementById('guided-view-count');
+
+    function renderChapter(index) {
+      currentChapter = index;
+      const ch = chapters[index];
+      viewLabel.textContent = ch.title;
+      viewNote.textContent = ch.note;
+      viewCount.textContent = `${index + 1} / ${chapters.length}`;
+
+      svg.setAttribute('data-focus-active', 'chapter');
+      svg.querySelectorAll('[data-node-id]').forEach(n => {
+        const id = n.getAttribute('data-node-id');
+        if (ch.nodes.includes(id)) {
+          n.setAttribute('data-focus-match', 'true');
+        } else {
+          n.removeAttribute('data-focus-match');
+        }
+      });
+    }
+
+    document.getElementById('guided-view-next').addEventListener('click', () => {
+      renderChapter((currentChapter + 1) % chapters.length);
+    });
+    document.getElementById('guided-view-prev').addEventListener('click', () => {
+      renderChapter((currentChapter - 1 + chapters.length) % chapters.length);
+    });
+    document.getElementById('guided-view-all').addEventListener('click', () => {
+      svg.removeAttribute('data-focus-active');
+      svg.querySelectorAll('[data-node-id]').forEach(n => n.removeAttribute('data-focus-match'));
+      viewLabel.textContent = "Complete Architecture Overview";
+      viewNote.textContent = "Showing all system layers, dependencies, and upcoming sprint phases.";
+      viewCount.textContent = "All";
+    });
+
+    let isPlaying = false;
+    let playInterval = null;
+    const btnPlay = document.getElementById('guided-view-play');
+    btnPlay.addEventListener('click', () => {
+      if (isPlaying) {
+        clearInterval(playInterval);
+        isPlaying = false;
+        btnPlay.textContent = "▶ Play Story";
+      } else {
+        isPlaying = true;
+        btnPlay.textContent = "⏸ Pause";
+        playInterval = setInterval(() => {
+          renderChapter((currentChapter + 1) % chapters.length);
+        }, 3500);
+      }
+    });
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 't' || e.key === 'T') btnTheme.click();
+      if (e.key === 'f' || e.key === 'F') btnPresent.click();
+      if (e.key === ']') document.getElementById('guided-view-next').click();
+      if (e.key === '[') document.getElementById('guided-view-prev').click();
+      if (e.key === 'p' || e.key === 'P') btnPlay.click();
+    });
+  </script>
+</body>
+</html>
