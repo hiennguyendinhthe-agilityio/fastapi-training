@@ -11,8 +11,8 @@ This file serves as the root index for all agent customizations and governance i
 4. **End-to-End Async Purity**: Ensure all I/O paths use non-blocking `async/await` and the `asyncpg` driver. Zero synchronous blocking calls in route handlers.
 5. **Modern Python Tooling**: Utilize **`uv`** for lightning-fast package management, virtual environments, and command execution.
 6. **Quality Gate**: Maintain 100% passing tests on Pytest with code coverage ≥ 85%.
-7. **Task Tracking**: After completing any task or sub-task, **always** update [`Cocoloco FastAPI.md`](file:///Volumes/MacData/fastapi-training/Cocoloco%20FastAPI.md) to reflect the current progress — mark checkboxes `[x]`, update the section header with `✅ Done — <date>`, and change the next task label to `🔜 Next`.
-8. **Learning Document**: After completing any task, **always** create a detailed Vietnamese teaching document in [`learn-api-python/`](file:///Volumes/MacData/fastapi-training/learn-api-python/) named after the task (e.g. `Docker PostgreSQL.md`). Explain *what* was built, *why* each decision was made, and *how* it fits into the overall architecture.
+7. **Task Tracking**: After completing any task or sub-task, **always** update [`Cocoloco FastAPI.md`](file:///Volumes/MacData/fastapi-training/Cocoloco%20FastAPI.md) to reflect the current progress — mark checkboxes `[x]`, update the section header with `✅ Done — <date>`, and change the next task label to `🔜 Next`. (Note: This file is strictly **local-only** and must NEVER be committed to Git).
+8. **Learning Document**: After completing any task, **always** create a detailed Vietnamese teaching document in [`learn-api-python/`](file:///Volumes/MacData/fastapi-training/learn-api-python/) named after the task (e.g. `Docker PostgreSQL.md`). Explain *what* was built, *why* each decision was made, and *how* it fits into the overall architecture. (Note: `learn-api-python/` is strictly **local-only** and must NEVER be committed to Git).
 
 ## Workspace Customizations Architecture
 Strict operational constraints are modularized in `.agents/rules/`. **You MUST adhere to them:**
@@ -36,7 +36,7 @@ The file [`Cocoloco FastAPI.md`](file:///Volumes/MacData/fastapi-training/Cocolo
 1. **Mark sub-tasks done**: Change `- [ ]` to `- [x]` for every completed checklist item.
 2. **Update section header**: Append `✅ Done — <Month DD, YYYY>` to the completed section heading.
 3. **Mark next task**: Append `🔜 Next` to the heading of the immediately following task.
-4. **Timing**: Do this update **before** the final git commit of the task — so the progress state is always committed alongside the work.
+4. **Local Only Policy**: Update this file locally to track your work. Never stage (`git add`) or commit `Cocoloco FastAPI.md` or `learn-api-python/` to Git. Only `README.md` and `.agents/` markdown files are permitted in version control.
 5. **Never skip**: Even for partial completions, mark only the finished sub-tasks and leave unfinished ones as `- [ ]`.
 
 ## 📚 Learning Document Protocol

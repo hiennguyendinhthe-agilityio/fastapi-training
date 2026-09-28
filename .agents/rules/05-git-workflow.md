@@ -109,3 +109,14 @@ git push github main
 | `feat/<feature-name>` | New feature development |
 | `fix/<bug-name>` | Bug fixes |
 | `chore/<task>` | Config, tooling, dependencies |
+
+---
+
+## 6. Strict Markdown Local-Only Policy
+
+- **NO Markdown Files Committed Except README & Agent Configs**:
+  - The repository strictly ignores all `.md` files (`*.md`) via `.gitignore`.
+  - The ONLY permitted markdown files in version control are [`README.md`](file:///Volumes/MacData/fastapi-training/README.md) and files under [`.agents/`](file:///Volumes/MacData/fastapi-training/.agents/).
+  - All tracking roadmaps ([`Cocoloco FastAPI.md`](file:///Volumes/MacData/fastapi-training/Cocoloco%20FastAPI.md)) and all teaching documents in [`learn-api-python/`](file:///Volumes/MacData/fastapi-training/learn-api-python/) are strictly **local learning artifacts**.
+  - **NEVER** edit `.gitignore` to whitelist or track `learn-api-python/` or `Cocoloco FastAPI.md`.
+  - **NEVER** stage (`git add`) or commit any markdown file other than `README.md` or `.agents/`.

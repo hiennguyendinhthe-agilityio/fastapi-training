@@ -54,9 +54,6 @@ coverage.xml
 # ===========================
 *.md
 !README.md
-!Cocoloco FastAPI.md
-!learn-api-python/**/*.md
-!learn-api-python/*.md
 !.agents/**/*.md
 !.agents/*.md
 
