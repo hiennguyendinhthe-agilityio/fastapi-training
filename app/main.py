@@ -20,6 +20,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from app.core.database import async_engine
+from app.core.exceptions import setup_exception_handlers
 
 # ---------------------------------------------------------------------------
 # Lifespan — startup & shutdown hooks
@@ -90,6 +91,8 @@ Built with FastAPI, SQLAlchemy 2.0 (Async), PostgreSQL 16, and Clerk.
     redoc_url="/redoc",
     openapi_url="/openapi.json",
 )
+
+setup_exception_handlers(app)
 
 
 # ---------------------------------------------------------------------------
