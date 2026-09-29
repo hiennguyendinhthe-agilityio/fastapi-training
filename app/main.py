@@ -126,14 +126,10 @@ async def health_check() -> JSONResponse:
 
 # ---------------------------------------------------------------------------
 # API v1 routers
-# auth router is live now (Task 3.5).
-# Remaining routers (users, products, orders) will be aggregated in Task 6.4.
+# Aggregated in app.api.v1.api.api_router (Task 6.4)
 # ---------------------------------------------------------------------------
 
-from app.api.v1.auth import router as auth_router  # noqa: E402
-from app.api.v1.products import router as products_router  # noqa: E402
-from app.api.v1.users import router as users_router  # noqa: E402
+from app.api.v1.api import api_router  # noqa: E402
 
-app.include_router(auth_router, prefix="/api/v1")
-app.include_router(users_router, prefix="/api/v1")
-app.include_router(products_router, prefix="/api/v1")
+app.include_router(api_router, prefix="/api/v1")
+
