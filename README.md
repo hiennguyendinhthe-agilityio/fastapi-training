@@ -1,93 +1,212 @@
-# fastapi-training
+# 🥐 Cocoloco Food & Coffee Ordering API
 
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0%20Async-red.svg)](https://docs.sqlalchemy.org/)
+[![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16%20(asyncpg)-336791.svg?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Clerk Authentication](https://img.shields.io/badge/Auth-Clerk%20RS256%20JWKS-6C47FF.svg?logo=clerk&logoColor=white)](https://clerk.com)
+[![Test Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen.svg)](https://github.com/pytest-dev/pytest-cov)
+[![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+High-performance, fully asynchronous RESTful backend API for the **Cocoloco Food & Coffee Ordering platform** (AgilityIO). Built from the ground up following **Clean Architecture**, **Domain-Driven Design**, and **Zero Blocking I/O** principles, powering the Cocoloco Flutter mobile app and admin dashboard.
 
-## Getting started
+---
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## 🏗️ Architecture & System Design
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+The project enforces a strict **Layered Clean Architecture** where dependencies point exclusively inward:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.asoft-python.com/hien.nguyendinhthe/fastapi-training.git
-git branch -M main
-git push -uf origin main
+                      +------------------------------------------+
+                      |         HTTP Clients (Flutter Mobile)    |
+                      +------------------------------------------+
+                                           |
+                                           v
+[Presentation Layer]  +------------------------------------------+
+                      |  app/api/v1/ (auth, users, products,     |
+                      |               orders, aggregator)        |
+                      +------------------------------------------+
+                                    |              |
+                                    v              v
+[Contracts & Core]    +-----------------------+  +---------------+
+                      | app/schemas/ (DTOs,   |  | app/core/     |
+                      |  Pydantic v2, Params) |  | (Security, DB)|
+                      +-----------------------+  +---------------+
+                                    |
+                                    v
+[Data Access Layer]   +------------------------------------------+
+                      |  app/repositories/ (Async Repositories,  |
+                      |  Eager Loading, Domain Exceptions)       |
+                      +------------------------------------------+
+                                    |
+                                    v
+[Domain Entities]     +------------------------------------------+
+                      |  app/models/ (SQLAlchemy 2.0 Async,      |
+                      |  User, Product, Order, OrderItem)        |
+                      +------------------------------------------+
+                                    |
+                                    v
+[Database Engine]     +------------------------------------------+
+                      |  PostgreSQL 16 via asyncpg connection    |
+                      +------------------------------------------+
 ```
 
-## Integrate with your tools
+---
 
-* [Set up project integrations](https://gitlab.asoft-python.com/hien.nguyendinhthe/fastapi-training/-/settings/integrations)
+## ✨ Key Enterprise Features
 
-## Collaborate with your team
+- **End-to-End Async Purity**: 100% non-blocking I/O powered by native `async/await` and the C-accelerated `asyncpg` driver.
+- **Clerk RS256 JWKS Authentication**: Stateless JWT verification against Clerk's JSON Web Key Set with LRU-cached public keys, 5-second leeway clock skew tolerance, and strict claim validation (`sub`, `exp`, `nbf`).
+- **2-Tier RBAC Guard**: Strict role-based authorization differentiating standard customers (`USER`) and store managers (`ADMIN`).
+- **Soft-Disable Active Guard**: Deactivated accounts (`is_active=False`) are blocked with HTTP 403 Forbidden even if their Clerk JWT remains cryptographically valid.
+- **Admin Self-Lock Guard**: Administrators are prevented from deactivating their own accounts to eliminate accidental lockout scenarios.
+- **Price Sovereignty & Snapshot Invariance**: Product prices are never trusted from client payloads. Unit prices are read directly from the database and snapshotted onto order line items at purchase time, preventing history drift when menu prices change.
+- **N+1 Query Elimination**: Deep eager loading via `selectinload(Order.items).joinedload(OrderItem.product)` to eliminate query cascades and prevent async `MissingGreenlet` errors.
+- **Standardized Pagination Envelope**: Generic `PageResponse[T]` metadata envelope (`page`, `size`, `total`, `pages`) across all collection endpoints.
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+---
 
-## Test and Deploy
+## 🛠️ Tech Stack
 
-Use the built-in continuous integration in GitLab.
+| Component | Technology | Version | Purpose |
+|---|---|---|---|
+| **Language** | Python | `3.12+` / `3.13` | Modern strongly-typed backend runtime |
+| **Framework** | FastAPI | `0.115+` | High-performance asynchronous API framework |
+| **Package Tool** | uv (Astral) | `0.5+` | Lightning-fast virtualenv and dependency manager |
+| **Database** | PostgreSQL | `16-alpine` | ACID relational database |
+| **Async Driver** | asyncpg | `0.30+` | High-throughput binary protocol async driver |
+| **ORM** | SQLAlchemy | `2.0+ (Async)` | Modern async object-relational mapping |
+| **Migrations** | Alembic | `1.14+` | Database versioning and schema migrations |
+| **Auth** | Clerk | `RS256 JWKS` | Cloud Identity & Access Management |
+| **Validation** | Pydantic | `v2.10+` | Rust-backed request/response data contracts |
+| **Testing** | Pytest + pytest-asyncio | `9.1+` | SQLite in-memory isolated automated test suite |
+| **Coverage** | pytest-cov | `7.1+` | Code coverage reporting (Current: **99%**) |
+| **Linter & Formatter** | Ruff | `0.9+` | Ultra-fast Python linter and code formatter |
+| **Type Checker** | Pyright | `1.1+` | Strict static typing analysis |
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+---
 
-***
+## 🚀 Quickstart & Local Setup
 
-# Editing this README
+### 1. Prerequisites
+- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
+- [uv](https://docs.astral.sh/uv/) package manager (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
+- Python 3.12 or higher
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### 2. Clone & Environment Configuration
+```bash
+git clone https://gitlab.asoft-python.com/hien.nguyendinhthe/fastapi-training.git
+cd fastapi-training
 
-## Suggestions for a good README
+# Copy environment template
+cp .env.example .env
+```
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Ensure `.env` contains valid configuration:
+```env
+ENVIRONMENT=development
+DATABASE_URL=postgresql+asyncpg://cocoloco_user:cocoloco_secret@localhost:5432/cocoloco_db
+CLERK_JWKS_URL=https://api.clerk.com/v1/jwks
+ALLOWED_ORIGINS=["*"]
+```
 
-## Name
-Choose a self-explaining name for your project.
+### 3. Install Dependencies
+```bash
+uv sync
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### 4. Start PostgreSQL with Docker
+```bash
+docker compose up -d
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### 5. Run Database Migrations & Seed Data
+```bash
+# Apply all schema migrations
+uv run alembic upgrade head
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+# Seed initial catalog items and admin user (Idempotent)
+uv run python -m scripts.seed
+```
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### 6. Start the API Server
+```bash
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+The service is now accessible at:
+- **Interactive Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **ReDoc Documentation**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+- **OpenAPI JSON Contract**: [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)
+- **Health Check Endpoint**: [http://localhost:8000/health](http://localhost:8000/health)
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+---
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## 📡 API Endpoint Reference Matrix
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+| Group | Method | Endpoint | Auth | RBAC Role | Description |
+|---|---|---|---|---|---|
+| **Health** | `GET` | `/health` | Public | None | Service liveness probe |
+| **Auth** | `POST` | `/api/v1/auth/sync` | Bearer JWT | Any | Upsert authenticated Clerk user to DB |
+| **Users** | `GET` | `/api/v1/users/me` | Bearer JWT | Any | Retrieve authenticated profile |
+| **Users** | `PUT` | `/api/v1/users/me` | Bearer JWT | Any | Update profile name |
+| **Users** | `GET` | `/api/v1/users` | Bearer JWT | `ADMIN` | Paginated listing of all users |
+| **Users** | `PATCH` | `/api/v1/users/{id}/status` | Bearer JWT | `ADMIN` | Enable / disable user account |
+| **Products** | `GET` | `/api/v1/products` | Public | None | Browse catalog with category filter |
+| **Products** | `GET` | `/api/v1/products/{id}` | Public | None | Get product details by UUID |
+| **Products** | `POST` | `/api/v1/products` | Bearer JWT | `ADMIN` | Add new menu product |
+| **Products** | `PUT` | `/api/v1/products/{id}` | Bearer JWT | `ADMIN` | Update product details / price |
+| **Products** | `DELETE`| `/api/v1/products/{id}` | Bearer JWT | `ADMIN` | Delete product (restricted if ordered) |
+| **Orders** | `POST` | `/api/v1/orders` | Bearer JWT | Any | Place order with snapshot pricing |
+| **Orders** | `GET` | `/api/v1/orders/me` | Bearer JWT | Any | Customer paginated order history |
+| **Orders** | `GET` | `/api/v1/orders/{id}` | Bearer JWT | Owner/Admin | View order details (BOLA protected) |
+| **Orders** | `GET` | `/api/v1/orders` | Bearer JWT | `ADMIN` | Admin paginated view of all orders |
+| **Orders** | `PATCH` | `/api/v1/orders/{id}/status` | Bearer JWT | `ADMIN` | Advance status (CONFIRMED/COMPLETED) |
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+---
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## 🧪 Testing & Code Quality Gate
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+All automated tests execute against an isolated in-memory SQLite database (`sqlite+aiosqlite:///:memory:`) using `StaticPool`, guaranteeing zero state leakage across test cases and zero contamination of production data.
 
-## License
-For open source projects, say how it is licensed.
+```bash
+# Run all tests
+uv run pytest
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+# Run tests with detailed code coverage report
+uv run pytest --cov=app --cov-report=term-missing
+
+# Run Ruff linter & formatting check
+uv run ruff check .
+
+# Run Pyright static type checker
+uv run pyright
+```
+
+### Current Quality Metrics:
+- **Total Test Cases**: `174 passed`
+- **Execution Time**: `~2.5 seconds`
+- **Code Coverage**: **`99%`**
+- **Lint Errors**: `0`
+- **Type Check Errors**: `0`
+
+---
+
+## 📮 Postman Collection
+
+A complete Postman collection is located at [`postman/Cocoloco_API.postman_collection.json`](postman/Cocoloco_API.postman_collection.json).
+
+### How to use:
+1. Import `postman/Cocoloco_API.postman_collection.json` into Postman.
+2. Set collection variables:
+   - `base_url`: `http://localhost:8000`
+   - `user_token`: A valid JWT token from Clerk for a regular user.
+   - `admin_token`: A valid JWT token from Clerk for an admin user.
+3. Execute requests across the `Auth`, `Users`, `Products`, and `Orders` folders.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
