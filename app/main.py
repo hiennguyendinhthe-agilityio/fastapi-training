@@ -90,6 +90,28 @@ Built with FastAPI, SQLAlchemy 2.0 (Async), PostgreSQL 16, and Clerk.
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
+    openapi_tags=[
+        {
+            "name": "auth",
+            "description": "Clerk RS256 JWKS authentication & user synchronization.",
+        },
+        {
+            "name": "users",
+            "description": "User profile management and administrative access control.",
+        },
+        {
+            "name": "products",
+            "description": "Product catalog browsing and admin menu curation.",
+        },
+        {
+            "name": "orders",
+            "description": "Checkout, price snapshotting, history, and status.",
+        },
+        {
+            "name": "health",
+            "description": "Service liveness and health check probes.",
+        },
+    ],
 )
 
 setup_exception_handlers(app)
