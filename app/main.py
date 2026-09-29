@@ -125,7 +125,12 @@ async def health_check() -> JSONResponse:
 
 
 # ---------------------------------------------------------------------------
-# API v1 routers — mounted in Task 6.4 when all routers are implemented
+# API v1 routers
+# auth router is live now (Task 3.5).
+# Remaining routers (users, products, orders) will be aggregated in Task 6.4.
 # ---------------------------------------------------------------------------
-# from app.api.v1.api import api_router
-# app.include_router(api_router, prefix="/api/v1")
+
+from app.api.v1.auth import router as auth_router  # noqa: E402
+
+app.include_router(auth_router, prefix="/api/v1")
+
