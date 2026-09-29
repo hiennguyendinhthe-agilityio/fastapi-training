@@ -149,3 +149,10 @@ class OrderItem(Base):
     def subtotal(self) -> Decimal:
         """Calculate line-item total (quantity × snapshotted unit_price)."""
         return Decimal(self.quantity) * self.unit_price
+
+    @property
+    def product_name(self) -> str:
+        """Name of the referenced product if loaded, otherwise empty string."""
+        if self.product is not None:
+            return self.product.name
+        return ""

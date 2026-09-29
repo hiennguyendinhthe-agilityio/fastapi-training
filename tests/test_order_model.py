@@ -47,6 +47,7 @@ def test_order_item_subtotal_calculation():
     assert item.quantity == 3
     assert item.unit_price == Decimal("4.50")
     assert item.subtotal == Decimal("13.50")
+    assert item.product_name == ""
 
 
 async def test_create_order_with_items_and_relationships(
