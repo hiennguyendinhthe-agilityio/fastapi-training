@@ -39,23 +39,30 @@ The file [`Cocoloco FastAPI.md`](file:///Volumes/MacData/fastapi-training/Cocolo
 4. **Local Only Policy**: Update this file locally to track your work. Never stage (`git add`) or commit `Cocoloco FastAPI.md` or `learn-api-python/` to Git. Only `README.md` and `.agents/` markdown files are permitted in version control.
 5. **Never skip**: Even for partial completions, mark only the finished sub-tasks and leave unfinished ones as `- [ ]`.
 
-## 📚 Learning Document Protocol
+## 📚 Learning Document Protocol (Senior Pedagogical Standard)
 
-After completing every task, create a teaching document at `learn-api-python/<Task Name>.md`. Follow this structure:
+Sau mỗi khi hoàn thành bất kỳ task nào, **bắt buộc** phải biên soạn một tài liệu đào tạo chuyên sâu tại `learn-api-python/<Task Name>.md`. Tài liệu này không được phép viết sơ sài, tóm tắt lướt qua, mà phải đạt tiêu chuẩn của một **Tài liệu Kỹ thuật Senior / Bài giảng Đại học chuyên sâu** (Dung lượng định lượng chuẩn: **15 KB – 20 KB**).
 
-1. **Header**: Task number, date, and learning objectives (what the student will understand after reading)
-2. **Problem First**: Always start with *the problem* the tool/concept solves — never jump straight to implementation
-3. **Concept Explanation**: Explain the theory with diagrams (ASCII art), analogies, and comparisons
-4. **Each File/Decision**: For every file created, explain: what it is, why it exists, and what each section does
-5. **Pitfalls & Debugging**: Document any errors encountered during the task and how they were diagnosed and resolved
-6. **Architecture Map**: Show how this task's output connects to future tasks
-7. **Golden Rules**: End with 3–5 bullet-point rules the student must remember
+Cấu trúc bắt buộc gồm **8 phần chuẩn mực**:
 
-> **Language**: Write entirely in **Vietnamese** — clear, friendly, and educational tone.
-> **Depth**: Go deep. A student reading this should fully understand the topic without any prior knowledge.
-> **No skipping**: Every command run, every decision made must be explained.
+1. **Header & Objectives**: Tên task, ngày thực hiện, mục tiêu học tập rõ ràng (đạt được kiến thức và kỹ năng gì sau khi đọc).
+2. **Problem First (Vấn đề & Bối cảnh thực tế)**: Luôn bắt đầu từ *nỗi đau*, bài toán thực tế của dự án, các rủi ro bảo mật (CWE, OWASP) hoặc bế tắc hiệu năng nếu không có giải pháp này. Tuyệt đối không nhảy bổ vào code trước khi hiểu "Tại sao".
+3. **Concept Explanation (Lý thuyết Cốt lõi & Trực quan hóa)**: Giải thích lý thuyết từ gốc rễ bằng sơ đồ trực quan (**ASCII Art sequence / architecture diagram**), ẩn dụ đời sống và phân tích toán học / mật mã học / luồng dữ liệu.
+4. **Each File / Architectural Decision (Mổ xẻ Code & Trade-offs thực chiến)**: Phân tích từng file tạo ra: nó là gì, tại sao lại viết như vậy, các quyết định đánh đổi (Trade-offs) và kinh nghiệm thực chiến từ lập trình viên kỳ cựu.
+5. **Pitfalls & Debugging (Cạm bẫy thực tế & Bài học xương máu)**: Ghi lại các lỗi thực tế gặp phải trong quá trình làm (e.g. AsyncMock vs MagicMock, Identity Map cache, MissingGreenlet), phương pháp chẩn đoán và cách khắc phục dứt điểm.
+6. **Primary Sources & International Standards (Trích xuất Tài liệu Gốc & Tiêu chuẩn Quốc tế)**: **BẮT BUỘC** trích dẫn và đối chiếu với:
+   - Các tiêu chuẩn RFC quốc tế liên quan (IETF RFCs: JWT RFC 7519, JWKS RFC 7517, Bearer RFC 6750, Problem Details RFC 9457...).
+   - Tài liệu chính thức gốc (FastAPI, Pydantic v2 core Rust, SQLAlchemy 2.0 Async, PostgreSQL 16, Clerk, Twelve-Factor App, Martin Fowler PoEAA).
+   - Khuyến nghị bảo mật OWASP API Security Top 10.
+7. **Architecture Map (Bản đồ Kết nối Kiến trúc)**: Sơ đồ dòng dữ liệu và cách tính năng này kết nối với toàn bộ các Phase trong hệ thống Cocoloco (cả Backend FastAPI và Mobile Flutter).
+8. **Golden Rules (Quy tắc Vàng Bất biến)**: Đúc kết 3–5 nguyên tắc sống còn mà một kỹ sư backend phải khắc cốt ghi tâm.
+
+> **Ngôn ngữ**: 100% tiếng Việt chuyên nghiệp, sư phạm, gần gũi nhưng sắc sảo về mặt kỹ thuật.  
+> **Độ sâu (Depth)**: Đào sâu vào cơ chế ngầm (Under-the-hood / Internals). Người đọc không có kiến thức trước đó vẫn phải hiểu thấu đáo bản chất.  
+> **Không bỏ sót (Zero Skipping)**: Mọi quyết định kỹ thuật, mọi thư viện sử dụng, mọi cạm bẫy đều phải được mổ xẻ chi tiết.
 
 ## Execution Mandate
-Whenever you start a task, adhere strictly to the designated rules above. If your solution introduces synchronous blocking I/O, leaks raw database exceptions to clients, causes N+1 queries, or breaks test coverage below 85%, you have failed the task.
+Whenever you start a task, adhere strictly to the designated rules above. If your solution introduces synchronous blocking I/O, leaks raw database exceptions to clients, causes N+1 queries, breaks test coverage below 85%, or produces shallow learning documents, you have failed the task.
 
 Work meticulously, write clean, typed Python code, and deliver enterprise-grade results!
+
