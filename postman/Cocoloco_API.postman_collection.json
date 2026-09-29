@@ -1,0 +1,446 @@
+{
+  "info": {
+    "_postman_id": "cocoloco-api-collection-v1",
+    "name": "Cocoloco Food & Coffee Ordering API",
+    "description": "Comprehensive Postman collection for Cocoloco API (FastAPI, PostgreSQL, Clerk RS256 JWKS). Includes all endpoints for Auth, Users, Products, and Orders with 2-Tier RBAC.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "user_token",
+      "value": "eyJhbGciOiJSUzI1NiIs...",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "eyJhbGciOiJSUzI1NiIs...",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "Liveness probe returning HTTP 200 with service status."
+      }
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Sync User (POST /auth/sync)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/sync",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "sync"]
+            },
+            "description": "Upserts the authenticated Clerk user into the local PostgreSQL database."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get My Profile (GET /users/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "me"]
+            },
+            "description": "Returns profile information for the authenticated user."
+          }
+        },
+        {
+          "name": "Update My Profile (PUT /users/me)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Hien Nguyen\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "me"]
+            },
+            "description": "Updates full name of the currently authenticated user."
+          }
+        },
+        {
+          "name": "List All Users (GET /users) [Admin Only]",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users?page=1&size=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "10" }
+              ]
+            },
+            "description": "Admin-only paginated listing of all registered users."
+          }
+        },
+        {
+          "name": "Update User Status (PATCH /users/:id/status) [Admin Only]",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/:id/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", ":id", "status"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "00000000-0000-0000-0000-000000000000",
+                  "description": "Target User UUID"
+                }
+              ]
+            },
+            "description": "Admin activates or deactivates a user account (Admin Self-Lock Guard enforced)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Browse Catalog (GET /products)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products?page=1&size=10&category=coffee",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "10" },
+                { "key": "category", "value": "coffee" }
+              ]
+            },
+            "description": "Public catalog browsing with pagination and optional category filtering."
+          }
+        },
+        {
+          "name": "Get Product Detail (GET /products/:id)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "00000000-0000-0000-0000-000000000000",
+                  "description": "Target Product UUID"
+                }
+              ]
+            },
+            "description": "Public product detail lookup."
+          }
+        },
+        {
+          "name": "Create Product (POST /products) [Admin Only]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Vanilla Cold Brew\",\n  \"description\": \"Slow steeped cold brew with vanilla cream\",\n  \"price\": \"4.75\",\n  \"category\": \"coffee\",\n  \"is_available\": true,\n  \"image_url\": \"https://images.unsplash.com/photo-1517701604599-bb29b565090c\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products"]
+            },
+            "description": "Admin creates a new menu item."
+          }
+        },
+        {
+          "name": "Update Product (PUT /products/:id) [Admin Only]",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": \"5.00\",\n  \"is_available\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "00000000-0000-0000-0000-000000000000",
+                  "description": "Target Product UUID"
+                }
+              ]
+            },
+            "description": "Admin updates fields of an existing product."
+          }
+        },
+        {
+          "name": "Delete Product (DELETE /products/:id) [Admin Only]",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "00000000-0000-0000-0000-000000000000",
+                  "description": "Target Product UUID"
+                }
+              ]
+            },
+            "description": "Admin permanently removes a product (fails if product has order items)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Place Order (POST /orders)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"product_id\": \"00000000-0000-0000-0000-000000000000\",\n      \"quantity\": 2\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "orders"]
+            },
+            "description": "Customer places order. Prices are snapshotted and total is calculated server-side."
+          }
+        },
+        {
+          "name": "Get My Orders (GET /orders/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/me?page=1&size=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "orders", "me"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "10" }
+              ]
+            },
+            "description": "Paginated list of orders placed by the authenticated customer."
+          }
+        },
+        {
+          "name": "Get Order Detail (GET /orders/:id)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "orders", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "00000000-0000-0000-0000-000000000000",
+                  "description": "Target Order UUID"
+                }
+              ]
+            },
+            "description": "Customer views their own order, or admin views any order."
+          }
+        },
+        {
+          "name": "List All Orders (GET /orders) [Admin Only]",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders?page=1&size=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "orders"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "10" }
+              ]
+            },
+            "description": "Admin lists all platform orders."
+          }
+        },
+        {
+          "name": "Update Order Status (PATCH /orders/:id/status) [Admin Only]",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONFIRMED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders/:id/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "orders", ":id", "status"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "00000000-0000-0000-0000-000000000000",
+                  "description": "Target Order UUID"
+                }
+              ]
+            },
+            "description": "Admin updates status to CONFIRMED, COMPLETED, or CANCELLED."
+          }
+        }
+      ]
+    }
+  ]
+}
