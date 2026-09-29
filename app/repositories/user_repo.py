@@ -150,12 +150,7 @@ async def get_all(
     total = total_result.scalar_one()
 
     # Query the current page with pagination window
-    stmt = (
-        select(User)
-        .order_by(User.created_at.desc())
-        .offset(offset)
-        .limit(safe_size)
-    )
+    stmt = select(User).order_by(User.created_at.desc()).offset(offset).limit(safe_size)
     result = await db.execute(stmt)
     users = result.scalars().all()
 

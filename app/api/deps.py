@@ -82,8 +82,7 @@ async def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=(
-                "User account not found. "
-                "Please complete registration via /auth/sync."
+                "User account not found. Please complete registration via /auth/sync."
             ),
         )
 

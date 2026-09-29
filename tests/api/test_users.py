@@ -414,4 +414,3 @@ async def test_direct_set_user_status(db_session: AsyncSession) -> None:
         )
     assert exc_info.value.status_code == 404
     assert exc_info.value.detail == "User not found"
-

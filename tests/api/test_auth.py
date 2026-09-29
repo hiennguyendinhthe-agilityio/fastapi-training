@@ -217,6 +217,7 @@ async def test_sync_invalid_token(client: AsyncClient) -> None:
 @pytest.mark.asyncio
 async def test_sync_deactivated_user_is_blocked(client: AsyncClient) -> None:
     """[7] Deactivated user (is_active=False) → 403 Forbidden (Soft-Disable Guard)."""
+
     # Override to return a deactivated user from get_current_user
     # NOTE: get_current_user itself raises 403 before the endpoint is reached,
     # so we patch the dependency to raise that exception directly.
