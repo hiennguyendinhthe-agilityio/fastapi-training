@@ -6,10 +6,8 @@ All database I/O is asynchronous using the asyncpg driver (PostgreSQL)
 or aiosqlite driver (in-memory SQLite for testing).
 """
 
-import os
 from collections.abc import AsyncGenerator
 
-from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -17,7 +15,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-load_dotenv()
+from app.core.config import get_settings
 
 
 def normalize_database_url(url: str) -> str:
@@ -27,12 +25,8 @@ def normalize_database_url(url: str) -> str:
     return url
 
 
-DATABASE_URL: str = normalize_database_url(
-    os.getenv(
-        "DATABASE_URL",
-        "postgresql+asyncpg://cocoloco:cocoloco123@localhost:5433/cocoloco_db",
-    )
-)
+settings = get_settings()
+DATABASE_URL: str = normalize_database_url(settings.DATABASE_URL)
 
 # Connection pool configuration:
 # pool_size and max_overflow are supported by QueuePool (used for PostgreSQL),
