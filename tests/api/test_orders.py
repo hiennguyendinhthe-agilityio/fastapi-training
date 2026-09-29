@@ -290,6 +290,64 @@ async def test_create_order_validation_empty_items(
     assert resp.status_code == 422
 
 
+@pytest.mark.asyncio
+async def test_create_order_validation_invalid_quantity(
+    client: AsyncClient,
+    customer_one: User,
+    sample_products: dict[str, Product],
+) -> None:
+    """Sending quantity < 1 returns 422 Unprocessable Entity."""
+    app.dependency_overrides[get_current_user] = _override_user(customer_one)
+    latte = sample_products["latte"]
+
+    # quantity 0
+    resp_zero = await client.post(
+        "/api/v1/orders",
+        json={"items": [{"product_id": str(latte.id), "quantity": 0}]},
+    )
+    assert resp_zero.status_code == 422
+
+    # negative quantity
+    resp_neg = await client.post(
+        "/api/v1/orders",
+        json={"items": [{"product_id": str(latte.id), "quantity": -3}]},
+    )
+    assert resp_neg.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_create_order_price_snapshot_invariance(
+    client: AsyncClient,
+    customer_one: User,
+    sample_products: dict[str, Product],
+    db_session: AsyncSession,
+) -> None:
+    """Snapshotted unit_price does not drift when product price changes later."""
+    app.dependency_overrides[get_current_user] = _override_user(customer_one)
+    latte = sample_products["latte"]
+
+    # 1. Place order when price is 4.50
+    create_resp = await client.post(
+        "/api/v1/orders",
+        json={"items": [{"product_id": str(latte.id), "quantity": 1}]},
+    )
+    assert create_resp.status_code == 201
+    order_id = create_resp.json()["id"]
+
+    # 2. Modify product price in database to 9.99
+    latte.price = Decimal("9.99")
+    db_session.add(latte)
+    await db_session.commit()
+
+    # 3. Retrieve order and verify price has NOT changed
+    get_resp = await client.get(f"/api/v1/orders/{order_id}")
+    assert get_resp.status_code == 200
+    order_data = get_resp.json()
+    assert Decimal(order_data["total_amount"]) == Decimal("4.50")
+    assert Decimal(order_data["items"][0]["unit_price"]) == Decimal("4.50")
+    assert Decimal(order_data["items"][0]["subtotal"]) == Decimal("4.50")
+
+
 # ---------------------------------------------------------------------------
 # GET /api/v1/orders/me
 # ---------------------------------------------------------------------------
