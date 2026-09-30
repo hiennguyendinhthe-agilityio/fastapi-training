@@ -45,6 +45,7 @@ def _make_user(
     email: str = "sync@cocoloco.com",
     full_name: str | None = "Sync Tester",
     role: UserRole = UserRole.USER,
+    avatar_url: str | None = None,
     is_active: bool = True,
 ) -> User:
     """Create an in-memory User (not persisted to DB)."""
@@ -54,6 +55,7 @@ def _make_user(
         email=email,
         full_name=full_name,
         role=role,
+        avatar_url=avatar_url,
         is_active=is_active,
     )
 
@@ -232,3 +234,40 @@ async def test_sync_deactivated_user_is_blocked(client: AsyncClient) -> None:
         assert "deactivated" in response.json()["detail"].lower()
     finally:
         app.dependency_overrides.clear()
+
+
+@pytest.mark.asyncio
+async def test_sync_with_metadata_body_updates_profile_and_avatar(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    """
+    [8] POST /auth/sync with AuthSyncRequest body updates email, full_name, and
+    avatar_url.
+    """
+    fake_user = _make_user(clerk_id="clerk_metadata_001")
+    app.dependency_overrides[get_current_user] = _override_current_user(fake_user)
+
+    try:
+        payload = {
+            "email": "hien.nguyen@cocoloco.vn",
+            "full_name": "Hien Nguyen",
+            "avatar_url": "https://img.clerk.com/avatar_test.png",
+        }
+        response = await client.post(API_URL, json=payload)
+        assert response.status_code == 200
+        body = response.json()
+        assert body["email"] == "hien.nguyen@cocoloco.vn"
+        assert body["full_name"] == "Hien Nguyen"
+        assert body["avatar_url"] == "https://img.clerk.com/avatar_test.png"
+
+        # Confirm record in DB
+        result = await db_session.execute(
+            select(User).where(User.clerk_id == fake_user.clerk_id)
+        )
+        db_user = result.scalar_one_or_none()
+        assert db_user is not None
+        assert db_user.avatar_url == "https://img.clerk.com/avatar_test.png"
+    finally:
+        app.dependency_overrides.clear()
+

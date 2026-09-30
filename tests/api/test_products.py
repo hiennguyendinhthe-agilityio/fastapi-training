@@ -24,6 +24,7 @@ from app.api.v1.products import (
     update_product,
 )
 from app.main import app
+from app.models.order import Order, OrderItem, OrderStatus
 from app.models.product import CategoryType, Product
 from app.models.user import User, UserRole
 from app.schemas.product import ProductUpdateRequest
@@ -454,6 +455,54 @@ async def test_delete_product_as_regular_user_fails(
         app.dependency_overrides.pop(get_current_user, None)
 
 
+@pytest.mark.asyncio
+async def test_delete_product_with_existing_orders_returns_409(
+    client: AsyncClient,
+    admin_user: User,
+    regular_user: User,
+    db_session: AsyncSession,
+) -> None:
+    """
+    DELETE /products/{id} returns 409 Conflict when product is referenced in
+    order_items.
+    """
+    product = Product(
+        name="Popular Latte",
+        price=Decimal("4.50"),
+        category=CategoryType.COFFEE,
+        is_available=True,
+    )
+    db_session.add(product)
+    await db_session.commit()
+    await db_session.refresh(product)
+
+    order = Order(
+        user_id=regular_user.id,
+        status=OrderStatus.PENDING,
+        total_amount=Decimal("4.50"),
+    )
+    db_session.add(order)
+    await db_session.flush()
+
+    item = OrderItem(
+        order_id=order.id,
+        product_id=product.id,
+        quantity=1,
+        unit_price=Decimal("4.50"),
+    )
+    db_session.add(item)
+    await db_session.commit()
+
+    app.dependency_overrides[require_admin] = _override_user(admin_user)
+    try:
+        response = await client.delete(f"/api/v1/products/{product.id}")
+        assert response.status_code == 409
+        data = response.json()
+        assert "associated orders" in data["detail"]
+    finally:
+        app.dependency_overrides.pop(require_admin, None)
+
+
 # ---------------------------------------------------------------------------
 # Direct Handler Invocation Tests (Coverage Completeness)
 # ---------------------------------------------------------------------------
@@ -536,3 +585,42 @@ async def test_direct_delete_product_handler(
         await delete_product(id=uuid.uuid4(), _=admin_user, db=db_session)
     assert exc_info.value.status_code == 404
     assert exc_info.value.detail == "Product not found"
+
+
+@pytest.mark.asyncio
+async def test_direct_delete_product_integrity_error(
+    db_session: AsyncSession,
+    admin_user: User,
+    regular_user: User,
+) -> None:
+    """Direct invocation of delete_product raising 409 on IntegrityError."""
+    product = Product(
+        name="Direct Conflict",
+        price=Decimal("5.00"),
+        category=CategoryType.COFFEE,
+    )
+    db_session.add(product)
+    await db_session.commit()
+    await db_session.refresh(product)
+
+    order = Order(
+        user_id=regular_user.id,
+        status=OrderStatus.PENDING,
+        total_amount=Decimal("5.00"),
+    )
+    db_session.add(order)
+    await db_session.flush()
+
+    item = OrderItem(
+        order_id=order.id,
+        product_id=product.id,
+        quantity=1,
+        unit_price=Decimal("5.00"),
+    )
+    db_session.add(item)
+    await db_session.commit()
+
+    with pytest.raises(HTTPException) as exc_info:
+        await delete_product(id=product.id, _=admin_user, db=db_session)
+    assert exc_info.value.status_code == 409
+    assert "associated orders" in exc_info.value.detail
