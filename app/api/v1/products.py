@@ -16,6 +16,7 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_db, require_admin
@@ -152,5 +153,15 @@ async def delete_product(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product not found",
         )
-    await product_repo.delete(db, product)
+    try:
+        await product_repo.delete(db, product)
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Cannot delete product because it has associated orders in history. "
+                "Consider setting availability to false instead."
+            ),
+        )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
