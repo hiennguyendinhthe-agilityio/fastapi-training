@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "cocoloco-api-collection-v1",
     "name": "Cocoloco Food & Coffee Ordering API",
-    "description": "Comprehensive Postman collection for Cocoloco API (FastAPI, PostgreSQL, Clerk RS256 JWKS). Includes all endpoints for Auth, Users, Products, and Orders with 2-Tier RBAC.",
+    "description": "Comprehensive Postman collection for Cocoloco API (FastAPI, PostgreSQL, Clerk RS256 JWKS). Includes automated assertions and dynamic variable chaining for Auth, Users, Products, and Orders with 2-Tier RBAC.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -13,18 +13,56 @@
     },
     {
       "key": "user_token",
-      "value": "eyJhbGciOiJSUzI1NiIs...",
+      "value": "YOUR_USER_CLERK_TOKEN_HERE",
       "type": "string"
     },
     {
       "key": "admin_token",
-      "value": "eyJhbGciOiJSUzI1NiIs...",
+      "value": "YOUR_ADMIN_CLERK_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "product_id",
+      "value": "f66fe585-6512-45f7-b66f-6bdbe11b146e",
+      "type": "string"
+    },
+    {
+      "key": "created_product_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "a59dccf9-d767-44ff-8be0-335e3bdbeffd",
+      "type": "string"
+    },
+    {
+      "key": "target_user_id",
+      "value": "324c720a-f698-49b2-936c-3b366ea31b3e",
       "type": "string"
     }
   ],
   "item": [
     {
-      "name": "Health Check",
+      "name": "0. Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Service status is ok\", function () {",
+              "    var data = pm.response.json();",
+              "    pm.expect(data.status).to.eql(\"ok\");",
+              "    pm.expect(data.service).to.eql(\"cocoloco-api\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -37,10 +75,30 @@
       }
     },
     {
-      "name": "Auth",
+      "name": "1. Auth",
       "item": [
         {
           "name": "Sync User (POST /auth/sync)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Returns synchronized user object\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.have.property(\"id\");",
+                  "    pm.expect(data).to.have.property(\"clerk_id\");",
+                  "    pm.expect(data).to.have.property(\"email\");",
+                  "    pm.collectionVariables.set(\"user_id\", data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -48,8 +106,17 @@
                 "key": "Authorization",
                 "value": "Bearer {{user_token}}",
                 "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Hien Nguyen\"\n}"
+            },
             "url": {
               "raw": "{{base_url}}/api/v1/auth/sync",
               "host": ["{{base_url}}"],
@@ -61,10 +128,29 @@
       ]
     },
     {
-      "name": "Users",
+      "name": "2. Users",
       "item": [
         {
           "name": "Get My Profile (GET /users/me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Returns user profile fields\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.have.property(\"id\");",
+                  "    pm.expect(data).to.have.property(\"email\");",
+                  "    pm.expect(data).to.have.property(\"role\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -84,6 +170,23 @@
         },
         {
           "name": "Update My Profile (PUT /users/me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Updated full_name matches request\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.full_name).to.eql(\"Hien Nguyen (Cocoloco)\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [
@@ -100,7 +203,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"full_name\": \"Hien Nguyen\"\n}"
+              "raw": "{\n  \"full_name\": \"Hien Nguyen (Cocoloco)\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/users/me",
@@ -112,6 +215,27 @@
         },
         {
           "name": "List All Users (GET /users) [Admin Only]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Paginated users array exists\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.have.property(\"items\");",
+                  "    pm.expect(data).to.have.property(\"total\");",
+                  "    if (data.items && data.items.length > 0) {",
+                  "        pm.collectionVariables.set(\"target_user_id\", data.items[0].id);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -135,6 +259,19 @@
         },
         {
           "name": "Update User Status (PATCH /users/:id/status) [Admin Only]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403 (Self-lock guard)\", function () {",
+                  "    pm.expect([200, 403]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [
@@ -151,19 +288,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"is_active\": false\n}"
+              "raw": "{\n  \"is_active\": true\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/users/:id/status",
+              "raw": "{{base_url}}/api/v1/users/{{target_user_id}}/status",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "users", ":id", "status"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000000",
-                  "description": "Target User UUID"
-                }
-              ]
+              "path": ["api", "v1", "users", "{{target_user_id}}", "status"]
             },
             "description": "Admin activates or deactivates a user account (Admin Self-Lock Guard enforced)."
           }
@@ -171,10 +301,29 @@
       ]
     },
     {
-      "name": "Products",
+      "name": "3. Products",
       "item": [
         {
           "name": "Browse Catalog (GET /products)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Products array returned and captures product_id\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.have.property(\"items\");",
+                  "    pm.expect(data.items.length).to.be.greaterThan(0);",
+                  "    pm.collectionVariables.set(\"product_id\", data.items[0].id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -193,26 +342,57 @@
         },
         {
           "name": "Get Product Detail (GET /products/:id)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Product has id, name, price, category\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.have.property(\"id\");",
+                  "    pm.expect(data).to.have.property(\"name\");",
+                  "    pm.expect(data).to.have.property(\"price\");",
+                  "    pm.expect(data).to.have.property(\"category\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/products/:id",
+              "raw": "{{base_url}}/api/v1/products/{{product_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "products", ":id"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000000",
-                  "description": "Target Product UUID"
-                }
-              ]
+              "path": ["api", "v1", "products", "{{product_id}}"]
             },
             "description": "Public product detail lookup."
           }
         },
         {
           "name": "Create Product (POST /products) [Admin Only]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Created product has valid ID\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.have.property(\"id\");",
+                  "    pm.collectionVariables.set(\"created_product_id\", data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -229,7 +409,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Vanilla Cold Brew\",\n  \"description\": \"Slow steeped cold brew with vanilla cream\",\n  \"price\": \"4.75\",\n  \"category\": \"coffee\",\n  \"is_available\": true,\n  \"image_url\": \"https://images.unsplash.com/photo-1517701604599-bb29b565090c\"\n}"
+              "raw": "{\n  \"name\": \"Vanilla Cold Brew Postman\",\n  \"description\": \"Slow steeped cold brew with vanilla cream for testing\",\n  \"price\": \"4.75\",\n  \"category\": \"coffee\",\n  \"is_available\": true,\n  \"image_url\": \"https://images.unsplash.com/photo-1517701604599-bb29b565090c\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/products",
@@ -241,6 +421,23 @@
         },
         {
           "name": "Update Product (PUT /products/:id) [Admin Only]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Price updated correctly\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.price).to.eql(\"5.50\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [
@@ -257,25 +454,31 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"price\": \"5.00\",\n  \"is_available\": true\n}"
+              "raw": "{\n  \"price\": \"5.50\",\n  \"is_available\": true\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/products/:id",
+              "raw": "{{base_url}}/api/v1/products/{{created_product_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "products", ":id"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000000",
-                  "description": "Target Product UUID"
-                }
-              ]
+              "path": ["api", "v1", "products", "{{created_product_id}}"]
             },
             "description": "Admin updates fields of an existing product."
           }
         },
         {
           "name": "Delete Product (DELETE /products/:id) [Admin Only]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204 No Content\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "DELETE",
             "header": [
@@ -286,16 +489,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/v1/products/:id",
+              "raw": "{{base_url}}/api/v1/products/{{created_product_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "products", ":id"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000000",
-                  "description": "Target Product UUID"
-                }
-              ]
+              "path": ["api", "v1", "products", "{{created_product_id}}"]
             },
             "description": "Admin permanently removes a product (fails if product has order items)."
           }
@@ -303,10 +499,30 @@
       ]
     },
     {
-      "name": "Orders",
+      "name": "4. Orders",
       "item": [
         {
           "name": "Place Order (POST /orders)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"Order created with total_amount and items\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.have.property(\"id\");",
+                  "    pm.expect(data).to.have.property(\"total_amount\");",
+                  "    pm.expect(data).to.have.property(\"status\");",
+                  "    pm.collectionVariables.set(\"order_id\", data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -323,7 +539,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"items\": [\n    {\n      \"product_id\": \"00000000-0000-0000-0000-000000000000\",\n      \"quantity\": 2\n    }\n  ]\n}"
+              "raw": "{\n  \"items\": [\n    {\n      \"product_id\": \"{{product_id}}\",\n      \"quantity\": 2\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/orders",
@@ -335,6 +551,24 @@
         },
         {
           "name": "Get My Orders (GET /orders/me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Returns customer orders list\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.have.property(\"items\");",
+                  "    pm.expect(data.items.length).to.be.greaterThan(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -358,6 +592,24 @@
         },
         {
           "name": "Get Order Detail (GET /orders/:id)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Returns correct order details\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.id).to.eql(pm.collectionVariables.get(\"order_id\"));",
+                  "    pm.expect(data).to.have.property(\"items\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -368,22 +620,33 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/v1/orders/:id",
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "orders", ":id"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000000",
-                  "description": "Target Order UUID"
-                }
-              ]
+              "path": ["api", "v1", "orders", "{{order_id}}"]
             },
             "description": "Customer views their own order, or admin views any order."
           }
         },
         {
           "name": "List All Orders (GET /orders) [Admin Only]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Admin receives platform orders\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.have.property(\"items\");",
+                  "    pm.expect(data).to.have.property(\"total\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -407,6 +670,23 @@
         },
         {
           "name": "Update Order Status (PATCH /orders/:id/status) [Admin Only]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Status updated to CONFIRMED\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data.status).to.eql(\"CONFIRMED\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [
@@ -426,18 +706,184 @@
               "raw": "{\n  \"status\": \"CONFIRMED\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/orders/:id/status",
+              "raw": "{{base_url}}/api/v1/orders/{{order_id}}/status",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "orders", ":id", "status"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000000",
-                  "description": "Target Order UUID"
-                }
-              ]
+              "path": ["api", "v1", "orders", "{{order_id}}", "status"]
             },
             "description": "Admin updates status to CONFIRMED, COMPLETED, or CANCELLED."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Negative & Error Cases",
+      "item": [
+        {
+          "name": "401 - Unauthorized (Missing Bearer Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test(\"Returns error detail message\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.have.property(\"detail\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "me"]
+            },
+            "description": "Negative Test: Calling protected user endpoint without Bearer token must return HTTP 401."
+          }
+        },
+        {
+          "name": "404 - Not Found (Non-existent Product UUID)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/00000000-0000-0000-0000-000000000000",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", "00000000-0000-0000-0000-000000000000"]
+            },
+            "description": "Negative Test: Looking up a non-existent UUID must return HTTP 404."
+          }
+        },
+        {
+          "name": "422 - Validation Error (Quantity <= 0)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "pm.test(\"Pydantic validation error details provided\", function () {",
+                  "    var data = pm.response.json();",
+                  "    pm.expect(data).to.have.property(\"detail\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"product_id\": \"{{product_id}}\",\n      \"quantity\": 0\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "orders"]
+            },
+            "description": "Negative Test: Placing an order with quantity <= 0 violates Pydantic schema and must return HTTP 422."
+          }
+        },
+        {
+          "name": "422 - Validation Error (Invalid UUID string format)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/not-a-valid-uuid",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", "not-a-valid-uuid"]
+            },
+            "description": "Negative Test: Path parameter expecting UUID format returns 422 if an arbitrary string is passed."
+          }
+        },
+        {
+          "name": "404 - Order Non-existent Product Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404 Product Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"product_id\": \"00000000-0000-0000-0000-000000000000\",\n      \"quantity\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "orders"]
+            },
+            "description": "Negative Test: Checkout with an unknown product UUID returns HTTP 404 instead of silent fallback."
           }
         }
       ]
