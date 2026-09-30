@@ -71,6 +71,11 @@ class User(TimestampedBase):
         default=UserRole.USER,
         nullable=False,
     )
+    avatar_url: Mapped[str | None] = mapped_column(
+        String(1024),
+        nullable=True,
+        default=None,
+    )
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
