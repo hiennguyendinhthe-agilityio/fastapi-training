@@ -24,7 +24,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user, get_db
 from app.models.user import User
 from app.repositories import user_repo
-from app.schemas.user import UserResponse
+from app.schemas.user import AuthSyncRequest, UserResponse
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -39,6 +39,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 async def sync_user(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
+    sync_data: AuthSyncRequest | None = None,
 ) -> User:
     """
     Upsert the authenticated user into the local database.
@@ -49,8 +50,8 @@ async def sync_user(
     **What it does:**
     - Decodes the Bearer JWT (via `get_current_user` dependency).
     - Inserts a new User row if this is the first login (`clerk_id` not found).
-    - Updates `email` and `full_name` on subsequent calls to keep the local record
-      in sync with any Clerk profile changes.
+    - Updates `email`, `full_name`, and `avatar_url` from sync_data (if provided)
+      or JWT token claims to keep the local record in sync.
 
     **What it does NOT do:**
     - It never changes a user's `role`. Role promotion to ADMIN is a separate
@@ -59,15 +60,28 @@ async def sync_user(
 
     **Returns:** The full `UserResponse` reflecting the current DB state.
     """
-    # current_user is already verified (token valid, account active) by the dependency.
-    # We call upsert to refresh email/full_name from whatever was in the JWT claims —
-    # the dependency already fetched the user but we re-upsert to sync any profile
-    # changes from Clerk that may have occurred since last login.
+    email = (
+        sync_data.email
+        if sync_data and sync_data.email
+        else current_user.email
+    )
+    full_name = (
+        sync_data.full_name
+        if sync_data and sync_data.full_name is not None
+        else current_user.full_name
+    )
+    avatar_url = (
+        sync_data.avatar_url
+        if sync_data and sync_data.avatar_url is not None
+        else getattr(current_user, "avatar_url", None)
+    )
+
     updated_user = await user_repo.upsert(
         db,
         clerk_id=current_user.clerk_id,
-        email=current_user.email,
-        full_name=current_user.full_name,
+        email=email,
+        full_name=full_name,
         role=current_user.role,
+        avatar_url=avatar_url,
     )
     return updated_user

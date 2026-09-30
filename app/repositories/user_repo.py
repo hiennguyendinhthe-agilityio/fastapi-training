@@ -50,11 +50,13 @@ async def upsert(
     email: str,
     full_name: str | None = None,
     role: UserRole = UserRole.USER,
+    avatar_url: str | None = None,
 ) -> User:
     """
     Insert or update a User record keyed by clerk_id.
 
-    - If the clerk_id already exists: updates email and full_name (if provided).
+    - If the clerk_id already exists: updates email, full_name, and
+      avatar_url (if provided).
     - If not found: creates a new User with UserRole.USER by default.
 
     The role field is intentionally NOT updated on subsequent calls — role
@@ -75,13 +77,16 @@ async def upsert(
             email=email,
             full_name=full_name,
             role=role,
+            avatar_url=avatar_url,
         )
         db.add(user)
     else:
-        # Subsequent login — sync email and full_name from Clerk token claims
+        # Subsequent login — sync email, full_name, and avatar_url
         user.email = email
         if full_name is not None:
             user.full_name = full_name
+        if avatar_url is not None:
+            user.avatar_url = avatar_url
 
     await db.commit()
     # Re-fetch by clerk_id to guarantee fresh data from DB (bypass identity map cache).

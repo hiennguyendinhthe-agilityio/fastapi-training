@@ -5,6 +5,7 @@ Implemented in: Task 3.2
 """
 
 from functools import lru_cache
+from typing import Any
 
 import jwt
 from fastapi import HTTPException, status
@@ -39,11 +40,17 @@ def verify_clerk_token(token: str) -> dict:
         jwks_client = fetch_jwks_client()
         signing_key = jwks_client.get_signing_key_from_jwt(token)
 
+        settings = get_settings()
+        options: Any = {}
+        if settings.ENVIRONMENT == "development":
+            options["verify_exp"] = False
+
         payload = jwt.decode(
             token,
             key=signing_key.key,
             algorithms=["RS256"],
             leeway=5,  # 5 seconds clock skew tolerance
+            options=options,
         )
 
         if "sub" not in payload:

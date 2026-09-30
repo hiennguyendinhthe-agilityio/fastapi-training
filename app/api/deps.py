@@ -17,7 +17,7 @@ Security contract (from .agents/rules/03-security-rbac.md):
 
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -43,6 +43,7 @@ async def get_current_user(
         Depends(_bearer_scheme),
     ],
     db: Annotated[AsyncSession, Depends(get_db)],
+    request: Request = None,  # type: ignore[assignment]
 ) -> User:
     """
     Authenticate and return the current active User.
@@ -79,6 +80,28 @@ async def get_current_user(
     user = result.scalar_one_or_none()
 
     if user is None:
+        # Allow /auth/sync to proceed for newly authenticated Clerk users
+        if request is not None and request.url.path.endswith("/auth/sync"):
+            email = (
+                payload.get("email")
+                or payload.get("email_address")
+                or f"{clerk_id}@cocoloco.com"
+            )
+            full_name = payload.get("name") or payload.get("full_name")
+            avatar_url = (
+                payload.get("picture")
+                or payload.get("image_url")
+                or payload.get("avatar_url")
+            )
+            return User(
+                clerk_id=clerk_id,
+                email=email,
+                full_name=full_name,
+                role=UserRole.USER,
+                avatar_url=avatar_url,
+                is_active=True,
+            )
+
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=(

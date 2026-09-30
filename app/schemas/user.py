@@ -34,9 +34,21 @@ class UserResponse(BaseModel):
     email: EmailStr
     full_name: str | None
     role: UserRole
+    avatar_url: str | None = None
     is_active: bool
     created_at: datetime
     updated_at: datetime
+
+
+class AuthSyncRequest(BaseModel):
+    """
+    Optional request body for POST /api/v1/auth/sync.
+    Allows client apps to synchronize profile metadata from Clerk SDK.
+    """
+
+    email: EmailStr | None = None
+    full_name: str | None = Field(default=None, max_length=255)
+    avatar_url: str | None = Field(default=None, max_length=1024)
 
 
 class UserUpdateRequest(BaseModel):
@@ -50,6 +62,11 @@ class UserUpdateRequest(BaseModel):
         min_length=1,
         max_length=255,
         examples=["Nguyen Van A"],
+    )
+    avatar_url: str | None = Field(
+        default=None,
+        max_length=1024,
+        examples=["https://img.clerk.com/..."],
     )
 
 
