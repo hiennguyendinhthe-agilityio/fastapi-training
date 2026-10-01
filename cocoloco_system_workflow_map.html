@@ -1,0 +1,3073 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark" data-preset="classic" data-lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cocoloco Food Ordering System — Architecture & System Workflow Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="dark"] {
+      --bg: #070B14;
+      --bg-canvas: #090E1A;
+      --bg-grid: #131E33;
+      --card-bg: rgba(14, 22, 38, 0.88);
+      --card-border: #1E2D4A;
+      --text: #F1F5F9;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+
+      --lane-bg: rgba(15, 23, 42, 0.4);
+      --lane-border: rgba(51, 65, 85, 0.5);
+      --blocked-bg: rgba(244, 63, 94, 0.035);
+      --blocked-border: rgba(244, 63, 94, 0.45);
+
+      /* Node Theme Accents */
+      --c-agent: #10B981;      /* Emerald - Route Handlers */
+      --c-policy: #F43F5E;     /* Rose - Guards / Traps */
+      --c-tool: #F59E0B;       /* Amber - Repositories */
+      --c-context: #8B5CF6;    /* Purple - Security Token */
+      --c-cloud: #0EA5E9;      /* Cyan - Cloud / Ingress */
+      --c-mobile: #EC4899;     /* Pink - Mobile Client */
+      --c-system: #64748B;
+
+      --arrow-color: #2A3B5C;
+      --arrow-active: #10B981;
+      --arrow-blocked: #F43F5E;
+      --particle-cyan: #38BDF8;
+      --particle-rose: #FB7185;
+
+      --toolbar-bg: rgba(11, 17, 30, 0.95);
+      --toolbar-border: #1E293B;
+    }
+
+    [data-theme="light"] {
+      --bg: #F8FAFC;
+      --bg-canvas: #FFFFFF;
+      --bg-grid: #E2E8F0;
+      --card-bg: rgba(248, 250, 252, 0.95);
+      --card-border: #CBD5E1;
+      --text: #0F172A;
+      --text-muted: #475569;
+      --text-dim: #94A3B8;
+
+      --lane-bg: rgba(241, 245, 249, 0.65);
+      --lane-border: #CBD5E1;
+      --blocked-bg: rgba(244, 63, 94, 0.04);
+      --blocked-border: rgba(244, 63, 94, 0.35);
+
+      --c-agent: #059669;
+      --c-policy: #E11D48;
+      --c-tool: #D97706;
+      --c-context: #7C3AED;
+      --c-cloud: #0284C7;
+      --c-mobile: #DB2777;
+      --c-system: #64748B;
+
+      --arrow-color: #CBD5E1;
+      --arrow-active: #059669;
+      --arrow-blocked: #E11D48;
+      --particle-cyan: #0284C7;
+      --particle-rose: #E11D48;
+
+      --toolbar-bg: rgba(255, 255, 255, 0.95);
+      --toolbar-border: #E2E8F0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: 2.5rem;
+      user-select: none;
+    }
+
+    /* ================= TOP NAVIGATION BAR ================= */
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 2rem;
+      background: var(--toolbar-bg);
+      border-bottom: 1px solid var(--toolbar-border);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--c-cloud);
+      box-shadow: 0 0 12px var(--c-cloud);
+      animation: blink 2.2s infinite ease-in-out;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
+
+    .main-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .main-title span {
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .btn-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 0.42rem 0.85rem;
+      border-radius: 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.18s;
+      font-family: inherit;
+    }
+    .btn-chip:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border-color: var(--text-dim);
+    }
+    .btn-chip.active {
+      color: var(--c-cloud);
+      border-color: var(--c-cloud);
+      background: rgba(14, 165, 233, 0.1);
+    }
+
+    .btn-lang {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--c-agent);
+      border-color: rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.1);
+    }
+    .btn-lang:hover {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--c-agent);
+    }
+
+    /* ================= ARCHIFY STORY & STEPPER BAR ================= */
+    .story-section {
+      background: rgba(11, 17, 30, 0.7);
+      border-bottom: 1px solid var(--toolbar-border);
+      padding: 0.8rem 2rem;
+    }
+
+    .explore-bar {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .guided-meta {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .guided-label {
+      font-size: 0.64rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--c-cloud);
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .guided-sub {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stepper-box {
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      background: rgba(15, 23, 42, 0.65);
+      padding: 0.75rem 1.2rem;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      margin-bottom: 0.85rem;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .stepper-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      flex: 1;
+    }
+
+    .stepper-breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-dim);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .step-node-badge {
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .step-node-badge.active {
+      border-color: var(--c-cloud);
+      background: rgba(14, 165, 233, 0.15);
+      color: #FFF;
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
+    }
+    .step-arrow { color: var(--text-dim); font-size: 0.65rem; }
+
+    .stepper-active-desc {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .stepper-active-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #FFF;
+    }
+    .stepper-active-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 0.15rem;
+    }
+
+    .stepper-next {
+      text-align: right;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .stepper-next-val {
+      color: var(--c-cloud);
+      font-weight: 700;
+    }
+
+    .stepper-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-shrink: 0;
+    }
+
+    .btn-play-story {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(16, 185, 129, 0.25));
+      border: 1px solid var(--c-cloud);
+      color: var(--c-cloud);
+      padding: 0.45rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.2s;
+    }
+    .btn-play-story:hover {
+      box-shadow: 0 0 18px rgba(14, 165, 233, 0.45);
+      background: var(--c-cloud);
+      color: #FFF;
+    }
+    .btn-play-story.playing {
+      background: var(--c-policy);
+      border-color: var(--c-policy);
+      color: #FFF;
+      animation: pulsePlay 1.5s infinite;
+    }
+    @keyframes pulsePlay { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+
+    .btn-sub-action {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      padding: 0.4rem 0.65rem;
+      border-radius: 0.4rem;
+      transition: all 0.15s;
+    }
+    .btn-sub-action:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--text-dim);
+    }
+
+    .scenario-pill-rail {
+      display: flex;
+      gap: 0.55rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .scenario-pill-rail::-webkit-scrollbar { display: none; }
+
+    .scenario-pill {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 0.4rem 0.85rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .scenario-pill:hover {
+      border-color: var(--c-cloud);
+      color: var(--text);
+    }
+    .scenario-pill.active {
+      border-color: var(--c-cloud);
+      background: rgba(14, 165, 233, 0.15);
+      color: #FFF;
+      box-shadow: 0 0 14px rgba(14, 165, 233, 0.3);
+    }
+
+    .diff-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+    .diff-badge .green { color: #10B981; }
+    .diff-badge .blue { color: #38BDF8; }
+    .diff-badge .red { color: #F43F5E; }
+
+    .esc-hint {
+      font-size: 0.68rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-dim);
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.3rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .esc-hint kbd {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 0.1rem 0.35rem;
+      border-radius: 0.25rem;
+      border: 1px solid var(--card-border);
+      color: var(--c-cloud);
+      font-weight: 700;
+    }
+
+    /* ================= MAIN DIAGRAM CANVAS ================= */
+    .canvas-container {
+      padding: 1.5rem 2rem;
+      max-width: 1680px;
+      margin: 0 auto;
+    }
+
+    .diagram-frame {
+      background: var(--bg-canvas);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+      cursor: default;
+    }
+
+    svg.canvas-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #070C18;
+    }
+
+    /* Focus Mode Dimming */
+    .canvas-svg.focus-active .arch-node {
+      opacity: 0.12;
+      transition: opacity 0.25s ease, filter 0.25s ease;
+    }
+    .canvas-svg.focus-active .arch-node.highlighted {
+      opacity: 1;
+    }
+    .canvas-svg.focus-active .arch-node.hovered rect.node-box {
+      stroke-width: 2.5px;
+      filter: drop-shadow(0 0 22px var(--glow-color, #0EA5E9));
+    }
+
+    .canvas-svg.focus-active .wire {
+      opacity: 0.08;
+      transition: opacity 0.25s ease;
+    }
+    .canvas-svg.focus-active .wire.active-wire {
+      opacity: 1;
+    }
+    .canvas-svg.focus-active .wire-label {
+      opacity: 0.05;
+      transition: opacity 0.25s ease;
+    }
+    .canvas-svg.focus-active .wire-label.active-wire-label {
+      opacity: 1;
+    }
+
+    .arch-node {
+      cursor: pointer;
+      opacity: 1;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .arch-node rect.node-box {
+      transition: stroke 0.25s, stroke-width 0.25s, filter 0.25s;
+    }
+    .arch-node:hover rect.node-box,
+    .arch-node.active rect.node-box {
+      stroke-width: 2.2px;
+      filter: drop-shadow(0 0 16px var(--glow-color, rgba(16, 185, 129, 0.75)));
+    }
+
+    .wire {
+      stroke: var(--arrow-color);
+      stroke-width: 1.8;
+      fill: none;
+      transition: stroke 0.3s, stroke-width 0.3s, opacity 0.25s;
+    }
+    .wire.active-wire {
+      stroke: var(--arrow-active);
+      stroke-width: 2.4;
+      stroke-dasharray: 8 6;
+      animation: dashTravel 1.1s linear infinite;
+    }
+    .wire.active-wire.blocked-wire {
+      stroke: var(--arrow-blocked);
+      animation: dashTravelBlocked 1.1s linear infinite;
+    }
+    @keyframes dashTravel {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -28; }
+    }
+    @keyframes dashTravelBlocked {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -28; }
+    }
+
+    .wire-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5px;
+      fill: var(--text-dim);
+      transition: opacity 0.25s ease, fill 0.25s ease;
+    }
+    .wire-label.active-wire-label {
+      fill: #FFF;
+      font-weight: 700;
+    }
+
+    .photon-particle {
+      fill: var(--particle-cyan);
+      filter: drop-shadow(0 0 6px var(--particle-cyan));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .photon-particle.streaming {
+      opacity: 1;
+    }
+    .photon-particle.streaming.blocked {
+      fill: var(--particle-rose);
+      filter: drop-shadow(0 0 8px var(--particle-rose));
+    }
+
+    .floating-inspect-tag {
+      position: absolute;
+      top: 1rem;
+      left: 1.2rem;
+      background: rgba(11, 18, 33, 0.95);
+      border: 1px solid var(--c-cloud);
+      border-radius: 0.5rem;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.74rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: #FFF;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-5px);
+      transition: all 0.2s ease;
+      z-index: 200;
+      white-space: nowrap;
+    }
+    .floating-inspect-tag.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .floating-inspect-tag .tag-highlight {
+      color: var(--c-cloud);
+      font-weight: 700;
+    }
+
+    .canvas-controls {
+      position: absolute;
+      bottom: 1.2rem;
+      right: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(14, 22, 38, 0.9);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 0.3rem 0.5rem;
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+    .ctrl-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.35rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+    }
+    .ctrl-btn.active {
+      color: var(--c-cloud);
+      font-weight: 700;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      padding: 0.9rem 2rem 0;
+      font-size: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      flex-wrap: wrap;
+    }
+    .legend-title {
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: var(--text-muted);
+    }
+    .legend-chip {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      border: 1px solid currentColor;
+    }
+
+    /* 4 Bottom Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding: 0 2rem;
+    }
+
+    .summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.85rem;
+      padding: 1.2rem 1.4rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    .summary-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--bullet-color, var(--c-cloud));
+    }
+    .summary-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.65rem;
+    }
+    .summary-bullet {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--bullet-color, var(--c-cloud));
+      box-shadow: 0 0 8px var(--bullet-color, var(--c-cloud));
+    }
+    .summary-body {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .summary-body ul {
+      list-style: none;
+      padding: 0;
+    }
+    .summary-body li {
+      margin-bottom: 0.45rem;
+      position: relative;
+      padding-left: 1.1rem;
+    }
+    .summary-body li::before {
+      content: "▪";
+      position: absolute;
+      left: 0;
+      color: var(--bullet-color, var(--c-cloud));
+    }
+
+    /* Inspector Drawer */
+    .inspector-drawer {
+      position: fixed;
+      right: 1.8rem;
+      bottom: 1.8rem;
+      width: 440px;
+      max-width: calc(100vw - 3.6rem);
+      background: rgba(14, 22, 38, 0.95);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 1.4rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+      z-index: 300;
+      transform: translateY(120%);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .inspector-drawer.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.8rem;
+    }
+    .drawer-title {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #FFF;
+    }
+    .drawer-tag {
+      font-size: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.3rem;
+      background: rgba(14, 165, 233, 0.15);
+      color: var(--c-cloud);
+      border: 1px solid var(--c-cloud);
+      margin-top: 0.25rem;
+      display: inline-block;
+    }
+    .drawer-close {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.25rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .drawer-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 0.9rem;
+    }
+    .drawer-file {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.45rem;
+      border: 1px solid var(--toolbar-border);
+      color: var(--c-agent);
+      word-break: break-all;
+    }
+
+    /* Modal Backdrop & Container */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.75);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.2rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    /* Error Matrix Modal Styles */
+    .error-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .filter-chip-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .filter-chip-btn:hover {
+      border-color: var(--c-policy);
+      color: #fff;
+    }
+    .filter-chip-btn.active {
+      background: var(--c-policy);
+      border-color: var(--c-policy);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(244, 63, 94, 0.45);
+    }
+    .error-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+      gap: 1.1rem;
+      max-height: 60vh;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+    .error-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--c-policy);
+      border-radius: 0.65rem;
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      transition: all 0.2s ease;
+    }
+    .error-card:hover {
+      border-color: rgba(244, 63, 94, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    .error-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .error-status-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+    .badge-400 { background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-401 { background: rgba(244, 63, 94, 0.2); color: #FDA4AF; border: 1px solid rgba(244, 63, 94, 0.4); }
+    .badge-403 { background: rgba(225, 29, 72, 0.2); color: #FB7185; border: 1px solid rgba(225, 29, 72, 0.4); }
+    .badge-404 { background: rgba(14, 165, 233, 0.2); color: #38BDF8; border: 1px solid rgba(14, 165, 233, 0.4); }
+    .badge-409 { background: rgba(168, 85, 247, 0.2); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .badge-422 { background: rgba(234, 179, 8, 0.2); color: #FDE047; border: 1px solid rgba(234, 179, 8, 0.4); }
+    .badge-500 { background: rgba(239, 68, 68, 0.25); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.5); }
+    .error-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #F8FAFC;
+    }
+    .error-meta-line {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .error-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    .error-defense-box {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 2px solid var(--c-agent);
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      color: #A7F3D0;
+    }
+    .error-code-preview {
+      background: #020617;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      padding: 0.45rem 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: #94A3B8;
+      overflow-x: auto;
+    }
+    .btn-simulate-error {
+      align-self: flex-start;
+      margin-top: 0.25rem;
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid var(--c-policy);
+      color: #FDA4AF;
+      border-radius: 4px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+    }
+    .btn-simulate-error:hover {
+      background: var(--c-policy);
+      color: #fff;
+    }
+    .modal-card {
+      background: rgba(11, 18, 33, 0.96);
+      border: 1px solid var(--card-border);
+      border-radius: 1.1rem;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 35px rgba(14, 165, 233, 0.15);
+      width: 100%;
+      max-width: 980px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.96) translateY(12px);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .modal-backdrop.open .modal-card {
+      transform: scale(1) translateY(0);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 1.6rem;
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.5);
+    }
+    .modal-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .modal-close:hover {
+      color: #FFF;
+    }
+    .modal-body {
+      padding: 1.4rem 1.6rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* ERD Grid Styles (5 Tables: users, products, orders, order_items, alembic_version) */
+    .erd-grid-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .erd-grid-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 860px) {
+      .erd-grid-top, .erd-grid-bottom {
+        grid-template-columns: 1fr;
+      }
+    }
+    .erd-table-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .erd-table-card.highlight {
+      border-color: var(--c-agent);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+    }
+    .erd-table-head {
+      background: rgba(30, 41, 59, 0.8);
+      padding: 0.6rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #FFF;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .erd-badge {
+      font-size: 0.62rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 0.3rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .erd-badge.one-many { background: rgba(14, 165, 233, 0.2); color: #7DD3FC; border: 1px solid #0EA5E9; }
+    .erd-badge.many-one { background: rgba(245, 158, 11, 0.2); color: #FCD34D; border: 1px solid #F59E0B; }
+    .erd-badge.snapshot { background: rgba(16, 185, 129, 0.2); color: #6EE7B7; border: 1px solid #10B981; }
+
+    .erd-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.74rem;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.25);
+    }
+    .erd-row:last-child { border-bottom: none; }
+    .erd-col-name { color: #E2E8F0; display: flex; align-items: center; gap: 0.35rem; }
+    .erd-col-name .pk { color: #F59E0B; font-weight: 800; font-size: 0.65rem; }
+    .erd-col-name .fk { color: #38BDF8; font-weight: 800; font-size: 0.65rem; }
+    .erd-col-type { color: var(--text-dim); }
+
+    .erd-callout {
+      background: rgba(14, 165, 233, 0.08);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      border-radius: 0.6rem;
+      padding: 0.9rem 1.1rem;
+      font-size: 0.8rem;
+      color: #BAE6FD;
+      line-height: 1.5;
+    }
+
+    /* Quality Gates Metric Tiles */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .metric-tile {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 0.8rem;
+      padding: 1.2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric-tile::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--tile-color, #10B981);
+    }
+    .metric-val {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #FFF;
+      font-family: 'JetBrains Mono', monospace;
+      margin: 0.3rem 0;
+    }
+    .metric-sub {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .metric-desc {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-top: 0.4rem;
+    }
+
+    .cmd-shelf {
+      background: rgba(5, 10, 20, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1rem 1.2rem;
+      margin-top: 1rem;
+    }
+    .cmd-shelf-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .cmd-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(51, 65, 85, 0.4);
+      border-radius: 0.45rem;
+      padding: 0.5rem 0.8rem;
+      margin-bottom: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
+    .cmd-code { color: #38BDF8; word-break: break-all; }
+    .btn-copy-chip {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid #38BDF8;
+      color: #38BDF8;
+      border-radius: 0.35rem;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+      font-weight: 600;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .btn-copy-chip:hover {
+      background: #38BDF8;
+      color: #070B14;
+    }
+
+    /* Cheatsheet Tabs & Cards */
+    .tab-bar {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+    .tab-item {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      color: var(--text-muted);
+      padding: 0.45rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-item.active {
+      background: rgba(14, 165, 233, 0.18);
+      border-color: var(--c-cloud);
+      color: #FFF;
+      font-weight: 700;
+    }
+    .qa-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--card-border);
+      border-radius: 0.7rem;
+      padding: 1rem 1.2rem;
+      margin-bottom: 0.85rem;
+      transition: all 0.2s;
+    }
+    .qa-card:hover {
+      border-color: rgba(14, 165, 233, 0.5);
+    }
+    .qa-q {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #FFF;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.55rem;
+    }
+    .qa-q-num {
+      color: var(--c-cloud);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+    }
+    .qa-a {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      padding-left: 1.7rem;
+    }
+    .qa-a strong { color: #E2E8F0; }
+    .qa-a code {
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+      color: #38BDF8;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.74rem;
+    }
+
+    .toast {
+      position: fixed;
+      top: 1.2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #10B981;
+      color: #FFF;
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 999;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .live-pill:hover {
+      border-color: var(--c-agent);
+      color: var(--text);
+    }
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #64748B;
+      transition: all 0.3s;
+    }
+    .live-dot.online {
+      background: #10B981;
+      box-shadow: 0 0 8px #10B981;
+      animation: pulseGreen 2s infinite;
+    }
+    @keyframes pulseGreen {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.8; }
+    }
+
+    .btn-chip.highlight-chip {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(16, 185, 129, 0.15));
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #A7F3D0;
+    }
+    .btn-chip.highlight-chip:hover {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: #10B981;
+      color: #FFF;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast" id="toast">Moment Copied to Clipboard!</div>
+
+  <!-- ================= TOP HEADER BAR ================= -->
+  <header class="header-bar">
+    <div class="title-group">
+      <div class="status-dot"></div>
+      <h1 class="main-title" id="main-title">
+        Cocoloco Food Ordering System <span id="main-subtitle">FastAPI & Flutter End-to-End Workflow Map</span>
+      </h1>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Live Server Health Pill -->
+      <div class="live-pill" id="live-health" title="Trạng thái Server FastAPI: http://localhost:8000" onclick="checkBackendHealth(true)">
+        <span class="live-dot" id="health-dot"></span>
+        <span class="live-text" id="health-text">API :8000</span>
+      </div>
+
+      <button class="btn-chip btn-lang" onclick="toggleLanguage()" id="lang-btn" title="Chuyển đổi ngôn ngữ / Switch Language">
+        <span>🇻🇳 Tiếng Việt</span>
+      </button>
+
+      <button class="btn-chip" onclick="toggleTheme()" id="theme-btn">
+        <span>🌙 Dark</span>
+      </button>
+      <button class="btn-chip active" id="preset-btn">
+        <span>Classic ▾</span>
+      </button>
+      <button class="btn-chip" onclick="toggleFullScreen()" id="present-btn">
+        <span>⛶ Present</span>
+      </button>
+
+      <!-- Interactive Review Tools -->
+      <button class="btn-chip" onclick="openSwagger()" title="Thử nghiệm API trực tiếp qua Swagger UI">
+        <span>Swagger /docs</span>
+      </button>
+      <button class="btn-chip" onclick="openReDoc()" title="Tài liệu đặc tả hợp đồng API ReDoc">
+        <span>ReDoc /redoc</span>
+      </button>
+      <button class="btn-chip" onclick="openModal('erd-modal')" id="btn-erd" title="Sơ đồ quan hệ thực thể cơ sở dữ liệu Cocoloco">
+        <span>🗄️ Database ERD</span>
+      </button>
+      <button class="btn-chip" onclick="openModal('quality-modal')" id="btn-quality" title="Chỉ số kiểm thử tự động 279 Tests (98% Coverage)">
+        <span>🧪 Quality Gates (98%)</span>
+      </button>
+      <button class="btn-chip" onclick="openModal('error-modal')" id="btn-errors" style="background: rgba(244, 63, 94, 0.2); border-color: var(--c-policy); color: #FDA4AF; font-weight: 700;" title="Bảng tra cứu 12 mã lỗi thực tế &amp; cơ chế bẫy phòng thủ">
+        <span style="color: var(--c-policy);">🚨</span> <span id="btn-label-errors">Tra Cứu Bẫy Lỗi (12 Lỗi)</span>
+      </button>
+      <button class="btn-chip highlight-chip" onclick="openModal('cheatsheet-modal')" id="btn-cheatsheet" title="Phao tra cứu 12 Target & 10 câu hỏi vấn đáp cho buổi Review">
+        <span>📖 Defense Cheatsheet</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= ARCHIFY STORY & STEPPER BAR ================= -->
+  <div class="story-section">
+    
+    <!-- Compact 0/5 Explore Bar -->
+    <div class="explore-bar" id="explore-bar">
+      <div class="guided-meta">
+        <span class="guided-label" id="explore-label">GUIDED VIEWS 0 / 5 ─────</span>
+        <span class="guided-sub" id="explore-sub">Khám phá toàn bộ hệ thống Cocoloco</span>
+      </div>
+      <button class="btn-play-story" id="btn-play-story-compact" onclick="togglePlayStory()">
+        <span class="play-icon">▶</span> <span class="play-text">Phát kịch bản</span>
+      </button>
+
+      <div class="esc-hint" id="esc-hint">
+        Click nền hoặc nhấn <kbd>Esc</kbd> để thoát tiêu điểm
+      </div>
+    </div>
+
+    <!-- Active Step Sub-Box -->
+    <div class="stepper-box" id="stepper-box">
+      <div class="stepper-left">
+        <div class="stepper-breadcrumbs">
+          <span style="font-weight: 800; color: var(--c-cloud); margin-right: 0.2rem;" id="step-counter">GUIDED VIEWS 1 / 5</span>
+          <span class="step-arrow">—</span>
+          <div class="step-node-badge active" id="step-badge-1" onclick="jumpToStep(1)">01 Đặt món & Checkout</div>
+          <span class="step-arrow">➔</span>
+          <div class="step-node-badge" id="step-badge-2" onclick="jumpToStep(2)">02 Bẫy RBAC (403)</div>
+          <span class="step-arrow">➔</span>
+          <div class="step-node-badge" id="step-badge-3" onclick="jumpToStep(3)">03 Tự Khóa (400)</div>
+          <span class="step-arrow">➔</span>
+          <div class="step-node-badge" id="step-badge-4" onclick="jumpToStep(4)">04 Toàn Vẹn Giá & N+1</div>
+          <span class="step-arrow">➔</span>
+          <div class="step-node-badge" id="step-badge-5" onclick="jumpToStep(5)">05 Kiểm Thử (279 Tests)</div>
+        </div>
+
+        <div class="stepper-active-desc">
+          <div>
+            <div class="stepper-active-title" id="stepper-title">Flutter Mobile ➔ POST /api/v1/orders ➔ OrderRepository</div>
+            <div class="stepper-active-sub" id="stepper-sub">Clerk Bearer RS256 · Atomic Transaction · Price Snapshot · app.repositories.order_repo</div>
+          </div>
+          <div class="stepper-next">
+            <div id="next-label">KẾ TIẾP</div>
+            <div class="stepper-next-val" id="stepper-next-val">02 · Bẫy RBAC: 403 Forbidden</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stepper-actions">
+        <button class="btn-play-story" id="btn-play-story-expanded" onclick="togglePlayStory()">
+          <span class="play-icon">▶</span> <span class="play-text">Phát kịch bản</span>
+        </button>
+        <button class="btn-sub-action" onclick="copyMoment()" id="btn-copy"># Sao chép khoảnh khắc</button>
+        <button class="btn-sub-action" onclick="resetToExploreAll()" id="btn-show-all">Xem tất cả</button>
+      </div>
+    </div>
+
+    <!-- 5 Scenario Pills -->
+    <div class="scenario-pill-rail">
+      <div class="scenario-pill" onclick="activateScenario(1, this)" id="pill-1">
+        <span class="pill-text">01 Luồng chính: Đặt món & Checkout từ Mobile (5 chặng)</span>
+        <span class="diff-badge"><span class="green">+4</span> <span class="blue">+5</span> <span class="red">-0</span></span>
+      </div>
+
+      <div class="scenario-pill" onclick="activateScenario(2, this)" id="pill-2">
+        <span class="pill-text">02 Bẫy RBAC: 403 Forbidden khi khách vào Admin</span>
+        <span class="diff-badge"><span class="green">+1</span> <span class="blue">+2</span> <span class="red">-1</span></span>
+      </div>
+
+      <div class="scenario-pill" onclick="activateScenario(3, this)" id="pill-3">
+        <span class="pill-text">03 Kiểm duyệt: 400 Chống tự khóa Admin</span>
+        <span class="diff-badge"><span class="green">+2</span> <span class="blue">+1</span> <span class="red">-1</span></span>
+      </div>
+
+      <div class="scenario-pill" onclick="activateScenario(4, this)" id="pill-4">
+        <span class="pill-text">04 Toàn vẹn: Price Snapshot & Chống N+1 (selectinload)</span>
+        <span class="diff-badge"><span class="green">+3</span> <span class="blue">+3</span> <span class="red">-0</span></span>
+      </div>
+
+      <div class="scenario-pill" onclick="activateScenario(5, this)" id="pill-5">
+        <span class="pill-text">05 Kiểm thử: 177 Pytest (98%) & 102 Flutter Tests</span>
+        <span class="diff-badge"><span class="green">+177</span> <span class="blue">+102</span> <span class="red">-0</span></span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= WORKSPACE CANVAS CONTAINER ================= -->
+  <div class="canvas-container">
+    <div class="diagram-frame" id="canvas-frame">
+      
+      <!-- Top-Left Floating Tag -->
+      <div class="floating-inspect-tag" id="inspect-tag">
+        <span class="tag-highlight" id="inspect-tag-title">Node Selected</span>
+      </div>
+
+      <!-- Main SVG Workflow Canvas -->
+      <svg class="canvas-svg" viewBox="0 0 1440 680" id="main-svg">
+        <defs>
+          <pattern id="grid-pattern" width="30" height="30" patternUnits="userSpaceOnUse">
+            <path d="M 30 0 L 0 0 0 30" fill="none" stroke="var(--bg-grid)" stroke-width="0.5"/>
+          </pattern>
+
+          <!-- Marker Arrows -->
+          <marker id="arrow-default" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+            <polygon points="0 0, 7 2.5, 0 5" fill="var(--arrow-color)"/>
+          </marker>
+          <marker id="arrow-active" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+            <polygon points="0 0, 7 2.5, 0 5" fill="var(--c-agent)"/>
+          </marker>
+          <marker id="arrow-blocked" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+            <polygon points="0 0, 7 2.5, 0 5" fill="var(--c-policy)"/>
+          </marker>
+
+          <!-- Photon Filters -->
+          <filter id="glow-photon-cyan" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3.5" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <filter id="glow-photon-rose" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3.5" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- Canvas Background -->
+        <rect id="canvas-bg" width="100%" height="100%" fill="url(#grid-pattern)"/>
+
+        <!-- Column Headers -->
+        <g id="column-headers" transform="translate(0, 20)">
+          <text id="col-header-1" x="210" y="0" text-anchor="middle" fill="var(--text-dim)" font-size="10" font-weight="800" font-family="'JetBrains Mono', monospace" letter-spacing="0.1em">01 CLIENT RUNNER & AUTH INGRESS</text>
+          <text id="col-header-2" x="590" y="0" text-anchor="middle" fill="var(--text-dim)" font-size="10" font-weight="800" font-family="'JetBrains Mono', monospace" letter-spacing="0.1em">02 FASTAPI GATEWAY & DOMAIN GUARDS</text>
+          <text id="col-header-3" x="960" y="0" text-anchor="middle" fill="var(--text-dim)" font-size="10" font-weight="800" font-family="'JetBrains Mono', monospace" letter-spacing="0.1em">03 DOMAIN REPOSITORIES & BUSINESS</text>
+          <text id="col-header-4" x="1310" y="0" text-anchor="middle" fill="var(--text-dim)" font-size="10" font-weight="800" font-family="'JetBrains Mono', monospace" letter-spacing="0.1em">04 POSTGRESQL 16 PERSISTENCE</text>
+        </g>
+
+        <!-- ================= SWIMLANES ================= -->
+        <!-- Lane 01 -->
+        <rect id="lane-01-bg" x="30" y="35" width="1380" height="110" rx="10" fill="var(--lane-bg)" stroke="var(--lane-border)" stroke-dasharray="6 6"/>
+        <text id="lane-title-1" x="45" y="55" fill="var(--text-dim)" font-size="9" font-weight="800" font-family="'JetBrains Mono', monospace">01 / CLIENT RUNNER & AUTHENTICATION INGRESS</text>
+
+        <!-- Lane 02 -->
+        <rect id="lane-02-bg" x="30" y="165" width="1380" height="150" rx="10" fill="var(--lane-bg)" stroke="var(--lane-border)" stroke-dasharray="6 6"/>
+        <text id="lane-title-2" x="45" y="185" fill="var(--text-dim)" font-size="9" font-weight="800" font-family="'JetBrains Mono', monospace">02 / FASTAPI DEPENDENCY INJECTION & DOMAIN GUARDS</text>
+
+        <!-- Lane 03 -->
+        <rect id="lane-03-bg" x="30" y="335" width="1380" height="160" rx="10" fill="var(--lane-bg)" stroke="var(--lane-border)" stroke-dasharray="6 6"/>
+        <text id="lane-title-3" x="45" y="355" fill="var(--text-dim)" font-size="9" font-weight="800" font-family="'JetBrains Mono', monospace">03 / CLEAN REPOSITORIES & POSTGRESQL 16 TABLES</text>
+
+        <!-- Lane EX (Guarded Traps) -->
+        <rect id="lane-ex-bg" x="30" y="515" width="1380" height="135" rx="10" fill="var(--blocked-bg)" stroke="var(--blocked-border)" stroke-dasharray="8 6"/>
+        <text id="lane-title-ex" x="45" y="535" fill="var(--c-policy)" font-size="9" font-weight="800" font-family="'JetBrains Mono', monospace">EX / GUARDED TRAPS & REJECTED POLICIES (403, 400, 409)</text>
+
+        <!-- ================= ACCURATE COCOLOCO ARCHITECTURAL WIRES & LABELS ================= -->
+        
+        <!-- 1. Clerk Cloud -> verify_clerk_token -->
+        <path id="wire-clerk-jwt" class="wire" d="M 155 120 L 155 210" marker-end="url(#arrow-default)"/>
+        <text x="163" y="170" class="wire-label" id="lbl-clerk-jwt">RS256 JWKS (5s leeway)</text>
+
+        <!-- 2. verify_clerk_token -> RBAC Dependencies -->
+        <path id="wire-jwt-rbac" class="wire" d="M 240 240 L 320 240" marker-end="url(#arrow-default)"/>
+        <text x="248" y="234" class="wire-label" id="lbl-jwt-rbac">claims (role, sub)</text>
+
+        <!-- 3. Flutter Client -> POST /auth/sync -->
+        <path id="wire-flutter-sync" class="wire" d="M 545 120 L 640 210" marker-end="url(#arrow-default)"/>
+        <text x="585" y="165" class="wire-label" id="lbl-flutter-sync">Session Sync</text>
+
+        <!-- 4. Flutter Client -> POST /orders -->
+        <path id="wire-flutter-orders" class="wire" d="M 640 100 L 830 210" marker-end="url(#arrow-default)"/>
+        <text x="715" y="155" class="wire-label" id="lbl-flutter-orders">Place Order (Cart)</text>
+
+        <!-- 5. Postman Suite -> /products -->
+        <path id="wire-postman-products" class="wire" d="M 975 120 L 910 210" marker-end="url(#arrow-default)"/>
+        <text x="945" y="165" class="wire-label" id="lbl-postman-products">15/15 Suite</text>
+
+        <!-- 6. Postman Suite -> /orders/me -->
+        <path id="wire-postman-orders" class="wire" d="M 1070 110 L 1170 210" marker-end="url(#arrow-default)"/>
+        <text x="1110" y="165" class="wire-label" id="lbl-postman-orders">Order Lifecycle</text>
+
+        <!-- 7. RBAC Dependencies -> /products (Admin check for POST/PUT/DELETE) -->
+        <path id="wire-rbac-products" class="wire" d="M 500 230 L 800 230" marker-end="url(#arrow-default)"/>
+        <text x="615" y="224" class="wire-label" id="lbl-rbac-products">require_admin</text>
+
+        <!-- 7b. RBAC Dependencies -> UserRepository (Soft-Disable Active Guard) -->
+        <path id="wire-rbac-userrepo" class="wire" d="M 430 270 L 490 380" marker-end="url(#arrow-default)"/>
+        <text x="420" y="325" class="wire-label" id="lbl-rbac-userrepo">is_active check</text>
+
+        <!-- 8. POST /auth/sync -> UserRepository (User Upsert) -->
+        <path id="wire-sync-userrepo" class="wire" d="M 647 270 L 560 380" marker-end="url(#arrow-default)"/>
+        <text x="615" y="325" class="wire-label" id="lbl-sync-userrepo">Upsert User (UUID)</text>
+
+        <!-- 9. POST /orders -> OrderRepository (Atomic Tx & Price Snapshot) -->
+        <path id="wire-orders-orderrepo" class="wire" d="M 892 270 L 892 380" marker-end="url(#arrow-default)"/>
+        <text x="890" y="325" class="wire-label" id="lbl-orders-orderrepo">Price Snapshot & Tx</text>
+
+        <!-- 10. /products -> ProductRepository (Catalog Filtering) -->
+        <path id="wire-prod-prodrepo" class="wire" d="M 1212 270 L 1212 380" marker-end="url(#arrow-default)"/>
+        <text x="1220" y="325" class="wire-label" id="lbl-prod-prodrepo">Category Filtering</text>
+
+        <!-- 11. OrderRepository -> ProductRepository (selectinload() items & price validation) -->
+        <path id="wire-orderrepo-prodrepo" class="wire" d="M 985 412 L 1120 412" marker-end="url(#arrow-default)"/>
+        <text x="1005" y="405" class="wire-label" id="lbl-orderrepo-prodrepo">selectinload() items</text>
+
+        <!-- 12. Vertical Down to Blocked Traps in Lane EX -->
+        <!-- RBAC Dependencies -> 403 Forbidden -->
+        <path id="wire-trap-rbac" class="wire" d="M 410 270 L 410 500 L 377 500 L 377 555" marker-end="url(#arrow-blocked)"/>
+        <text x="385" y="525" class="wire-label" id="lbl-trap-rbac" style="fill: var(--c-policy);">403 Forbidden (Non-Admin)</text>
+
+        <!-- UserRepository -> 400 Bad Request (Admin Self-Lock Guard) -->
+        <path id="wire-trap-disable" class="wire" d="M 580 445 L 597 555" marker-end="url(#arrow-blocked)"/>
+        <text x="590" y="500" class="wire-label" id="lbl-trap-disable" style="fill: var(--c-policy);">400 Admin Self-Lock</text>
+
+        <!-- Orders API -> 400 Empty Cart / Invalid Quantity -->
+        <path id="wire-trap-conflict" class="wire" d="M 980 265 L 980 490 L 1037 490 L 1037 555" marker-end="url(#arrow-blocked)"/>
+        <text x="1005" y="520" class="wire-label" id="lbl-trap-conflict" style="fill: var(--c-policy);">400 Empty/Invalid Cart</text>
+
+        <!-- ================= ANIMATED PHOTON PARTICLES ================= -->
+        <!-- Photon 1: Clerk -> JWT -->
+        <circle class="photon-particle" id="photon-clerk-jwt" r="4.5" filter="url(#glow-photon-cyan)">
+          <animateMotion dur="1.8s" repeatCount="indefinite" path="M 155 120 L 155 210"/>
+        </circle>
+        <!-- Photon 2: Flutter -> Sync -->
+        <circle class="photon-particle" id="photon-flutter-sync" r="4.5" filter="url(#glow-photon-cyan)">
+          <animateMotion dur="1.8s" repeatCount="indefinite" path="M 545 120 L 640 210"/>
+        </circle>
+        <!-- Photon 3: Flutter -> Orders -->
+        <circle class="photon-particle" id="photon-flutter-orders" r="4.5" filter="url(#glow-photon-cyan)">
+          <animateMotion dur="2.2s" repeatCount="indefinite" path="M 640 100 L 830 210"/>
+        </circle>
+        <!-- Photon 4: Postman -> Products -->
+        <circle class="photon-particle" id="photon-postman-products" r="4.5" filter="url(#glow-photon-cyan)">
+          <animateMotion dur="1.8s" repeatCount="indefinite" path="M 975 120 L 910 210"/>
+        </circle>
+        <!-- Photon 5: Orders -> OrderRepo -->
+        <circle class="photon-particle" id="photon-orders-orderrepo" r="4.5" filter="url(#glow-photon-cyan)">
+          <animateMotion dur="1.8s" repeatCount="indefinite" path="M 892 270 L 892 380"/>
+        </circle>
+        <!-- Photon 6: Sync -> UserRepo -->
+        <circle class="photon-particle" id="photon-sync-userrepo" r="4.5" filter="url(#glow-photon-cyan)">
+          <animateMotion dur="1.8s" repeatCount="indefinite" path="M 647 270 L 560 380"/>
+        </circle>
+        <!-- Photon 7: RBAC -> Products -->
+        <circle class="photon-particle" id="photon-rbac-products" r="4.5" filter="url(#glow-photon-cyan)">
+          <animateMotion dur="2.0s" repeatCount="indefinite" path="M 500 230 L 800 230"/>
+        </circle>
+        <!-- Photon 8: OrderRepo -> ProductRepo -->
+        <circle class="photon-particle" id="photon-orderrepo-prodrepo" r="4.5" filter="url(#glow-photon-cyan)">
+          <animateMotion dur="2.0s" repeatCount="indefinite" path="M 985 412 L 1120 412"/>
+        </circle>
+        <!-- Photon 9: RBAC -> UserRepo -->
+        <circle class="photon-particle" id="photon-rbac-userrepo" r="4.5" filter="url(#glow-photon-cyan)">
+          <animateMotion dur="1.8s" repeatCount="indefinite" path="M 430 270 L 490 380"/>
+        </circle>
+
+        <!-- Red Photons for Blocked Traps -->
+        <circle class="photon-particle blocked" id="photon-trap-rbac" r="5" filter="url(#glow-photon-rose)">
+          <animateMotion dur="1.8s" repeatCount="indefinite" path="M 410 270 L 410 500 L 377 500 L 377 555"/>
+        </circle>
+        <circle class="photon-particle blocked" id="photon-trap-disable" r="5" filter="url(#glow-photon-rose)">
+          <animateMotion dur="1.6s" repeatCount="indefinite" path="M 580 445 L 597 555"/>
+        </circle>
+        <circle class="photon-particle blocked" id="photon-trap-conflict" r="5" filter="url(#glow-photon-rose)">
+          <animateMotion dur="1.6s" repeatCount="indefinite" path="M 980 265 L 980 490 L 1037 490 L 1037 555"/>
+        </circle>
+
+
+        <!-- ================= ARCHITECTURE NODES ================= -->
+
+        <!-- LANE 01 NODES -->
+        <!-- Node: Clerk Cloud IAM -->
+        <g class="arch-node" id="node-clerk" onclick="inspectNode('clerk')" style="--glow-color: var(--c-cloud);">
+          <rect class="node-box" x="70" y="65" width="170" height="55" rx="8" fill="#0B1324" stroke="var(--c-cloud)" stroke-width="1.2"/>
+          <text x="85" y="88" fill="var(--c-cloud)" font-size="12" font-weight="700">☁ Clerk Cloud IAM</text>
+          <text x="85" y="105" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace">RS256 JWKS Keypair</text>
+          <rect x="190" y="73" width="35" height="14" rx="4" fill="rgba(14, 165, 233, 0.15)"/>
+          <text x="197" y="83" fill="var(--c-cloud)" font-size="8" font-weight="800">IAM</text>
+        </g>
+
+        <!-- Node: Cocoloco Flutter App -->
+        <g class="arch-node" id="node-flutter" onclick="inspectNode('flutter')" style="--glow-color: var(--c-mobile);">
+          <rect class="node-box" x="450" y="65" width="190" height="55" rx="8" fill="#0B1324" stroke="var(--c-mobile)" stroke-width="1.2"/>
+          <text x="465" y="88" fill="var(--c-mobile)" font-size="12" font-weight="700">📱 Flutter Mobile App</text>
+          <text x="465" y="105" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace">Riverpod · SessionService</text>
+          <rect x="585" y="73" width="45" height="14" rx="4" fill="rgba(236, 72, 153, 0.15)"/>
+          <text x="590" y="83" fill="var(--c-mobile)" font-size="8" font-weight="800">MOBILE</text>
+        </g>
+
+        <!-- Node: Postman Automation Suite -->
+        <g class="arch-node" id="node-postman" onclick="inspectNode('postman')" style="--glow-color: var(--c-tool);">
+          <rect class="node-box" x="880" y="65" width="190" height="55" rx="8" fill="#0B1324" stroke="var(--c-tool)" stroke-width="1.2"/>
+          <text x="895" y="88" fill="var(--c-tool)" font-size="12" font-weight="700">⚡ Postman Suite</text>
+          <text x="895" y="105" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace">15/15 Green · JWT Auth</text>
+          <rect x="1015" y="73" width="45" height="14" rx="4" fill="rgba(245, 158, 11, 0.15)"/>
+          <text x="1024" y="83" fill="var(--c-tool)" font-size="8" font-weight="800">TEST</text>
+        </g>
+
+
+        <!-- LANE 02 NODES (FASTAPI GATEWAY) -->
+        <!-- Node: verify_clerk_token -->
+        <g class="arch-node" id="node-jwt" onclick="inspectNode('jwt')" style="--glow-color: var(--c-context);">
+          <rect class="node-box" x="70" y="210" width="170" height="60" rx="8" fill="#0B1324" stroke="var(--c-context)" stroke-width="1.2"/>
+          <text x="85" y="234" fill="var(--c-context)" font-size="11" font-weight="700">🛡 verify_clerk_token</text>
+          <text x="85" y="252" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace">security.py · LRU Cache</text>
+        </g>
+
+        <!-- Node: RBAC Dependencies -->
+        <g class="arch-node" id="node-rbac" onclick="inspectNode('rbac')" style="--glow-color: var(--c-policy);">
+          <rect class="node-box" x="320" y="210" width="180" height="60" rx="8" fill="#0B1324" stroke="var(--c-policy)" stroke-width="1.2"/>
+          <text x="335" y="234" fill="var(--c-policy)" font-size="11" font-weight="700">🛡 RBAC Dependencies</text>
+          <text x="335" y="252" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace">deps.py · require_admin</text>
+        </g>
+
+        <!-- Node: POST /api/v1/auth/sync -->
+        <g class="arch-node" id="node-sync" onclick="inspectNode('sync')" style="--glow-color: var(--c-agent);">
+          <rect class="node-box" x="560" y="210" width="175" height="60" rx="8" fill="#0B1324" stroke="var(--c-agent)" stroke-width="1.2"/>
+          <text x="575" y="234" fill="var(--c-agent)" font-size="11" font-weight="700">{} POST /auth/sync</text>
+          <text x="575" y="252" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace">Idempotent User Upsert</text>
+        </g>
+
+        <!-- Node: POST /api/v1/orders -->
+        <g class="arch-node" id="node-orders-api" onclick="inspectNode('orders-api')" style="--glow-color: var(--c-agent);">
+          <rect class="node-box" x="800" y="210" width="185" height="60" rx="8" fill="#0B1324" stroke="var(--c-agent)" stroke-width="1.2"/>
+          <text x="815" y="234" fill="var(--c-agent)" font-size="11" font-weight="700">{} POST /api/v1/orders</text>
+          <text x="815" y="252" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace">Checkout & Orders /me</text>
+        </g>
+
+        <!-- Node: GET/POST /api/v1/products -->
+        <g class="arch-node" id="node-products-api" onclick="inspectNode('products-api')" style="--glow-color: var(--c-agent);">
+          <rect class="node-box" x="1120" y="210" width="185" height="60" rx="8" fill="#0B1324" stroke="var(--c-agent)" stroke-width="1.2"/>
+          <text x="1135" y="234" fill="var(--c-agent)" font-size="11" font-weight="700">{} /api/v1/products</text>
+          <text x="1135" y="252" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace">Catalog & Admin CRUD</text>
+        </g>
+
+
+        <!-- LANE 03 NODES (DOMAIN REPOSITORIES) -->
+        <!-- Node: UserRepository -->
+        <g class="arch-node" id="node-userrepo" onclick="inspectNode('userrepo')" style="--glow-color: var(--c-tool);">
+          <rect class="node-box" x="450" y="380" width="185" height="65" rx="8" fill="#0B1324" stroke="var(--c-tool)" stroke-width="1.2"/>
+          <text x="465" y="405" fill="var(--c-tool)" font-size="11" font-weight="700">🗄 UserRepository</text>
+          <text x="465" y="423" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace">users table · Active Guard</text>
+          <rect x="580" y="388" width="45" height="14" rx="4" fill="rgba(245, 158, 11, 0.15)"/>
+          <text x="586" y="398" fill="var(--c-tool)" font-size="8" font-weight="800">ASYNC</text>
+        </g>
+
+        <!-- Node: OrderRepository -->
+        <g class="arch-node" id="node-orderrepo" onclick="inspectNode('orderrepo')" style="--glow-color: var(--c-tool);">
+          <rect class="node-box" x="800" y="380" width="185" height="65" rx="8" fill="#0B1324" stroke="var(--c-tool)" stroke-width="1.2"/>
+          <text x="815" y="405" fill="var(--c-tool)" font-size="11" font-weight="700">🗄 OrderRepository</text>
+          <text x="815" y="423" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace">Atomic Tx · Price Snapshot</text>
+          <rect x="930" y="388" width="45" height="14" rx="4" fill="rgba(245, 158, 11, 0.15)"/>
+          <text x="936" y="398" fill="var(--c-tool)" font-size="8" font-weight="800">ASYNC</text>
+        </g>
+
+        <!-- Node: ProductRepository -->
+        <g class="arch-node" id="node-prodrepo" onclick="inspectNode('prodrepo')" style="--glow-color: var(--c-tool);">
+          <rect class="node-box" x="1120" y="380" width="185" height="65" rx="8" fill="#0B1324" stroke="var(--c-tool)" stroke-width="1.2"/>
+          <text x="1135" y="405" fill="var(--c-tool)" font-size="11" font-weight="700">🗄 ProductRepository</text>
+          <text x="1135" y="423" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace">coffee, pastry, meal (M:1)</text>
+          <rect x="1250" y="388" width="45" height="14" rx="4" fill="rgba(245, 158, 11, 0.15)"/>
+          <text x="1256" y="398" fill="var(--c-tool)" font-size="8" font-weight="800">ASYNC</text>
+        </g>
+
+
+        <!-- LANE EX NODES (EXPANDED 6 CORE FAILURE & REJECTION TRAPS) -->
+        <!-- Node 1: Trap 401 Unauthorized -->
+        <g class="arch-node" id="node-trap-401" onclick="inspectNode('trap-401')" style="--glow-color: var(--c-policy);">
+          <rect class="node-box" x="60" y="555" width="195" height="70" rx="8" fill="#170A10" stroke="var(--c-policy)" stroke-width="1.4" stroke-dasharray="4 2"/>
+          <text x="75" y="580" fill="var(--c-policy)" font-size="11" font-weight="700">⛔ 401 Unauthorized</text>
+          <text x="75" y="598" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace" id="trap-sub-401">Expired Token / RS256 Fail</text>
+          <text x="75" y="614" fill="#FDA4AF" font-size="8" font-family="'JetBrains Mono', monospace">leeway > 5s · auto_error</text>
+          <rect x="195" y="563" width="50" height="14" rx="4" fill="rgba(244, 63, 94, 0.2)"/>
+          <text x="200" y="573" fill="var(--c-policy)" font-size="7.5" font-weight="800">SECURITY</text>
+        </g>
+
+        <!-- Node 2: Trap 403 Forbidden -->
+        <g class="arch-node" id="node-trap-403" onclick="inspectNode('trap-403')" style="--glow-color: var(--c-policy);">
+          <rect class="node-box" x="280" y="555" width="195" height="70" rx="8" fill="#170A10" stroke="var(--c-policy)" stroke-width="1.4" stroke-dasharray="4 2"/>
+          <text x="295" y="580" fill="var(--c-policy)" font-size="11" font-weight="700">⛔ 403 Forbidden</text>
+          <text x="295" y="598" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace" id="trap-sub-403">Chặn: User vào Admin CRUD</text>
+          <text x="295" y="614" fill="#FDA4AF" font-size="8" font-family="'JetBrains Mono', monospace">require_admin · Inactive</text>
+          <rect x="420" y="563" width="45" height="14" rx="4" fill="rgba(244, 63, 94, 0.2)"/>
+          <text x="425" y="573" fill="var(--c-policy)" font-size="7.5" font-weight="800">RBAC</text>
+        </g>
+
+        <!-- Node 3: Trap 400 Admin Self-Lock -->
+        <g class="arch-node" id="node-trap-400" onclick="inspectNode('trap-400')" style="--glow-color: var(--c-policy);">
+          <rect class="node-box" x="500" y="555" width="195" height="70" rx="8" fill="#170A10" stroke="var(--c-policy)" stroke-width="1.4" stroke-dasharray="4 2"/>
+          <text x="515" y="580" fill="var(--c-policy)" font-size="11" font-weight="700">⛔ 400 Self-Lock Guard</text>
+          <text x="515" y="598" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace" id="trap-sub-400">Admin không tự khóa mình</text>
+          <text x="515" y="614" fill="#FDA4AF" font-size="8" font-family="'JetBrains Mono', monospace">No Orphan Admin State</text>
+          <rect x="635" y="563" width="50" height="14" rx="4" fill="rgba(244, 63, 94, 0.2)"/>
+          <text x="640" y="573" fill="var(--c-policy)" font-size="7.5" font-weight="800">INTEGRITY</text>
+        </g>
+
+        <!-- Node 4: Trap 404 Catalog & Item Not Found -->
+        <g class="arch-node" id="node-trap-404" onclick="inspectNode('trap-404')" style="--glow-color: var(--c-policy);">
+          <rect class="node-box" x="720" y="555" width="195" height="70" rx="8" fill="#170A10" stroke="var(--c-policy)" stroke-width="1.4" stroke-dasharray="4 2"/>
+          <text x="735" y="580" fill="var(--c-policy)" font-size="11" font-weight="700">🔍 404 Not Found</text>
+          <text x="735" y="598" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace" id="trap-sub-404">Món Inactive / BOLA Trap</text>
+          <text x="735" y="614" fill="#FDA4AF" font-size="8" font-family="'JetBrains Mono', monospace">Soft-Deleted · Scoped DB</text>
+          <rect x="855" y="563" width="50" height="14" rx="4" fill="rgba(244, 63, 94, 0.2)"/>
+          <text x="860" y="573" fill="var(--c-policy)" font-size="7.5" font-weight="800">CATALOG</text>
+        </g>
+
+        <!-- Node 5: Trap 400 Cart & Validation -->
+        <g class="arch-node" id="node-trap-400-cart" onclick="inspectNode('trap-400-cart')" style="--glow-color: var(--c-policy);">
+          <rect class="node-box" x="940" y="555" width="195" height="70" rx="8" fill="#170A10" stroke="var(--c-policy)" stroke-width="1.4" stroke-dasharray="4 2"/>
+          <text x="955" y="580" fill="var(--c-policy)" font-size="11" font-weight="700">⛔ 400 / 422 Cart Trap</text>
+          <text x="955" y="598" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace" id="trap-sub-400-cart">Giỏ rỗng / Trùng Item / Qty&lt;1</text>
+          <text x="955" y="614" fill="#FDA4AF" font-size="8" font-family="'JetBrains Mono', monospace">Pydantic v2 Rust Core</text>
+          <rect x="1075" y="563" width="50" height="14" rx="4" fill="rgba(244, 63, 94, 0.2)"/>
+          <text x="1080" y="573" fill="var(--c-policy)" font-size="7.5" font-weight="800">CART DTO</text>
+        </g>
+
+        <!-- Node 6: Trap 500 & MissingGreenlet Rollback -->
+        <g class="arch-node" id="node-trap-500" onclick="inspectNode('trap-500')" style="--glow-color: var(--c-policy);">
+          <rect class="node-box" x="1160" y="555" width="220" height="70" rx="8" fill="#170A10" stroke="var(--c-policy)" stroke-width="1.4" stroke-dasharray="4 2"/>
+          <text x="1175" y="580" fill="var(--c-policy)" font-size="11" font-weight="700">🛡️ 500 / Rollback Trap</text>
+          <text x="1175" y="598" fill="var(--text-dim)" font-size="9" font-family="'JetBrains Mono', monospace" id="trap-sub-500">MissingGreenlet &amp; Auto Rollback</text>
+          <text x="1175" y="614" fill="#FDA4AF" font-size="8" font-family="'JetBrains Mono', monospace">selectinload · ACID Safety</text>
+          <rect x="1310" y="563" width="60" height="14" rx="4" fill="rgba(244, 63, 94, 0.2)"/>
+          <text x="1315" y="573" fill="var(--c-policy)" font-size="7.5" font-weight="800">ASYNC ORM</text>
+        </g>
+
+        <!-- Additional Wires connecting to Lane EX Traps -->
+        <path id="wire-trap-401" class="wire" d="M 155 265 L 155 555" stroke="var(--c-policy)" stroke-dasharray="3 3" marker-end="url(#arrow-blocked)"/>
+        <path id="wire-trap-404" class="wire" d="M 880 435 L 815 555" stroke="var(--c-policy)" stroke-dasharray="3 3" marker-end="url(#arrow-blocked)"/>
+        <path id="wire-trap-500" class="wire" d="M 1240 435 L 1270 555" stroke="var(--c-policy)" stroke-dasharray="3 3" marker-end="url(#arrow-blocked)"/>
+
+        <!-- Photons for Traps -->
+        <circle id="photon-trap-401" class="photon photon-rose" r="3.5" style="display: none;"><animateMotion repeatCount="indefinite" dur="2s"><mpath href="#wire-trap-401"/></animateMotion></circle>
+        <circle id="photon-trap-404" class="photon photon-rose" r="3.5" style="display: none;"><animateMotion repeatCount="indefinite" dur="2s"><mpath href="#wire-trap-404"/></animateMotion></circle>
+        <circle id="photon-trap-500" class="photon photon-rose" r="3.5" style="display: none;"><animateMotion repeatCount="indefinite" dur="2s"><mpath href="#wire-trap-500"/></animateMotion></circle>
+
+      </svg>
+
+      <!-- Canvas Controls Overlay -->
+      <div class="canvas-controls">
+        <button class="ctrl-btn active" id="btn-path" onclick="setMode('path')">PATH</button>
+        <button class="ctrl-btn" id="btn-map" onclick="setMode('map')">MAP</button>
+        <button class="ctrl-btn" id="btn-lens" onclick="setMode('lens')">LENS</button>
+        <span style="color: var(--card-border); font-size: 0.7rem;">|</span>
+        <button class="ctrl-btn" onclick="resetView()">100%</button>
+        <button class="ctrl-btn" onclick="zoomCanvas(1.1)">+</button>
+        <button class="ctrl-btn" onclick="zoomCanvas(0.9)">−</button>
+      </div>
+
+    </div>
+
+    <!-- ================= LEGEND BAR ================= -->
+    <div class="legend-row">
+      <span class="legend-title" id="legend-title">Chú giải</span>
+      <div class="legend-item" style="color: var(--c-agent);">
+        <span class="legend-chip" style="background: rgba(16, 185, 129, 0.2);"></span>
+        <span id="leg-item-1">Xử lý định tuyến Router 4</span>
+      </div>
+      <div class="legend-item" style="color: var(--c-policy);">
+        <span class="legend-chip" style="background: rgba(244, 63, 94, 0.2);"></span>
+        <span id="leg-item-2">Chính sách & Chốt chặn Guard 3</span>
+      </div>
+      <div class="legend-item" style="color: var(--c-tool);">
+        <span class="legend-chip" style="background: rgba(245, 158, 11, 0.2);"></span>
+        <span id="leg-item-3">Repository & PostgreSQL 3</span>
+      </div>
+      <div class="legend-item" style="color: var(--c-context);">
+        <span class="legend-chip" style="background: rgba(139, 92, 246, 0.2);"></span>
+        <span id="leg-item-4">Bảo mật & Clerk Token 2</span>
+      </div>
+      <div class="legend-item" style="color: var(--c-mobile);">
+        <span class="legend-chip" style="background: rgba(236, 72, 153, 0.2);"></span>
+        <span id="leg-item-5">Khách hàng Flutter Mobile 2</span>
+      </div>
+    </div>
+
+    <!-- ================= 4 BOTTOM SUMMARY CARDS ================= -->
+    <div class="summary-grid">
+      <div class="summary-card" style="--bullet-color: var(--c-cloud);">
+        <div class="summary-header">
+          <span class="summary-bullet"></span>
+          <span id="sum-title-1">1. Bất đồng bộ Thuần túy (Asyncpg Pool)</span>
+        </div>
+        <div class="summary-body" id="sum-body-1">
+          <ul>
+            <li>Toàn bộ I/O path đạt 100% <code>async/await</code>, không nghẽn Event Loop.</li>
+            <li>Trình điều khiển PostgreSQL độc quyền <code>asyncpg</code> hiệu năng siêu cao.</li>
+            <li>Phiên làm việc độc lập <code>get_db</code> scoped theo từng HTTP request kèm tự động rollback.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="summary-card" style="--bullet-color: var(--c-context);">
+        <div class="summary-header">
+          <span class="summary-bullet"></span>
+          <span id="sum-title-2">2. Bảo mật RS256 JWKS & 2-Tier RBAC</span>
+        </div>
+        <div class="summary-body" id="sum-body-2">
+          <ul>
+            <li>Xác thực chữ ký số bất đối xứng RS256 qua Clerk JWKS bộ nhớ đệm LRU.</li>
+            <li>Độ trễ thời gian 5s clock skew leeway chống trôi lệch thời gian giữa các server.</li>
+            <li>Soft-Disable Active Guard & Admin Self-Lock Guard bảo vệ toàn vẹn tài khoản.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="summary-card" style="--bullet-color: var(--c-agent);">
+        <div class="summary-header">
+          <span class="summary-bullet"></span>
+          <span id="sum-title-3">3. Toàn vẹn Đơn hàng (Atomic Tx & Snapshot)</span>
+        </div>
+        <div class="summary-body" id="sum-body-3">
+          <ul>
+            <li>Khóa giá cố định <code>unit_price</code> tại thời điểm checkout, không bị ảnh hưởng khi menu đổi giá.</li>
+            <li>Giao dịch Atomic Database bảo đảm hoặc tạo đơn toàn vẹn hoặc hoàn tác sạch sẽ.</li>
+            <li>Triệt tiêu vấn nạn N+1 query với cơ chế tải trước <code>selectinload(Order.items)</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="summary-card" style="--bullet-color: var(--c-mobile);">
+        <div class="summary-header">
+          <span class="summary-bullet"></span>
+          <span id="sum-title-4">4. Flutter Mobile & Session Persistence</span>
+        </div>
+        <div class="summary-body" id="sum-body-4">
+          <ul>
+            <li>Khôi phục tài khoản tự động bằng <code>SharedPreferences</code> trước khi render cây widget.</li>
+            <li>Cầu nối phản ứng <code>AuthRoleNotifier</code> giúp nút "+ Add Item" hiển thị tức thì khi đổi quyền.</li>
+            <li>Tương thích đa nền tảng iOS, Android và Web với mã nguồn kiểm thử 102/102 test sạch bóng.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= INSPECTOR DRAWER ================= -->
+  <div class="inspector-drawer" id="drawer">
+    <div class="drawer-header">
+      <div>
+        <div class="drawer-title" id="drawer-title">Node Title</div>
+        <span class="drawer-tag" id="drawer-tag">CATEGORY</span>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-desc" id="drawer-desc">Description of node</div>
+    <div class="drawer-file" id="drawer-file">app/core/database.py</div>
+  </div>
+
+  <!-- ================= MODAL 1: DATABASE ERD ================= -->
+  <div class="modal-backdrop" id="erd-modal" onclick="handleBackdropClick(event, 'erd-modal')">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>🗄️</span> <span id="erd-modal-title">Cocoloco PostgreSQL 16 — Sơ đồ Thực thể Cơ sở dữ liệu (ERD)</span>
+        </div>
+        <button class="modal-close" onclick="closeModal('erd-modal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="erd-callout" style="margin-bottom: 1.2rem;" id="erd-callout">
+          Sơ đồ quan hệ thực tế gồm 5 bảng lõi với liên kết khóa ngoại chặt chẽ. Khóa giá snapshot trong <code>order_items</code> bảo vệ lịch sử giao dịch và doanh thu bất biến.
+        </div>
+
+        <div class="erd-grid-top">
+          <!-- Table: users -->
+          <div class="erd-table-card highlight">
+            <div class="erd-table-head">
+              <span>users</span>
+              <span class="erd-badge one-many">1 : N orders</span>
+            </div>
+            <div class="erd-row"><span class="erd-col-name"><span class="pk">PK</span> id</span><span class="erd-col-type">UUID</span></div>
+            <div class="erd-row"><span class="erd-col-name">clerk_id</span><span class="erd-col-type">VARCHAR(128) UNIQUE</span></div>
+            <div class="erd-row"><span class="erd-col-name">email</span><span class="erd-col-type">VARCHAR(255) UNIQUE</span></div>
+            <div class="erd-row"><span class="erd-col-name">full_name</span><span class="erd-col-type">VARCHAR(255)</span></div>
+            <div class="erd-row"><span class="erd-col-name">role</span><span class="erd-col-type">VARCHAR(20) [USER, ADMIN]</span></div>
+            <div class="erd-row"><span class="erd-col-name">avatar_url</span><span class="erd-col-type">VARCHAR(512) NULL</span></div>
+            <div class="erd-row"><span class="erd-col-name">is_active</span><span class="erd-col-type">BOOLEAN (default TRUE)</span></div>
+            <div class="erd-row"><span class="erd-col-name">created_at</span><span class="erd-col-type">TIMESTAMP WITH TIMEZONE</span></div>
+          </div>
+
+          <!-- Table: products -->
+          <div class="erd-table-card highlight">
+            <div class="erd-table-head">
+              <span>products</span>
+              <span class="erd-badge one-many">1 : N order_items</span>
+            </div>
+            <div class="erd-row"><span class="erd-col-name"><span class="pk">PK</span> id</span><span class="erd-col-type">UUID</span></div>
+            <div class="erd-row"><span class="erd-col-name">name</span><span class="erd-col-type">VARCHAR(150) NOT NULL</span></div>
+            <div class="erd-row"><span class="erd-col-name">description</span><span class="erd-col-type">TEXT NULL</span></div>
+            <div class="erd-row"><span class="erd-col-name">price</span><span class="erd-col-type">NUMERIC(10, 2) NOT NULL</span></div>
+            <div class="erd-row"><span class="erd-col-name">category</span><span class="erd-col-type">VARCHAR(30) [coffee, pastry, meal]</span></div>
+            <div class="erd-row"><span class="erd-col-name">image_url</span><span class="erd-col-type">VARCHAR(512) NULL</span></div>
+            <div class="erd-row"><span class="erd-col-name">is_available</span><span class="erd-col-type">BOOLEAN (default TRUE)</span></div>
+            <div class="erd-row"><span class="erd-col-name">created_at</span><span class="erd-col-type">TIMESTAMP WITH TIMEZONE</span></div>
+          </div>
+        </div>
+
+        <div class="erd-grid-bottom">
+          <!-- Table: orders -->
+          <div class="erd-table-card">
+            <div class="erd-table-head">
+              <span>orders</span>
+              <span class="erd-badge many-one">N : 1 users</span>
+            </div>
+            <div class="erd-row"><span class="erd-col-name"><span class="pk">PK</span> id</span><span class="erd-col-type">UUID</span></div>
+            <div class="erd-row"><span class="erd-col-name"><span class="fk">FK</span> user_id</span><span class="erd-col-type">UUID ➔ users.id</span></div>
+            <div class="erd-row"><span class="erd-col-name">status</span><span class="erd-col-type">VARCHAR(30) [PENDING...]</span></div>
+            <div class="erd-row"><span class="erd-col-name">total_amount</span><span class="erd-col-type">NUMERIC(10, 2)</span></div>
+            <div class="erd-row"><span class="erd-col-name">created_at</span><span class="erd-col-type">TIMESTAMP WITH TIMEZONE</span></div>
+          </div>
+
+          <!-- Table: order_items -->
+          <div class="erd-table-card highlight">
+            <div class="erd-table-head">
+              <span>order_items</span>
+              <span class="erd-badge snapshot">SNAPSHOT</span>
+            </div>
+            <div class="erd-row"><span class="erd-col-name"><span class="pk">PK</span> id</span><span class="erd-col-type">UUID</span></div>
+            <div class="erd-row"><span class="erd-col-name"><span class="fk">FK</span> order_id</span><span class="erd-col-type">UUID ➔ orders.id</span></div>
+            <div class="erd-row"><span class="erd-col-name"><span class="fk">FK</span> product_id</span><span class="erd-col-type">UUID ➔ products.id</span></div>
+            <div class="erd-row"><span class="erd-col-name">quantity</span><span class="erd-col-type">INTEGER (> 0)</span></div>
+            <div class="erd-row"><span class="erd-col-name">unit_price</span><span class="erd-col-type">NUMERIC(10, 2) SNAPSHOT</span></div>
+          </div>
+
+          <!-- Table: alembic_version -->
+          <div class="erd-table-card">
+            <div class="erd-table-head">
+              <span>alembic_version</span>
+              <span class="erd-badge">MIGRATION</span>
+            </div>
+            <div class="erd-row"><span class="erd-col-name"><span class="pk">PK</span> version_num</span><span class="erd-col-type">VARCHAR(32)</span></div>
+            <div class="erd-row"><span class="erd-col-name">state</span><span class="erd-col-type">432850e4cb2b (Head)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 2: QUALITY GATES ================= -->
+  <div class="modal-backdrop" id="quality-modal" onclick="handleBackdropClick(event, 'quality-modal')">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>🧪</span> <span id="quality-modal-title">Chỉ số Kiểm thử & Cổng Chất lượng (Quality Gates)</span>
+        </div>
+        <button class="modal-close" onclick="closeModal('quality-modal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="metric-grid">
+          <div class="metric-tile" style="--tile-color: #10B981;">
+            <div class="metric-sub">FastAPI Backend Tests</div>
+            <div class="metric-val" style="color: #10B981;">177 / 177</div>
+            <div class="metric-desc">Pytest Asyncio · 100% Passed</div>
+          </div>
+          <div class="metric-tile" style="--tile-color: #38BDF8;">
+            <div class="metric-sub">Backend Coverage</div>
+            <div class="metric-val" style="color: #38BDF8;">98%</div>
+            <div class="metric-desc">Vượt xa chuẩn công nghiệp (≥85%)</div>
+          </div>
+          <div class="metric-tile" style="--tile-color: #EC4899;">
+            <div class="metric-sub">Flutter Mobile Tests</div>
+            <div class="metric-val" style="color: #EC4899;">102 / 102</div>
+            <div class="metric-desc">Unit & Widget Tests · 100% Passed</div>
+          </div>
+          <div class="metric-tile" style="--tile-color: #A855F7;">
+            <div class="metric-sub">Static Code Analysis</div>
+            <div class="metric-val" style="color: #A855F7;">0 Errors</div>
+            <div class="metric-desc">Ruff Clean · Pyright 100% Type-safe</div>
+          </div>
+        </div>
+
+        <div class="cmd-shelf">
+          <div class="cmd-shelf-title">
+            <span>⚙️</span> <span>Lệnh Chạy Kiểm Thử Nhanh (Click để sao chép)</span>
+          </div>
+          
+          <div class="cmd-row">
+            <span class="cmd-code">uv run pytest --cov=app --cov-report=term-missing</span>
+            <button class="btn-copy-chip" onclick="copyCommand('uv run pytest --cov=app --cov-report=term-missing')">Copy Lệnh</button>
+          </div>
+          <div class="cmd-row">
+            <span class="cmd-code">uv run ruff check . && uv run pyright</span>
+            <button class="btn-copy-chip" onclick="copyCommand('uv run ruff check . && uv run pyright')">Copy Lệnh</button>
+          </div>
+          <div class="cmd-row">
+            <span class="cmd-code">flutter test</span>
+            <button class="btn-copy-chip" onclick="copyCommand('flutter test')">Copy Lệnh</button>
+          </div>
+          <div class="cmd-row">
+            <span class="cmd-code">flutter analyze</span>
+            <button class="btn-copy-chip" onclick="copyCommand('flutter analyze')">Copy Lệnh</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 3: DEFENSE CHEATSHEET ================= -->
+  <div class="modal-backdrop" id="cheatsheet-modal" onclick="handleBackdropClick(event, 'cheatsheet-modal')">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>📖</span> <span id="cheatsheet-modal-title">Defense Cheatsheet — Cẩm nang Bảo vệ Kiến trúc & Vấn đáp</span>
+        </div>
+        <button class="modal-close" onclick="closeModal('cheatsheet-modal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="tab-bar">
+          <button class="tab-item active" id="tab-btn-qa" onclick="switchCsTab('qa')">10 Câu hỏi Vấn đáp Code Review</button>
+          <button class="tab-item" id="tab-btn-targets" onclick="switchCsTab('targets')">12 Tiêu chuẩn Thiết kế Kiến trúc</button>
+        </div>
+
+        <div id="pane-qa">
+          <div class="qa-card">
+            <div class="qa-q"><span class="qa-q-num">Q1</span> <span>Tại sao bắt buộc phải sử dụng asyncpg và SQLAlchemy 2.0 Async thay vì sync driver?</span></div>
+            <div class="qa-a">Trong FastAPI, nếu dùng driver đồng bộ (như <code>psycopg2</code>), mỗi query DB sẽ block Event Loop chính của tiến trình Python, làm toàn bộ các request khác bị xếp hàng chờ. Sử dụng <code>asyncpg</code> biến I/O mạng cơ sở dữ liệu thành Non-Blocking, giúp hệ thống chịu tải hàng chục ngàn kết nối đồng thời với mức tiêu tốn RAM cực thấp.</div>
+          </div>
+
+          <div class="qa-card">
+            <div class="qa-q"><span class="qa-q-num">Q2</span> <span>Cơ chế xác thực Clerk RS256 JWKS hoạt động như thế nào và tại sao cần bộ đệm LRU?</span></div>
+            <div class="qa-a">Clerk ký JWT bằng Private Key (RS256). Backend dùng <code>PyJWKClient</code> lấy Public Key từ Clerk JWKS endpoint để xác thực chữ ký. Bộ đệm LRU (Least Recently Used) lưu trữ Public Key tại local memory, loại bỏ hoàn toàn việc phải gọi ra ngoài Internet mỗi khi có request, giảm độ trễ từ ~200ms xuống dưới <strong>1ms</strong>.</div>
+          </div>
+
+          <div class="qa-card">
+            <div class="qa-q"><span class="qa-q-num">Q3</span> <span>Tại sao trong order_items phải lưu unit_price snapshot thay vì query trực tiếp từ bảng products?</span></div>
+            <div class="qa-a">Giá sản phẩm trong catalog thay đổi theo thời gian (khuyến mãi, tăng giá cà phê). Nếu chỉ lưu <code>product_id</code> và query giá từ bảng sản phẩm, tổng tiền các đơn hàng trong quá khứ sẽ bị sai lệch khi giá đổi. Lưu <code>unit_price</code> snapshot bảo đảm tính <strong>bất biến tài chính (Financial Immutability)</strong> của hóa đơn.</div>
+          </div>
+
+          <div class="qa-card">
+            <div class="qa-q"><span class="qa-q-num">Q4</span> <span>Tại sao trong SQLAlchemy 2.0 Async phải dùng selectinload() cho Many-to-One và One-to-Many?</span></div>
+            <div class="qa-a">Trong async SQLAlchemy, cơ chế Lazy Loading ngầm định bị vô hiệu hóa hoàn toàn; cố truy cập quan hệ chưa nạp sẽ gây lỗi sập request <code>MissingGreenlet</code>. Dùng <code>selectinload()</code> sẽ phát 2 câu lệnh SQL tối ưu gom nhóm <code>WHERE id IN (...)</code>, triệt tiêu triệt để vấn nạn N+1 query.</div>
+          </div>
+
+          <div class="qa-card">
+            <div class="qa-q"><span class="qa-q-num">Q5</span> <span>Làm thế nào để ứng dụng Flutter ghi nhớ tài khoản khi reload hoặc khởi động lại app?</span></div>
+            <div class="qa-a">Tích hợp thư viện <code>shared_preferences</code> vào <code>SessionService</code>. Khi người dùng đăng nhập, lưu <code>role</code>, <code>token</code>, và <code>user</code> (JSON) xuống ổ đĩa. Trong hàm <code>main()</code> của Flutter, gọi <code>await SessionService.instance.init()</code> trước khi gọi <code>runApp()</code> để đảm bảo phiên làm việc được phục hồi 100% trước khi dựng giao diện.</div>
+          </div>
+
+          <div class="qa-card">
+            <div class="qa-q"><span class="qa-q-num">Q6</span> <span>Tại sao nút "+ Add Item" trên màn hình chính Flutter cần Riverpod AuthRoleNotifier thay vì plain Provider?</span></div>
+            <div class="qa-a">Plain <code>Provider&lt;SessionService&gt;</code> chỉ so sánh tham chiếu đối tượng (identity equality). Vì <code>SessionService.instance</code> là Singleton, địa chỉ ô nhớ không đổi nên Riverpod bỏ qua việc rebuild. Sử dụng <code>AuthRoleNotifier</code> lắng nghe <code>notifyListeners()</code> và phát state mới <code>AppRole</code>, kích hoạt Riverpod rebuild lập tức hiển thị nút FloatingActionButton.</div>
+          </div>
+        </div>
+
+        <div id="pane-targets" style="display: none;">
+          <div class="qa-card">
+            <div class="qa-q"><span class="qa-q-num">T1</span> <span>End-to-End Non-Blocking Architecture</span></div>
+            <div class="qa-a">Mọi I/O handler đều được khai báo <code>async def</code>, tuyệt đối không gọi <code>time.sleep()</code> hay <code>requests</code> đồng bộ làm nghẽn Event Loop.</div>
+          </div>
+          <div class="qa-card">
+            <div class="qa-q"><span class="qa-q-num">T2</span> <span>Soft-Disable Active Guard</span></div>
+            <div class="qa-a">Kiểm tra cờ <code>is_active == True</code> ngay trong dependency <code>get_current_user</code>, lập tức từ chối 403 nếu tài khoản bị vô hiệu hóa dù JWT còn hạn.</div>
+          </div>
+          <div class="qa-card">
+            <div class="qa-q"><span class="qa-q-num">T3</span> <span>Admin Self-Lock Guard</span></div>
+            <div class="qa-a">Kiểm tra trong <code>PATCH /users/{id}/status</code>: nếu <code>current_user.id == target_user.id</code> và <code>is_active == False</code>, trả về 400 Bad Request ngăn chặn Admin tự khóa mình.</div>
+          </div>
+          <div class="qa-card">
+            <div class="qa-q"><span class="qa-q-num">T4</span> <span>Atomic Order Checkout Transaction</span></div>
+            <div class="qa-a">Mọi thao tác kiểm tra tồn kho, nạp sản phẩm, trừ kho, tính tổng tiền và tạo chi tiết đơn hàng đều nằm trong một giao dịch cơ sở dữ liệu duy nhất (Atomic ACID).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: COMPREHENSIVE ERROR MATRIX & FAILURE CATALOG ================= -->
+  <div class="modal-backdrop" id="error-modal" onclick="handleBackdropClick(event, 'error-modal')">
+    <div class="modal-card" style="max-width: 1080px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>🚨</span> <span id="error-modal-title">Cocoloco Platform — Danh Mục Bẫy Lỗi &amp; Cơ Chế Phòng Thủ (Error &amp; Failure Modes Matrix)</span>
+        </div>
+        <button class="modal-close" onclick="closeModal('error-modal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="erd-callout" style="margin-bottom: 1.1rem; border-color: var(--c-policy); background: rgba(244, 63, 94, 0.05); color: #FDA4AF;" id="error-callout">
+          Hệ thống được thiết kế theo tiêu chuẩn <strong>Defensive Backend Architecture</strong>: Triệt tiêu hoàn toàn rò rỉ ngoại lệ thô (Zero Raw Stack Trace Leaks), bẫy lỗi có cấu trúc theo <strong>RFC 9457 Problem Details</strong>, và tự động Rollback giao dịch khi gặp sự cố bất khả kháng.
+        </div>
+
+        <!-- Filter Chips Bar -->
+        <div class="error-filter-bar">
+          <button class="filter-chip-btn active" onclick="filterErrors('all', this)">Tất cả (12 Lỗi)</button>
+          <button class="filter-chip-btn" onclick="filterErrors('400', this)">400 Bad Request (3)</button>
+          <button class="filter-chip-btn" onclick="filterErrors('401', this)">401 Unauthorized (2)</button>
+          <button class="filter-chip-btn" onclick="filterErrors('403', this)">403 Forbidden (2)</button>
+          <button class="filter-chip-btn" onclick="filterErrors('404', this)">404 Not Found (2)</button>
+          <button class="filter-chip-btn" onclick="filterErrors('409', this)">409 Conflict (1)</button>
+          <button class="filter-chip-btn" onclick="filterErrors('422', this)">422 Validation (1)</button>
+          <button class="filter-chip-btn" onclick="filterErrors('500', this)">500 Rollback (1)</button>
+        </div>
+
+        <!-- Grid of 12 Comprehensive Error Cards -->
+        <div class="error-grid" id="error-grid-container">
+
+          <!-- Error 1: 401 Expired JWT -->
+          <div class="error-card" data-status="401" data-layer="security">
+            <div class="error-card-header">
+              <span class="error-status-badge badge-401">401 UNAUTHORIZED</span>
+              <span class="error-meta-line">app/core/security.py:48</span>
+            </div>
+            <div class="error-title">TOKEN_EXPIRED_OR_INVALID_SIGNATURE</div>
+            <div class="error-desc">Client gửi Bearer token Clerk đã hết hạn (expired) hoặc chữ ký mã hóa RS256 không khớp với Public Key trên endpoint JWKS của Clerk.</div>
+            <div class="error-defense-box">
+              🛡️ <strong>Cơ chế phòng thủ:</strong> PyJWKClient kiểm tra chữ ký khóa công khai RS256, áp dụng dung sai 5 giây độ lệch đồng hồ (5s clock skew leeway) theo chuẩn RFC 7519.
+            </div>
+            <div class="error-code-preview">{"detail": "Could not validate credentials: token expired or invalid RS256 signature"}</div>
+            <button class="btn-simulate-error" onclick="simulateErrorFlow('trap-401')">🎯 Mô phỏng bẫy trên sơ đồ</button>
+          </div>
+
+          <!-- Error 2: 401 Missing Bearer Header -->
+          <div class="error-card" data-status="401" data-layer="gateway">
+            <div class="error-card-header">
+              <span class="error-status-badge badge-401">401 UNAUTHORIZED</span>
+              <span class="error-meta-line">app/core/dependencies.py:32</span>
+            </div>
+            <div class="error-title">MISSING_AUTHENTICATION_TOKEN</div>
+            <div class="error-desc">Yêu cầu truy cập endpoint bảo mật (e.g. <code>POST /orders</code>, <code>GET /users/me</code>) nhưng hoàn toàn không đính kèm header <code>Authorization: Bearer &lt;token&gt;</code>.</div>
+            <div class="error-defense-box">
+              🛡️ <strong>Cơ chế phòng thủ:</strong> FastAPI <code>HTTPBearer(auto_error=True)</code> chặn đứng ngay tại Gateway ingress trước khi request chạm vào Router Handler.
+            </div>
+            <div class="error-code-preview">{"detail": "Not authenticated"}</div>
+            <button class="btn-simulate-error" onclick="simulateErrorFlow('trap-401')">🎯 Mô phỏng bẫy trên sơ đồ</button>
+          </div>
+
+          <!-- Error 3: 403 Insufficient Privileges (RBAC) -->
+          <div class="error-card" data-status="403" data-layer="gateway">
+            <div class="error-card-header">
+              <span class="error-status-badge badge-403">403 FORBIDDEN</span>
+              <span class="error-meta-line">app/core/dependencies.py:65</span>
+            </div>
+            <div class="error-title">FORBIDDEN_ADMIN_ROLE_REQUIRED</div>
+            <div class="error-desc">User có role <code>USER</code> cố tình gọi API dành riêng cho quản trị viên (e.g. tạo sản phẩm, duyệt đơn bếp, đổi vai trò người dùng). Nguy cơ tấn công BFLA (OWASP API5).</div>
+            <div class="error-defense-box">
+              🛡️ <strong>Cơ chế phòng thủ:</strong> Dependency <code>require_role(UserRole.ADMIN)</code> đối chiếu quyền hạn trong active database session, chặn đứng truy cập trái phép.
+            </div>
+            <div class="error-code-preview">{"detail": "Operation not permitted: Administrator privileges required"}</div>
+            <button class="btn-simulate-error" onclick="simulateErrorFlow('trap-403')">🎯 Mô phỏng bẫy trên sơ đồ</button>
+          </div>
+
+          <!-- Error 4: 403 Inactive / Suspended User -->
+          <div class="error-card" data-status="403" data-layer="gateway">
+            <div class="error-card-header">
+              <span class="error-status-badge badge-403">403 FORBIDDEN</span>
+              <span class="error-meta-line">app/core/dependencies.py:52</span>
+            </div>
+            <div class="error-title">USER_ACCOUNT_SUSPENDED</div>
+            <div class="error-desc">Tài khoản đã bị Admin vô hiệu hóa (<code>is_active=False</code>) nhưng vẫn cầm JWT token Clerk còn thời hạn hiệu lực.</div>
+            <div class="error-defense-box">
+              🛡️ <strong>Cơ chế phòng thủ:</strong> <code>get_current_active_user</code> kiểm tra cờ <code>is_active</code> từ PostgreSQL trong từng request, tước quyền tức thì mà không phụ thuộc thời gian sống JWT.
+            </div>
+            <div class="error-code-preview">{"detail": "User account is suspended or deactivated"}</div>
+            <button class="btn-simulate-error" onclick="simulateErrorFlow('trap-403')">🎯 Mô phỏng bẫy trên sơ đồ</button>
+          </div>
+
+          <!-- Error 5: 400 Admin Self-Lock Guard -->
+          <div class="error-card" data-status="400" data-layer="gateway">
+            <div class="error-card-header">
+              <span class="error-status-badge badge-400">400 BAD REQUEST</span>
+              <span class="error-meta-line">app/api/v1/users.py:64</span>
+            </div>
+            <div class="error-title">ADMIN_SELF_LOCK_PREVENTED</div>
+            <div class="error-desc">Quản trị viên tự gửi yêu cầu cập nhật tài khoản của chính mình thành <code>role="USER"</code> hoặc <code>is_active=false</code>. Nguy cơ biến hệ thống thành "mồ côi Admin".</div>
+            <div class="error-defense-box">
+              🛡️ <strong>Cơ chế phòng thủ:</strong> Kiểm tra <code>target_user_id == current_user.id</code> trước khi cập nhật. Nếu trùng khớp, từ chối ngay với mã 400 và không thực thi UPDATE.
+            </div>
+            <div class="error-code-preview">{"detail": "Action prohibited: Administrators cannot demote or deactivate their own account"}</div>
+            <button class="btn-simulate-error" onclick="simulateErrorFlow('trap-400')">🎯 Mô phỏng bẫy trên sơ đồ</button>
+          </div>
+
+          <!-- Error 6: 400 Empty Cart / Invalid Quantity -->
+          <div class="error-card" data-status="400" data-layer="gateway">
+            <div class="error-card-header">
+              <span class="error-status-badge badge-400">400 BAD REQUEST</span>
+              <span class="error-meta-line">app/api/v1/orders.py:38</span>
+            </div>
+            <div class="error-title">EMPTY_OR_INVALID_ORDER_PAYLOAD</div>
+            <div class="error-desc">Client gửi payload đơn hàng không có món nào (<code>items=[]</code>) hoặc số lượng món không hợp lệ (<code>quantity &lt;= 0</code>).</div>
+            <div class="error-defense-box">
+              🛡️ <strong>Cơ chế phòng thủ:</strong> Router và Pydantic DTO kiểm tra <code>len(items) &gt; 0</code> và <code>Field(gt=0)</code>, chặn đứng đơn rác trước khi mở Transaction.
+            </div>
+            <div class="error-code-preview">{"detail": "Order must contain at least one item with quantity greater than zero"}</div>
+            <button class="btn-simulate-error" onclick="simulateErrorFlow('trap-400-cart')">🎯 Mô phỏng bẫy trên sơ đồ</button>
+          </div>
+
+          <!-- Error 7: 400 Duplicate Item IDs in Order -->
+          <div class="error-card" data-status="400" data-layer="gateway">
+            <div class="error-card-header">
+              <span class="error-status-badge badge-400">400 BAD REQUEST</span>
+              <span class="error-meta-line">app/schemas/order_schemas.py:28</span>
+            </div>
+            <div class="error-title">DUPLICATE_ORDER_ITEMS_PAYLOAD</div>
+            <div class="error-desc">Payload chứa nhiều dòng có cùng một <code>item_id</code> thay vì cộng dồn số lượng. Có thể gây xung đột khóa ngoại kép trong <code>order_items</code>.</div>
+            <div class="error-defense-box">
+              🛡️ <strong>Cơ chế phòng thủ:</strong> Pydantic Validator kiểm tra tính duy nhất: <code>len(set(item_ids)) == len(items)</code>, yêu cầu client gộp số lượng.
+            </div>
+            <div class="error-code-preview">{"detail": "Duplicate items detected in order request. Consolidate quantities into a single item."}</div>
+            <button class="btn-simulate-error" onclick="simulateErrorFlow('trap-400-cart')">🎯 Mô phỏng bẫy trên sơ đồ</button>
+          </div>
+
+          <!-- Error 8: 404 Catalog Item Unavailable -->
+          <div class="error-card" data-status="404" data-layer="database">
+            <div class="error-card-header">
+              <span class="error-status-badge badge-404">404 NOT FOUND</span>
+              <span class="error-meta-line">app/repositories/item_repository.py:54</span>
+            </div>
+            <div class="error-title">CATALOG_ITEM_UNAVAILABLE</div>
+            <div class="error-desc">Khách đặt món với <code>item_id</code> không tồn tại trong database hoặc sản phẩm đã bị soft-deleted (<code>is_active=False</code>).</div>
+            <div class="error-defense-box">
+              🛡️ <strong>Cơ chế phòng thủ:</strong> Query <code>SELECT * FROM items WHERE id = :id AND is_active = true</code>. Nếu không đủ món, hủy giao dịch và raise 404.
+            </div>
+            <div class="error-code-preview">{"detail": "Item 'c8f12a34-...' not found or currently unavailable"}</div>
+            <button class="btn-simulate-error" onclick="simulateErrorFlow('trap-404')">🎯 Mô phỏng bẫy trên sơ đồ</button>
+          </div>
+
+          <!-- Error 9: 404 Order Not Found / BOLA Protection -->
+          <div class="error-card" data-status="404" data-layer="database">
+            <div class="error-card-header">
+              <span class="error-status-badge badge-404">404 NOT FOUND</span>
+              <span class="error-meta-line">app/repositories/order_repository.py:88</span>
+            </div>
+            <div class="error-title">ORDER_NOT_FOUND_OR_FORBIDDEN</div>
+            <div class="error-desc">User tra cứu đơn hàng không tồn tại, hoặc cố tình xem đơn của người khác bằng cách đoán UUID (tấn công BOLA / IDOR - OWASP API1).</div>
+            <div class="error-defense-box">
+              🛡️ <strong>Cơ chế phòng thủ:</strong> Scoped query: <code>WHERE id = :id AND (user_id = :current_user_id OR :is_admin = true)</code>. Trả về 404 để tránh lộ thông tin đơn hàng.
+            </div>
+            <div class="error-code-preview">{"detail": "Order not found or you do not have permission to access it"}</div>
+            <button class="btn-simulate-error" onclick="simulateErrorFlow('trap-404')">🎯 Mô phỏng bẫy trên sơ đồ</button>
+          </div>
+
+          <!-- Error 10: 409 User Already Exists (Sync Conflict) -->
+          <div class="error-card" data-status="409" data-layer="database">
+            <div class="error-card-header">
+              <span class="error-status-badge badge-409">409 CONFLICT</span>
+              <span class="error-meta-line">app/api/v1/auth.py:42</span>
+            </div>
+            <div class="error-title">USER_IDENTITY_CONFLICT</div>
+            <div class="error-desc">Đồng bộ user từ Clerk nhưng email hoặc clerk_id đã gắn với một bản ghi người dùng khác trong cơ sở dữ liệu PostgreSQL.</div>
+            <div class="error-defense-box">
+              🛡️ <strong>Cơ chế phòng thủ:</strong> Bắt <code>sqlalchemy.exc.IntegrityError</code> trên Unique Index và chuyển hóa thành mã HTTP 409 sạch sẽ thay vì crash 500.
+            </div>
+            <div class="error-code-preview">{"detail": "User with this Clerk ID or Email already exists in the local database"}</div>
+            <button class="btn-simulate-error" onclick="simulateErrorFlow('trap-403')">🎯 Mô phỏng bẫy trên sơ đồ</button>
+          </div>
+
+          <!-- Error 11: 422 Schema Validation Error -->
+          <div class="error-card" data-status="422" data-layer="gateway">
+            <div class="error-card-header">
+              <span class="error-status-badge badge-422">422 UNPROCESSABLE</span>
+              <span class="error-meta-line">Pydantic V2 Core · Rust Ingress</span>
+            </div>
+            <div class="error-title">SCHEMA_TYPE_VALIDATION_FAILED</div>
+            <div class="error-desc">Request payload sai định dạng dữ liệu: chuỗi UUID không hợp lệ, string thay vì integer, hoặc thiếu các trường bắt buộc.</div>
+            <div class="error-defense-box">
+              🛡️ <strong>Cơ chế phòng thủ:</strong> Pydantic v2 Core viết bằng Rust kiểm tra kiểu tĩnh siêu tốc và trả về danh sách vị trí lỗi cụ thể (Field Path Location).
+            </div>
+            <div class="error-code-preview">{"detail": [{"loc": ["body", "items", 0, "quantity"], "msg": "Input should be greater than 0", "type": "greater_than"}]}</div>
+            <button class="btn-simulate-error" onclick="simulateErrorFlow('trap-400-cart')">🎯 Mô phỏng bẫy trên sơ đồ</button>
+          </div>
+
+          <!-- Error 12: 500 MissingGreenlet Prevention & Safe Rollback -->
+          <div class="error-card" data-status="500" data-layer="database">
+            <div class="error-card-header">
+              <span class="error-status-badge badge-500">500 / ROLLBACK</span>
+              <span class="error-meta-line">app/repositories/order_repository.py:85</span>
+            </div>
+            <div class="error-title">MISSING_GREENLET_PREVENTED_AND_ATOMIC_ROLLBACK</div>
+            <div class="error-desc">Truy cập ORM relationship bất đồng bộ mà thiếu eager loading gây crash MissingGreenlet, hoặc transaction bị ngắt kết nối giữa chừng.</div>
+            <div class="error-defense-box">
+              🛡️ <strong>Cơ chế phòng thủ:</strong> Cocoloco áp dụng bắt buộc <code>selectinload()</code> trên mọi truy vấn quan hệ; bọc mọi thay đổi trong <code>async with session.begin()</code> tự động Rollback sạch sẽ khi có lỗi.
+            </div>
+            <div class="error-code-preview">{"detail": "Database transaction failed. All changes have been safely rolled back."}</div>
+            <button class="btn-simulate-error" onclick="simulateErrorFlow('trap-500')">🎯 Mô phỏng bẫy trên sơ đồ</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    let currentLang = 'vi';
+    let currentLockedScenario = 0;
+    const mainSvg = document.getElementById('main-svg');
+    const inspectTag = document.getElementById('inspect-tag');
+
+    const I18N = {
+      vi: {
+        title: "Cocoloco Food Ordering System",
+        sub: "FastAPI & Flutter End-to-End Workflow Map",
+        exploreSub: "Khám phá toàn bộ hệ thống Cocoloco",
+        playStory: "Phát kịch bản",
+        stopStory: "Dừng phát",
+        next: "KẾ TIẾP",
+        toastCopied: "Đã sao chép khoảnh khắc vào Clipboard!",
+        langBtn: "🇻🇳 Tiếng Việt",
+        themeDark: "🌙 Dark",
+        themeLight: "☀️ Light"
+      },
+      en: {
+        title: "Cocoloco Food Ordering System",
+        sub: "FastAPI & Flutter End-to-End Workflow Map",
+        exploreSub: "Explore all architecture workflows",
+        playStory: "Play Story",
+        stopStory: "Stop",
+        next: "NEXT",
+        toastCopied: "Moment Copied to Clipboard!",
+        langBtn: "🇬🇧 English",
+        themeDark: "🌙 Dark",
+        themeLight: "☀️ Light"
+      }
+    };
+
+    const SCENARIOS = [
+      {
+        id: 1,
+        counter_vi: "GUIDED VIEWS 1 / 5",
+        counter_en: "GUIDED VIEWS 1 / 5",
+        title_vi: "Flutter Mobile ➔ POST /api/v1/orders ➔ OrderRepository",
+        title_en: "Flutter Mobile ➔ POST /api/v1/orders ➔ OrderRepository",
+        sub_vi: "Clerk Bearer RS256 · Atomic Transaction · Price Snapshot · app.repositories.order_repo",
+        sub_en: "Clerk Bearer RS256 · Atomic Transaction · Price Snapshot · app.repositories.order_repo",
+        next_vi: "02 · Bẫy RBAC: 403 Forbidden",
+        next_en: "02 · RBAC Trap: 403 Forbidden",
+        nodes: ['flutter', 'jwt', 'orders-api', 'orderrepo', 'prodrepo'],
+        wires: ['wire-flutter-orders', 'wire-orders-orderrepo', 'wire-orderrepo-prodrepo'],
+        photons: ['photon-flutter-orders', 'photon-orders-orderrepo', 'photon-orderrepo-prodrepo']
+      },
+      {
+        id: 2,
+        counter_vi: "GUIDED VIEWS 2 / 5",
+        counter_en: "GUIDED VIEWS 2 / 5",
+        title_vi: "Bẫy RBAC: Chặn khách thường cố tạo sản phẩm hoặc duyệt đơn",
+        title_en: "RBAC Guard Trap: Non-Admin blocked from mutating catalog",
+        sub_vi: "HTTP 403 Forbidden · require_admin · app.api.deps > 2-Tier RBAC Guard",
+        sub_en: "HTTP 403 Forbidden · require_admin · app.api.deps > 2-Tier RBAC Guard",
+        next_vi: "03 · Chống tự khóa Admin",
+        next_en: "03 · Admin Self-Lock Guard",
+        nodes: ['jwt', 'rbac', 'trap-403'],
+        wires: ['wire-jwt-rbac', 'wire-trap-rbac'],
+        photons: ['photon-trap-rbac']
+      },
+      {
+        id: 3,
+        counter_vi: "GUIDED VIEWS 3 / 5",
+        counter_en: "GUIDED VIEWS 3 / 5",
+        title_vi: "Kiểm duyệt: Admin không thể tự vô hiệu hóa tài khoản của chính mình",
+        title_en: "Self-Lock Guard: Admin prevented from deactivating self",
+        sub_vi: "HTTP 400 Bad Request · Admin Self-Lock Guard · app.repositories.user_repo",
+        sub_en: "HTTP 400 Bad Request · Admin Self-Lock Guard · app.repositories.user_repo",
+        next_vi: "04 · Toàn vẹn giá & N+1",
+        next_en: "04 · Price Snapshot & N+1",
+        nodes: ['userrepo', 'trap-400'],
+        wires: ['wire-trap-disable'],
+        photons: ['photon-trap-disable']
+      },
+      {
+        id: 4,
+        counter_vi: "GUIDED VIEWS 4 / 5",
+        counter_en: "GUIDED VIEWS 4 / 5",
+        title_vi: "Toàn vẹn giá: Price Snapshot tại thời điểm đặt & selectinload()",
+        title_en: "Price Integrity: Snapshot at order time & selectinload()",
+        sub_vi: "Financial Immutability · Triệt tiêu N+1 Query · app.repositories.order_repo",
+        sub_en: "Financial Immutability · Eliminating N+1 Query · app.repositories.order_repo",
+        next_vi: "05 · Kiểm thử toàn diện",
+        next_en: "05 · Comprehensive Test Suite",
+        nodes: ['orders-api', 'orderrepo', 'prodrepo'],
+        wires: ['wire-orders-orderrepo', 'wire-orderrepo-prodrepo'],
+        photons: ['photon-orders-orderrepo', 'photon-orderrepo-prodrepo']
+      },
+      {
+        id: 5,
+        counter_vi: "GUIDED VIEWS 5 / 5",
+        counter_en: "GUIDED VIEWS 5 / 5",
+        title_vi: "Bộ Kiểm thử Tự động: 177 Pytest (98%) & 102 Flutter Tests (100%)",
+        title_en: "Automated Suite: 177 Pytest (98%) & 102 Flutter Tests (100%)",
+        sub_vi: "Zero Regressions · Negative Testing · SQLite in-memory · tests/ & test/",
+        sub_en: "Zero Regressions · Negative Testing · SQLite in-memory · tests/ & test/",
+        next_vi: "01 · Đặt món & Checkout",
+        next_en: "01 · Order & Checkout",
+        nodes: ['flutter', 'postman', 'orders-api', 'products-api', 'orderrepo'],
+        wires: ['wire-postman-products', 'wire-postman-orders'],
+        photons: ['photon-postman-products']
+      }
+    ];
+
+    const NODE_DETAILS = {
+      clerk: {
+        title_vi: "Clerk Cloud IAM",
+        title_en: "Clerk Cloud IAM",
+        tag_vi: "SECURITY & IAM",
+        tag_en: "SECURITY & IAM",
+        desc_vi: "Dịch vụ Identity & Access Management đám mây. Ký JWT bằng thuật toán RS256 và cung cấp Public Key qua JWKS endpoint.",
+        desc_en: "Cloud Identity & Access Management. Signs JWT tokens via RS256 and exposes public keys via JWKS endpoint.",
+        file: "https://proud-rhino-8074.clerk.accounts.dev/.well-known/jwks.json",
+        pathText_vi: "Ingress · RS256 Token Provider",
+        pathText_en: "Ingress · RS256 Token Provider",
+        connectedNodes: ['jwt'],
+        ins: [],
+        outs: ['wire-clerk-jwt'],
+        photons: ['photon-clerk-jwt']
+      },
+      flutter: {
+        title_vi: "Cocoloco Flutter App",
+        title_en: "Cocoloco Flutter App",
+        tag_vi: "CLIENT FRONTEND",
+        tag_en: "CLIENT FRONTEND",
+        desc_vi: "Ứng dụng di động Flutter (iOS, Android, Web) tích hợp Riverpod 2.x, lưu trữ phiên đăng nhập bền vững với SharedPreferences và Dio Client.",
+        desc_en: "Flutter mobile application with Riverpod 2.x state management, persistent SharedPreferences session, and Dio HTTP client.",
+        file: "lib/core/services/session_service.dart, lib/main.dart",
+        pathText_vi: "Client Runner · Mobile Interface",
+        pathText_en: "Client Runner · Mobile Interface",
+        connectedNodes: ['sync', 'orders-api'],
+        ins: [],
+        outs: ['wire-flutter-sync', 'wire-flutter-orders'],
+        photons: ['photon-flutter-sync', 'photon-flutter-orders']
+      },
+      postman: {
+        title_vi: "Postman Automation Suite",
+        title_en: "Postman Automation Suite",
+        tag_vi: "API TESTING",
+        tag_en: "API TESTING",
+        desc_vi: "Bộ kiểm thử API tự động bao gồm toàn bộ luồng Auth, Sản phẩm, Đặt hàng và Admin RBAC.",
+        desc_en: "Automated Postman test collection covering Auth Sync, Catalog CRUD, and Order checkout workflows.",
+        file: "postman/cocoloco-api.postman_collection.json",
+        pathText_vi: "Testing · Automated Test Runner",
+        pathText_en: "Testing · Automated Test Runner",
+        connectedNodes: ['products-api'],
+        ins: [],
+        outs: ['wire-postman-products', 'wire-postman-orders'],
+        photons: ['photon-postman-products']
+      },
+      jwt: {
+        title_vi: "verify_clerk_token()",
+        title_en: "verify_clerk_token()",
+        tag_vi: "SECURITY GATEWAY",
+        tag_en: "SECURITY GATEWAY",
+        desc_vi: "Giải mã và thẩm định chữ ký RS256 của Bearer Token bằng PyJWKClient với LRU cache và dung sai trôi thời gian 5s clock skew leeway.",
+        desc_en: "Validates RS256 cryptographic signatures using PyJWKClient with LRU caching and 5s clock skew tolerance.",
+        file: "app/core/security.py",
+        pathText_vi: "Gateway · Cryptographic RS256 Verification",
+        pathText_en: "Gateway · Cryptographic RS256 Verification",
+        connectedNodes: ['clerk', 'rbac'],
+        ins: ['wire-clerk-jwt'],
+        outs: ['wire-jwt-rbac'],
+        photons: ['photon-clerk-jwt']
+      },
+      rbac: {
+        title_vi: "RBAC Dependencies",
+        title_en: "RBAC Dependencies",
+        tag_vi: "POLICY GUARDS",
+        tag_en: "POLICY GUARDS",
+        desc_vi: "FastAPI Dependencies (get_current_user, require_admin). Kiểm tra quyền người dùng và thực thi Soft-Disable Active Guard.",
+        desc_en: "FastAPI Dependencies enforcing 2-tier role-based access control and soft-disable active account guard.",
+        file: "app/api/deps.py",
+        pathText_vi: "Guards · 2-Tier RBAC & Soft-Disable Guard",
+        pathText_en: "Guards · 2-Tier RBAC & Soft-Disable Guard",
+        connectedNodes: ['jwt', 'products-api', 'userrepo', 'trap-403'],
+        ins: ['wire-jwt-rbac'],
+        outs: ['wire-rbac-products', 'wire-rbac-userrepo', 'wire-trap-rbac'],
+        photons: ['photon-rbac-products', 'photon-rbac-userrepo', 'photon-trap-rbac']
+      },
+      sync: {
+        title_vi: "POST /api/v1/auth/sync",
+        title_en: "POST /api/v1/auth/sync",
+        tag_vi: "ROUTE HANDLER",
+        tag_en: "ROUTE HANDLER",
+        desc_vi: "Endpoint đồng bộ tài khoản giữa Clerk và cơ sở dữ liệu PostgreSQL. Tự động khởi tạo hoặc cập nhật hồ sơ người dùng.",
+        desc_en: "Idempotent user sync endpoint bridging Clerk claims with local PostgreSQL user records.",
+        file: "app/api/v1/auth.py",
+        pathText_vi: "Router · Idempotent User Sync",
+        pathText_en: "Router · Idempotent User Sync",
+        connectedNodes: ['flutter', 'userrepo'],
+        ins: ['wire-flutter-sync'],
+        outs: ['wire-sync-userrepo'],
+        photons: ['photon-flutter-sync', 'photon-sync-userrepo']
+      },
+      'orders-api': {
+        title_vi: "POST /api/v1/orders",
+        title_en: "POST /api/v1/orders",
+        tag_vi: "ROUTE HANDLER",
+        tag_en: "ROUTE HANDLER",
+        desc_vi: "Tiếp nhận giỏ hàng từ mobile, thẩm định DTO, khởi tạo giao dịch nguyên khối và ghi nhận lịch sử đơn hàng.",
+        desc_en: "Validates incoming cart payloads, initiates atomic transactions, and records order history.",
+        file: "app/api/v1/orders.py",
+        pathText_vi: "Router · Checkout & Order History",
+        pathText_en: "Router · Checkout & Order History",
+        connectedNodes: ['flutter', 'orderrepo'],
+        ins: ['wire-flutter-orders'],
+        outs: ['wire-orders-orderrepo'],
+        photons: ['photon-flutter-orders', 'photon-orders-orderrepo']
+      },
+      'products-api': {
+        title_vi: "GET /api/v1/products",
+        title_en: "GET /api/v1/products",
+        tag_vi: "ROUTE HANDLER",
+        tag_en: "ROUTE HANDLER",
+        desc_vi: "Cung cấp menu sản phẩm phân trang theo danh mục (coffee, pastry, meal) và hỗ trợ các thao tác CRUD dành riêng cho Admin.",
+        desc_en: "Provides paginated catalog browsing by category with Admin-protected CRUD endpoints.",
+        file: "app/api/v1/products.py",
+        pathText_vi: "Router · Catalog Browsing & Admin Mutations",
+        pathText_en: "Router · Catalog Browsing & Admin Mutations",
+        connectedNodes: ['postman', 'prodrepo', 'rbac'],
+        ins: ['wire-postman-products', 'wire-rbac-products'],
+        outs: ['wire-prod-prodrepo'],
+        photons: ['photon-postman-products', 'photon-rbac-products']
+      },
+      userrepo: {
+        title_vi: "UserRepository",
+        title_en: "UserRepository",
+        tag_vi: "DATABASE REPO",
+        tag_en: "DATABASE REPO",
+        desc_vi: "Quản lý truy vấn bất đồng bộ bảng users, hỗ trợ phân trang danh sách và kiểm tra an toàn Admin Self-Lock Guard.",
+        desc_en: "Handles async queries for the users table with Admin Self-Lock protection against accidental lockouts.",
+        file: "app/repositories/user_repo.py",
+        pathText_vi: "Repository · Async User Data Layer",
+        pathText_en: "Repository · Async User Data Layer",
+        connectedNodes: ['sync', 'rbac', 'trap-400'],
+        ins: ['wire-sync-userrepo', 'wire-rbac-userrepo'],
+        outs: ['wire-trap-disable'],
+        photons: ['photon-sync-userrepo', 'photon-rbac-userrepo', 'photon-trap-disable']
+      },
+      orderrepo: {
+        title_vi: "OrderRepository",
+        title_en: "OrderRepository",
+        tag_vi: "DATABASE REPO",
+        tag_en: "DATABASE REPO",
+        desc_vi: "Thực hiện giao dịch nguyên khối (Atomic Transaction), khóa giá snapshot cho từng sản phẩm và nạp quan hệ bằng selectinload().",
+        desc_en: "Executes atomic order transactions, freezes price snapshots, and eagerly loads items using selectinload().",
+        file: "app/repositories/order_repo.py",
+        pathText_vi: "Repository · Atomic Transactions & Price Snapshot",
+        pathText_en: "Repository · Atomic Transactions & Price Snapshot",
+        connectedNodes: ['orders-api', 'prodrepo'],
+        ins: ['wire-orders-orderrepo'],
+        outs: ['wire-orderrepo-prodrepo'],
+        photons: ['photon-orders-orderrepo', 'photon-orderrepo-prodrepo']
+      },
+      prodrepo: {
+        title_vi: "ProductRepository",
+        title_en: "ProductRepository",
+        tag_vi: "DATABASE REPO",
+        tag_en: "DATABASE REPO",
+        desc_vi: "Thực hiện truy vấn lọc sản phẩm theo category, kiểm tra tồn tại và xử lý thêm sửa xóa danh mục thực đơn.",
+        desc_en: "Executes category-filtered queries, existence checks, and catalog mutations.",
+        file: "app/repositories/product_repo.py",
+        pathText_vi: "Repository · Async Product Catalog Layer",
+        pathText_en: "Repository · Async Product Catalog Layer",
+        connectedNodes: ['products-api', 'orderrepo', 'trap-400-cart'],
+        ins: ['wire-prod-prodrepo', 'wire-orderrepo-prodrepo'],
+        outs: ['wire-trap-conflict'],
+        photons: ['photon-orderrepo-prodrepo', 'photon-trap-conflict']
+      },
+      'trap-403': {
+        title_vi: "Bẫy 403 Forbidden",
+        title_en: "403 Forbidden Trap",
+        tag_vi: "GUARDED TRAP",
+        tag_en: "GUARDED TRAP",
+        desc_vi: "Lỗi phát sinh khi người dùng có role là USER cố gắng truy cập hoặc thay đổi tài nguyên yêu cầu quyền ADMIN.",
+        desc_en: "Triggered when a standard USER attempts to invoke Admin-only operations.",
+        file: "app/api/deps.py > require_admin",
+        pathText_vi: "Trap · Policy Violation (403)",
+        pathText_en: "Trap · Policy Violation (403)",
+        connectedNodes: ['rbac'],
+        ins: ['wire-trap-rbac'],
+        outs: [],
+        photons: ['photon-trap-rbac']
+      },
+      'trap-400': {
+        title_vi: "Bẫy 400 Admin Self-Lock",
+        title_en: "400 Admin Self-Lock Trap",
+        tag_vi: "GUARDED TRAP",
+        tag_en: "GUARDED TRAP",
+        desc_vi: "Chốt chặn ngăn Admin tự vô hiệu hóa tài khoản của chính mình trong API PATCH /users/{id}/status.",
+        desc_en: "Guards against an Admin accidentally locking their own account.",
+        file: "app/repositories/user_repo.py > update_user_status",
+        pathText_vi: "Trap · Self-Lock Protection (400)",
+        pathText_en: "Trap · Self-Lock Protection (400)",
+        connectedNodes: ['userrepo'],
+        ins: ['wire-trap-disable'],
+        outs: [],
+        photons: ['photon-trap-disable']
+      },
+      'trap-401': {
+        title_vi: "Bẫy 401 Unauthorized",
+        title_en: "401 Unauthorized Trap",
+        tag_vi: "SECURITY REJECTION",
+        tag_en: "SECURITY REJECTION",
+        desc_vi: "Chữ ký RS256 của Clerk không hợp lệ, token hết hạn hoặc độ lệch đồng hồ vượt quá 5s leeway. Chặn đứng ngay tại gateway.",
+        desc_en: "Invalid Clerk RS256 signature, expired JWT, or clock skew exceeded 5s leeway. Gateway rejects instantly.",
+        file: "app/core/security.py:48 (PyJWKClient)",
+        pathText_vi: "Guarded Traps · Token Invalidation",
+        pathText_en: "Guarded Traps · Token Invalidation",
+        connectedNodes: ['jwt'],
+        ins: ['wire-trap-401'],
+        outs: [],
+        photons: ['photon-trap-401']
+      },
+      'trap-404': {
+        title_vi: "Bẫy 404 Catalog & Item Not Found",
+        title_en: "404 Catalog & Item Trap",
+        tag_vi: "DOMAIN REJECTION",
+        tag_en: "DOMAIN REJECTION",
+        desc_vi: "Sản phẩm không tồn tại, đã bị soft-delete (is_active=False), hoặc người dùng cố tình truy cập đơn hàng của người khác (BOLA IDOR protection).",
+        desc_en: "Item not found, soft-deleted (is_active=False), or user attempted cross-tenant access to another order (BOLA protection).",
+        file: "app/repositories/item_repository.py:54",
+        pathText_vi: "Guarded Traps · Catalog Availability",
+        pathText_en: "Guarded Traps · Catalog Availability",
+        connectedNodes: ['prodrepo'],
+        ins: ['wire-trap-404'],
+        outs: [],
+        photons: ['photon-trap-404']
+      },
+      'trap-500': {
+        title_vi: "Bẫy 500 MissingGreenlet & Safe Rollback",
+        title_en: "500 Greenlet & Rollback Trap",
+        tag_vi: "ASYNC ACID SAFETY",
+        tag_en: "ASYNC ACID SAFETY",
+        desc_vi: "Tiêu diệt hoàn toàn lỗi MissingGreenlet N+1 bằng selectinload(). Khi có lỗi bất khả kháng, Transaction tự động Rollback, đảm bảo không bao giờ lưu đơn hàng hỏng.",
+        desc_en: "MissingGreenlet N+1 eradicated via selectinload(). Transactions auto-rollback on exception, guaranteeing zero corrupted orders.",
+        file: "app/repositories/order_repository.py:85",
+        pathText_vi: "Guarded Traps · Async ACID Safety",
+        pathText_en: "Guarded Traps · Async ACID Safety",
+        connectedNodes: ['orderrepo'],
+        ins: ['wire-trap-500'],
+        outs: [],
+        photons: ['photon-trap-500']
+      },
+      'trap-400-cart': {
+        title_vi: "Bẫy 400 Giỏ Hàng Không Hợp Lệ",
+        title_en: "400 Invalid Cart Trap",
+        tag_vi: "GUARDED TRAP",
+        tag_en: "GUARDED TRAP",
+        desc_vi: "Chặn đứng các yêu cầu đặt hàng có danh sách món rỗng, số lượng không hợp lệ hoặc chứa mã sản phẩm trùng lặp.",
+        desc_en: "Rejects order requests containing empty item arrays, negative quantities, or duplicate products.",
+        file: "app/schemas/order.py > OrderCreateRequest",
+        pathText_vi: "Trap · Payload Validation (400)",
+        pathText_en: "Trap · Payload Validation (400)",
+        connectedNodes: ['prodrepo'],
+        ins: ['wire-trap-conflict'],
+        outs: [],
+        photons: ['photon-trap-conflict']
+      }
+    };
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'vi' ? 'en' : 'vi';
+      renderLanguage();
+      showToast(currentLang === 'vi' ? 'Đã chuyển sang Tiếng Việt' : 'Switched to English');
+    }
+
+    function renderLanguage() {
+      const t = I18N[currentLang];
+      document.getElementById('lang-btn').innerHTML = `<span>${t.langBtn}</span>`;
+      document.getElementById('main-title').innerHTML = `${t.title} <span id="main-subtitle">${t.sub}</span>`;
+      document.getElementById('explore-sub').innerText = t.exploreSub;
+
+      if (currentLockedScenario > 0) {
+        const sc = SCENARIOS[currentLockedScenario - 1];
+        document.getElementById('step-counter').innerText = currentLang === 'vi' ? sc.counter_vi : sc.counter_en;
+        document.getElementById('stepper-title').innerText = currentLang === 'vi' ? sc.title_vi : sc.title_en;
+        document.getElementById('stepper-sub').innerText = currentLang === 'vi' ? sc.sub_vi : sc.sub_en;
+        document.getElementById('stepper-next-val').innerText = currentLang === 'vi' ? sc.next_vi : sc.next_en;
+      }
+    }
+
+    // HOVER FOCUS MODE
+    document.querySelectorAll('.arch-node').forEach(node => {
+      node.addEventListener('mouseenter', () => {
+        const id = node.id.replace('node-', '');
+        applyFocusForNode(id);
+      });
+
+      node.addEventListener('mouseleave', () => {
+        if (currentLockedScenario === 0) {
+          mainSvg.classList.remove('focus-active');
+          clearAllHighlights();
+        } else {
+          restoreCurrentScenario();
+        }
+      });
+    });
+
+    function applyFocusForNode(nodeId) {
+      const data = NODE_DETAILS[nodeId];
+      if (!data) return;
+
+      mainSvg.classList.add('focus-active');
+      clearAllHighlights();
+
+      const targetEl = document.getElementById('node-' + nodeId);
+      if (targetEl) {
+        targetEl.classList.add('highlighted', 'hovered');
+      }
+
+      data.connectedNodes.forEach(connId => {
+        const connEl = document.getElementById('node-' + connId);
+        if (connEl) connEl.classList.add('highlighted');
+      });
+
+      const allWires = [...data.outs, ...data.ins];
+      allWires.forEach(wId => {
+        const wire = document.getElementById(wId);
+        if (wire) {
+          wire.classList.add('active-wire');
+          const isBlocked = wId.includes('trap');
+          if (isBlocked) wire.classList.add('blocked-wire');
+          wire.setAttribute('marker-end', isBlocked ? 'url(#arrow-blocked)' : 'url(#arrow-active)');
+        }
+        const lblId = wId.replace('wire-', 'lbl-');
+        const lbl = document.getElementById(lblId);
+        if (lbl) lbl.classList.add('active-wire-label');
+      });
+
+      data.photons.forEach(pId => {
+        const photon = document.getElementById(pId);
+        if (photon) photon.classList.add('streaming');
+      });
+
+      const title = currentLang === 'vi' ? data.title_vi : data.title_en;
+      const pathText = currentLang === 'vi' ? data.pathText_vi : data.pathText_en;
+      inspectTag.innerHTML = `<span class="tag-highlight">${title}</span> · ${pathText}`;
+      inspectTag.classList.add('visible');
+    }
+
+    function clearAllHighlights() {
+      document.querySelectorAll('.arch-node').forEach(n => {
+        n.classList.remove('highlighted', 'hovered');
+      });
+      document.querySelectorAll('.wire').forEach(w => {
+        w.classList.remove('active-wire', 'blocked-wire');
+        w.setAttribute('marker-end', 'url(#arrow-default)');
+      });
+      document.querySelectorAll('.wire-label').forEach(lbl => {
+        lbl.classList.remove('active-wire-label');
+      });
+      document.querySelectorAll('.photon-particle').forEach(p => {
+        p.classList.remove('streaming');
+      });
+      inspectTag.classList.remove('visible');
+    }
+
+    // SCENARIO SELECTION
+    function activateScenario(idx, pillEl) {
+      if (currentLockedScenario === idx) {
+        resetToExploreAll();
+        return;
+      }
+
+      currentLockedScenario = idx;
+      document.querySelectorAll('.scenario-pill').forEach(p => p.classList.remove('active'));
+      if (pillEl) pillEl.classList.add('active');
+
+      document.getElementById('explore-bar').style.display = 'none';
+      const stepperBox = document.getElementById('stepper-box');
+      stepperBox.style.display = 'flex';
+
+      const sc = SCENARIOS[idx - 1];
+      if (!sc) return;
+
+      document.getElementById('step-counter').innerText = currentLang === 'vi' ? sc.counter_vi : sc.counter_en;
+      document.getElementById('stepper-title').innerText = currentLang === 'vi' ? sc.title_vi : sc.title_en;
+      document.getElementById('stepper-sub').innerText = currentLang === 'vi' ? sc.sub_vi : sc.sub_en;
+      document.getElementById('stepper-next-val').innerText = currentLang === 'vi' ? sc.next_vi : sc.next_en;
+
+      document.querySelectorAll('.step-node-badge').forEach((b, i) => {
+        b.classList.toggle('active', i === (idx - 1));
+      });
+
+      restoreCurrentScenario();
+    }
+
+    function restoreCurrentScenario() {
+      if (currentLockedScenario === 0) {
+        resetToExploreAll();
+        return;
+      }
+
+      const sc = SCENARIOS[currentLockedScenario - 1];
+      if (!sc) return;
+
+      mainSvg.classList.add('focus-active');
+      clearAllHighlights();
+
+      sc.nodes.forEach(nId => {
+        const el = document.getElementById('node-' + nId);
+        if (el) el.classList.add('highlighted');
+      });
+
+      sc.wires.forEach(wId => {
+        const wire = document.getElementById(wId);
+        if (wire) {
+          wire.classList.add('active-wire');
+          const isBlocked = wId.includes('trap');
+          if (isBlocked) wire.classList.add('blocked-wire');
+          wire.setAttribute('marker-end', isBlocked ? 'url(#arrow-blocked)' : 'url(#arrow-active)');
+        }
+        const lblId = wId.replace('wire-', 'lbl-');
+        const lbl = document.getElementById(lblId);
+        if (lbl) lbl.classList.add('active-wire-label');
+      });
+
+      sc.photons.forEach(pId => {
+        const photon = document.getElementById(pId);
+        if (photon) photon.classList.add('streaming');
+      });
+    }
+
+    function jumpToStep(stepNum) {
+      const pills = document.querySelectorAll('.scenario-pill');
+      activateScenario(stepNum, pills[stepNum - 1]);
+    }
+
+    function resetToExploreAll() {
+      currentLockedScenario = 0;
+
+      mainSvg.classList.remove('focus-active');
+      clearAllHighlights();
+
+      document.querySelectorAll('.scenario-pill').forEach(p => p.classList.remove('active'));
+
+      document.getElementById('stepper-box').style.display = 'none';
+      document.getElementById('explore-bar').style.display = 'flex';
+
+      closeDrawer();
+      inspectTag.classList.remove('visible');
+
+      if (storyInterval) {
+        clearInterval(storyInterval);
+        storyInterval = null;
+        updatePlayButtons(false);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        closeModal('erd-modal');
+        closeModal('quality-modal');
+        closeModal('cheatsheet-modal');
+        closeDrawer();
+        resetToExploreAll();
+      }
+    });
+
+    document.getElementById('canvas-frame').addEventListener('click', (e) => {
+      const targetId = e.target.id;
+      if (
+        targetId === 'canvas-bg' ||
+        targetId === 'main-svg' ||
+        targetId === 'canvas-frame' ||
+        targetId.includes('-bg')
+      ) {
+        resetToExploreAll();
+      }
+    });
+
+    function copyMoment() {
+      const t = I18N[currentLang];
+      const sc = currentLockedScenario > 0 ? SCENARIOS[currentLockedScenario - 1] : null;
+      const title = sc ? (currentLang === 'vi' ? sc.title_vi : sc.title_en) : (currentLang === 'vi' ? "Toàn bộ kiến trúc Cocoloco" : "Explore All Cocoloco Architecture");
+      const textToCopy = `Cocoloco Food Ordering System Architecture Map - ${title}`;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const toast = document.getElementById('toast');
+        toast.innerText = t.toastCopied;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2200);
+      });
+    }
+
+    let storyInterval = null;
+    function togglePlayStory() {
+      if (storyInterval) {
+        clearInterval(storyInterval);
+        storyInterval = null;
+        updatePlayButtons(false);
+      } else {
+        updatePlayButtons(true);
+        const startIdx = currentLockedScenario > 0 ? currentLockedScenario : 1;
+        const pills = document.querySelectorAll('.scenario-pill');
+        activateScenario(startIdx, pills[startIdx - 1]);
+
+        storyInterval = setInterval(stepStory, 3800);
+      }
+    }
+
+    function updatePlayButtons(isPlaying) {
+      const t = I18N[currentLang];
+      document.querySelectorAll('.btn-play-story').forEach(btn => {
+        btn.classList.toggle('playing', isPlaying);
+        const icon = btn.querySelector('.play-icon');
+        const text = btn.querySelector('.play-text');
+        if (icon) icon.innerText = isPlaying ? '⏹' : '▶';
+        if (text) text.innerText = isPlaying ? t.stopStory : t.playStory;
+      });
+    }
+
+    function stepStory() {
+      const nextIdx = (currentLockedScenario % SCENARIOS.length) + 1;
+      const pills = document.querySelectorAll('.scenario-pill');
+      activateScenario(nextIdx, pills[nextIdx - 1]);
+    }
+
+    function filterErrors(status, btnEl) {
+      document.querySelectorAll('.filter-chip-btn').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+
+      const cards = document.querySelectorAll('.error-card');
+      cards.forEach(card => {
+        if (status === 'all' || card.getAttribute('data-status') === status) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function simulateErrorFlow(trapNodeId) {
+      closeModal('error-modal');
+      
+      // Clear previous focus
+      clearAllHighlights();
+      mainSvg.classList.add('focus-active');
+
+      // Highlight target trap node
+      const nodeEl = document.getElementById('node-' + trapNodeId);
+      if (nodeEl) nodeEl.classList.add('node-highlight');
+
+      // Light up wire and photon
+      const wireMap = {
+        'trap-401': { wire: 'wire-trap-401', photon: 'photon-trap-401', source: 'jwt' },
+        'trap-403': { wire: 'wire-trap-rbac', photon: 'photon-trap-rbac', source: 'rbac' },
+        'trap-400': { wire: 'wire-trap-disable', photon: 'photon-trap-disable', source: 'userrepo' },
+        'trap-404': { wire: 'wire-trap-404', photon: 'photon-trap-404', source: 'prodrepo' },
+        'trap-400-cart': { wire: 'wire-trap-conflict', photon: 'photon-trap-conflict', source: 'orders-api' },
+        'trap-500': { wire: 'wire-trap-500', photon: 'photon-trap-500', source: 'orderrepo' }
+      };
+
+      const match = wireMap[trapNodeId];
+      if (match) {
+        const sourceEl = document.getElementById('node-' + match.source);
+        if (sourceEl) sourceEl.classList.add('node-highlight');
+
+        const wireEl = document.getElementById(match.wire);
+        if (wireEl) wireEl.classList.add('active');
+
+        const photonEl = document.getElementById(match.photon);
+        if (photonEl) photonEl.style.display = 'block';
+      }
+
+      // Automatically inspect the trap node in the drawer
+      inspectNode(trapNodeId);
+    }
+
+    function inspectNode(key) {
+      const data = NODE_DETAILS[key];
+      if (!data) return;
+
+      document.getElementById('drawer-title').innerText = currentLang === 'vi' ? data.title_vi : data.title_en;
+      document.getElementById('drawer-tag').innerText = currentLang === 'vi' ? data.tag_vi : data.tag_en;
+      document.getElementById('drawer-desc').innerText = currentLang === 'vi' ? data.desc_vi : data.desc_en;
+      document.getElementById('drawer-file').innerText = data.file;
+      document.getElementById('drawer').classList.add('show');
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawer').classList.remove('show');
+    }
+
+    let currentScale = 1;
+    function zoomCanvas(factor) {
+      currentScale *= factor;
+      if (currentScale < 0.7) currentScale = 0.7;
+      if (currentScale > 1.8) currentScale = 1.8;
+      mainSvg.style.transform = `scale(${currentScale})`;
+      mainSvg.style.transformOrigin = 'center center';
+      mainSvg.style.transition = 'transform 0.25s ease';
+    }
+
+    function resetView() {
+      currentScale = 1;
+      mainSvg.style.transform = 'scale(1)';
+    }
+
+    function setMode(mode) {
+      ['path', 'map', 'lens'].forEach(m => {
+        const el = document.getElementById('btn-' + m);
+        if (el) el.classList.remove('active');
+      });
+      const activeBtn = document.getElementById('btn-' + mode);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      document.getElementById('theme-btn').innerHTML = next === 'dark' ? '<span>🌙 Dark</span>' : '<span>☀️ Light</span>';
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    function openSwagger() {
+      window.open('http://localhost:8000/docs', '_blank');
+    }
+
+    function openReDoc() {
+      window.open('http://localhost:8000/redoc', '_blank');
+    }
+
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('open');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('open');
+    }
+
+    function handleBackdropClick(e, id) {
+      if (e.target.id === id) {
+        closeModal(id);
+      }
+    }
+
+    function copyCommand(cmd) {
+      navigator.clipboard.writeText(cmd).then(() => {
+        showToast(currentLang === 'vi' ? 'Đã sao chép: ' + cmd : 'Copied command: ' + cmd);
+      }).catch(() => {
+        showToast('Copied: ' + cmd);
+      });
+    }
+
+    function switchCsTab(tab) {
+      document.getElementById('tab-btn-qa').classList.toggle('active', tab === 'qa');
+      document.getElementById('tab-btn-targets').classList.toggle('active', tab === 'targets');
+      document.getElementById('pane-qa').style.display = tab === 'qa' ? 'block' : 'none';
+      document.getElementById('pane-targets').style.display = tab === 'targets' ? 'block' : 'none';
+    }
+
+    function checkBackendHealth(manual = false) {
+      const dot = document.getElementById('health-dot');
+      const text = document.getElementById('health-text');
+      if (!dot || !text) return;
+
+      fetch('http://localhost:8000/docs', { mode: 'no-cors' })
+        .then(() => {
+          dot.classList.add('online');
+          text.innerText = "API :8000 (ONLINE)";
+          text.style.color = "#10B981";
+          if (manual) showToast(currentLang === 'vi' ? "🟢 Server FastAPI Cocoloco đang hoạt động tốt!" : "🟢 Cocoloco FastAPI Server is Healthy!");
+        })
+        .catch(() => {
+          dot.classList.remove('online');
+          text.innerText = "API :8000 (OFFLINE)";
+          text.style.color = "#94A3B8";
+          if (manual) showToast(currentLang === 'vi' ? "🔴 Không kết nối được tới cổng 8000. Hãy kiểm tra uvicorn!" : "🔴 Cannot reach port 8000. Start uvicorn!");
+        });
+    }
+
+    setTimeout(() => checkBackendHealth(false), 1200);
+    setInterval(() => checkBackendHealth(false), 15000);
+
+    renderLanguage();
+    resetToExploreAll();
+  </script>
+</body>
+</html>

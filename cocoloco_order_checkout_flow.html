@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="archify 2.17.0-dev.1">
-  <title>Cocoloco Food Ordering System — Architecture & Lane Task Map</title>
+  <title>#204188 — Cocoloco End-to-End Order Checkout & Kitchen Fulfillment Lifecycle</title>
   <script>
     // Resolve the theme before first paint so light-preference users don't
     // see a dark flash. The toolbar script below re-applies with UI state.
@@ -4951,20 +4951,20 @@
     <div class="container">
       
     <div class="header">
-      <div class="eyebrow">AgilityIO · Cocoloco Platform Architecture</div>
-      <h1>Cocoloco Lane Task Map</h1>
-      <p class="subtitle">Full Stack Architecture: FastAPI 3.12+ (Async), PostgreSQL 16, Clerk RS256 JWKS &amp; Flutter Mobile App (Riverpod 2.x)</p>
+      <div class="eyebrow">AgilityIO · Feature Flow #204188</div>
+      <h1>Order Checkout &amp; Kitchen Fulfillment Execution Flow</h1>
+      <p class="subtitle">Complete trace: Flutter Cart computation, Clerk RS256 JWKS, FastAPI Atomic DB Transaction, Price Snapshot &amp; Kitchen FSM</p>
       <div class="meta-row">
-        <span class="meta-chip">177 Pytest (100% Pass)</span>
-        <span class="meta-chip">102 Flutter Tests</span>
-        <span class="meta-chip">RS256 JWKS 5s Leeway</span>
-        <span class="meta-chip">Zero Sync Blocking</span>
-        <span class="meta-chip">Atomic Order Tx</span>
+        <span class="meta-chip">Feature #204188</span>
+        <span class="meta-chip">Atomic asyncpg Tx</span>
+        <span class="meta-chip">Unit Price Snapshot</span>
+        <span class="meta-chip">Kitchen State Machine</span>
+        <span class="meta-chip">Zero Corrupted Orders</span>
       </div>
     </div>
     
       
-    <script id="archify-guided-views-data" type="application/json">[{"id": "order-checkout-spine", "label": "The Order & Checkout Spine", "focus": ["mobile_ui", "riverpod_state", "cached_query", "api_ingress", "clerk_jwks", "pydantic_dto", "order_repo", "asyncpg_pool"], "note": "Trace complete lifecycle from Flutter Mobile UI, Clerk Bearer JWT, FastAPI DTO, to PostgreSQL atomic transaction."}, {"id": "security-rbac-circuit", "label": "Clerk RS256 JWKS & 2-Tier RBAC", "focus": ["clerk_jwks", "rbac_guard", "trap_self_lock", "order_fsm"], "note": "PyJWKClient LRU cache, 5s clock skew leeway, USER vs ADMIN RBAC, and Admin Self-Lock protection."}, {"id": "quality-and-traps", "label": "Guarded Traps & 279 Tests Verification", "focus": ["quality_gate", "trap_self_lock", "trap_price_tamper", "trap_greenlet"], "note": "MissingGreenlet N+1 prevention with selectinload, price snapshotting, and CI quality gates."}]</script>
+    <script id="archify-guided-views-data" type="application/json">[{"id": "happy-path-checkout", "label": "Happy Path: Mobile Cart to Kitchen Queue", "focus": ["cart_calc", "bearer_jwt", "ingress_req", "jwks_verify", "dto_guard", "atomic_begin", "price_snap", "db_commit", "client_optimistic"], "note": "The primary successful checkout lifecycle: cart calculation, bearer token verification, DTO validation, DB unit price snapshotting, and atomic commit."}, {"id": "defense-and-rollbacks", "label": "Guarded Traps & Rollback Exceptions", "focus": ["dto_guard", "trap_empty_cart", "jwks_verify", "trap_unauth", "price_snap", "trap_rollback"], "note": "Defensive validation branches: empty cart 400 rejection, unauthenticated 401 trap, and atomic DB rollback on missing/inactive items."}]</script>
     <script id="archify-i18n-data" type="application/json">{"locale":"en","messages":{"viewer.kind.frontend":"Frontend","viewer.kind.backend":"Backend","viewer.kind.database":"Database","viewer.kind.cloud":"Cloud","viewer.kind.security":"Security","viewer.kind.messagebus":"Message bus","viewer.kind.external":"External","viewer.kind.neutral":"Neutral","viewer.kind.node":"Node","viewer.kind.start":"Start","viewer.kind.active":"Active","viewer.kind.waiting":"Waiting","viewer.kind.decision":"Decision","viewer.kind.success":"Success","viewer.kind.failure":"Failure","viewer.toolbar.actions":"Diagram actions","viewer.theme.toggle.title":"Toggle theme (T)","viewer.theme.toggle":"Toggle color theme","viewer.theme.dark":"Dark","viewer.theme.light":"Light","viewer.preset.choose.title":"Choose visual style (S cycles)","viewer.preset.choose":"Choose visual style","viewer.preset.style":"Style","viewer.preset.menu":"Visual style","viewer.preset.identity":"Visual identity","viewer.preset.cycles":"S cycles","viewer.preset.classic":"Classic","viewer.preset.classic.short":"Classic","viewer.preset.classic.hint":"Stable technical default","viewer.preset.flow":"Signal Flow","viewer.preset.flow.short":"Flow","viewer.preset.flow.hint":"Motion-forward presentation","viewer.preset.blueprint":"Blueprint","viewer.preset.blueprint.hint":"Engineering review","viewer.preset.editorial":"Editorial","viewer.preset.editorial.hint":"Publication and launch notes","viewer.preset.badge.signalFlow":"SIGNAL FLOW","viewer.preset.badge.blueprint":"BLUEPRINT / REV 01","viewer.preset.badge.editorial":"EDITORIAL / FIELD NOTE","viewer.preset.badge.editorialPlate":"ARCHIFY / PLATE 04","viewer.preset.current":"Visual style: {style}. Choose visual style","viewer.motion.live":"Live","viewer.motion.still":"Still","viewer.motion.pause":"Pause motion","viewer.motion.resume":"Resume motion","viewer.motion.reduced":"Motion paused by reduced-motion preference","viewer.motion.hidden":"Motion paused while this page is hidden","viewer.motion.yielding":"Pause motion; currently yielding to {owner}","viewer.motion.yielding.title":"Live preview enabled · yielding to {owner}","viewer.owner.story":"the guided story","viewer.owner.chapter":"the active chapter","viewer.owner.chapterPreview":"the chapter delta preview","viewer.owner.handoff":"the chapter handoff","viewer.owner.route":"Route Probe","viewer.owner.lens":"Semantic Lens","viewer.owner.relationship":"Relationship Preview","viewer.owner.intent":"Intent Trace","viewer.owner.focus":"semantic focus","viewer.owner.legend":"legend preview","viewer.owner.reader":"reader interaction","viewer.present.enter":"Enter presentation stage","viewer.present.enter.title":"Presentation stage (F)","viewer.present.exit":"Exit presentation stage","viewer.present.exit.title":"Exit presentation stage (F or Escape)","viewer.present.present":"Present","viewer.present.exit.label":"Exit","viewer.export.button":"Export","viewer.export.button.title":"Export diagram (E)","viewer.export.diagram":"Export diagram","viewer.export.menu":"Export","viewer.export.subtitle":"Portable, clean outputs","viewer.export.share":"Share","viewer.export.shareCard":"Share Card","viewer.export.routeShareCard":"Route Share Card","viewer.export.reachShareCard":"Reach Share Card","viewer.export.copyShareCard":"Copy Share Card","viewer.export.copyDiagram":"Copy diagram","viewer.export.clipboardPng":"PNG to clipboard","viewer.export.raster":"Raster images","viewer.export.image":"Image","viewer.export.lossless":"Lossless image","viewer.export.compact":"Compact image","viewer.export.modern":"Modern image","viewer.export.vectorMotion":"Vector and motion","viewer.export.vectorMotion.heading":"Vector \u0026 motion","viewer.export.editable":"Editable vector","viewer.export.motion6s":"6s motion","viewer.export.unsupported":"Not supported by this browser","viewer.export.clipboardUnsupported":"Clipboard image write not supported by this browser","viewer.export.clipboardUnsupported.period":"Clipboard image write not supported by this browser.","viewer.export.clipboardUnsupported.short":"Clipboard image write not supported in this browser.","viewer.export.motionUnavailable":"Motion capture unavailable in this browser","viewer.export.webmUnavailable":"WebM unavailable in this browser","viewer.export.failed":"Export failed: {message}","viewer.export.unknownVariant":"Unknown Share Card variant: {variant}","viewer.export.routeRequired":"Trace a route before exporting a Route Share Card","viewer.export.reachRequired":"Trace authored reach before exporting a Reach Share Card","viewer.export.unknown":"unknown","viewer.export.routeFailed":"Route Share Card export failed: {message}","viewer.export.reachFailed":"Reach Share Card export failed: {message}","viewer.export.copyFailed":"Copy failed: {message}","viewer.export.copiedPng":"Copied PNG to clipboard","viewer.export.copiedShare":"Copied Share Card","viewer.export.downloadedShare":"Downloaded Share Card","viewer.export.downloadedRoute":"Downloaded Route Share Card","viewer.export.downloadedReach":"Downloaded Reach Share Card","viewer.export.downloadedWebm":"Downloaded WebM","viewer.export.recording":"Recording 6 seconds of motion…","viewer.export.card.routeSummary.one":"Route: {source} → {target} · {count} directed hop","viewer.export.card.routeSummary.other":"Route: {source} → {target} · {count} directed hops","viewer.export.card.reachSummary":"Authored {direction} from {origin} · {nodes} · {links} · max {hops}","viewer.export.card.node.one":"{count} node","viewer.export.card.node.other":"{count} nodes","viewer.export.card.link.one":"{count} link","viewer.export.card.link.other":"{count} links","viewer.export.card.hop.one":"{count} hop","viewer.export.card.hop.other":"{count} hops","viewer.export.card.routeBadge":"ARCHIFY · ROUTE · {hops}","viewer.export.card.reachBadge":"ARCHIFY · {direction} REACH","viewer.export.card.defaultBadge":"ARCHIFY · {preset} · {theme}","viewer.export.direction.upstream":"Upstream","viewer.export.direction.downstream":"Downstream","viewer.export.error.canvasUnavailable":"Canvas unavailable for {label}","viewer.export.error.contextUnavailable":"2D canvas context unavailable for {label}","viewer.export.error.toBlobUnavailable":"canvas.toBlob unavailable for {label}","viewer.export.error.toBlobNull":"canvas.toBlob returned no data for {label}","viewer.export.error.variantsCombined":"Share Card variants cannot be combined","viewer.export.error.viewerState":"Share Card export could not remove temporary viewer state","viewer.export.error.routeState":"Route Card export could not preserve the resolved route safely","viewer.export.error.reachState":"Reach Card export could not preserve authored reach safely","viewer.export.error.webmRequirements":"WebM motion export requires a trace animation and browser MediaRecorder support","viewer.export.error.mediaRecorder":"MediaRecorder failed","viewer.export.error.emptyWebm":"MediaRecorder produced an empty WebM","viewer.export.error.webmBackground":"SVG background could not be loaded for WebM export","viewer.guided.region":"Guided diagram views","viewer.guided.previous":"Previous guided view","viewer.guided.previous.title":"Previous guided view ([)","viewer.guided.next":"Next guided view","viewer.guided.next.title":"Next guided view (])","viewer.guided.views":"Guided views","viewer.guided.explore":"Explore this system","viewer.guided.intro":"Step through curated paths without changing the source diagram.","viewer.guided.trail":"Story trail","viewer.guided.beat":"Beat","viewer.guided.nextBeat":"Next","viewer.guided.play":"Play guided story","viewer.guided.play.title":"Play guided story (P)","viewer.guided.pause":"Pause guided story","viewer.guided.pause.title":"Pause guided story (P)","viewer.guided.replay":"Replay guided story","viewer.guided.replay.title":"Replay guided story (P)","viewer.guided.playStory":"Play story","viewer.guided.pauseStory":"Pause","viewer.guided.replayStory":"Replay story","viewer.guided.motionUnavailable":"Story playback unavailable while motion is Still","viewer.guided.enableMotion":"Switch motion to Live to play the guided story","viewer.guided.selectBeatLink":"Select a Story Beat to copy its exact link","viewer.guided.copyMoment":"Copy moment","viewer.guided.momentCopied":"Moment link copied","viewer.guided.momentCopyFailed":"Could not copy story moment link","viewer.guided.copied":"Copied","viewer.guided.copyFailed":"Copy failed","viewer.guided.showAll":"Show all","viewer.guided.showAll.aria":"Show entire diagram","viewer.guided.chapters":"Story chapters","viewer.guided.storyTrail":"Story trail for {label}: {count} beats","viewer.guided.chapter.open":"Open chapter {index} of {total}: {label}, {count} stops","viewer.guided.chapter.current":"Current chapter {index} of {total}: {label}, {count} stops","viewer.guided.chapter.selectedNodes":"{count} selected nodes","viewer.guided.chapter.stops":"{count} stops","viewer.guided.chapter.stop.one":"{count} stop","viewer.guided.chapter.stop.other":"{count} stops","viewer.guided.chapter.current.title":"{label} — current chapter, {count} stops","viewer.guided.chapter.delta.expanded":"{stay} stay, {enter} enter, {leave} leave","viewer.guided.chapter.delta.aria":"Open chapter {index} of {total}: {label}. Chapter focus delta: {delta}","viewer.guided.chapter.delta.title":"{label} — {delta} chapter focus","viewer.guided.handoff":"{from} → {to} · via {label}","viewer.guided.share.chapter":"Chapter {index} / {total}","viewer.guided.share.initial":"Chapter 01 / 01","viewer.guided.share.default":"Guided chapter","viewer.guided.state.ready":"Ready","viewer.guided.state.playing":"Playing","viewer.guided.state.settled":"Settled","viewer.guided.state.paused":"Paused","viewer.guided.state.pinned":"Pinned","viewer.guided.state.still":"Still","viewer.guided.share.step":"Step {index} / {total} · {label}","viewer.guided.share.staticMoment":"{step} · Static moment","viewer.guided.share.complete":"{count} steps complete · {note}","viewer.guided.share.settled":"Path settled for reading.","viewer.guided.share.staticPath":"{count} steps · Static path","viewer.guided.share.ready":"{count} steps · Ready","viewer.guided.share.aria":"{state} chapter {index} of {total}: {label}. {beat}. {route}","viewer.guided.beat.start":"Beat {index} / {total} · {label} · starting point","viewer.guided.beat.forward":"Beat {index} / {total} · {from} → {to}","viewer.guided.beat.reverse":"Beat {index} / {total} · {from} → {to} · reverse authored link","viewer.guided.beat.multiple":"Beat {index} / {total} · {from} ⇄ {to} · {count} authored links","viewer.guided.beat.group":"Beat {index} / {total} · {from} · {to} · grouped · no direct link","viewer.guided.beat.aria.prefix":"Story beat {index} of {total}: {label}. ","viewer.guided.beat.aria.start":"Starting point.","viewer.guided.beat.aria.forward":"From {from} through one authored forward relationship.","viewer.guided.beat.aria.reverse":"From {from}; the authored relationship points from {to} to {from}.","viewer.guided.beat.aria.multiple":"From {from} through {count} authored relationships; shown without arbitrary motion.","viewer.guided.beat.aria.group":"Grouped from {from} with no direct authored relationship.","viewer.guided.caption.start":"Starting point","viewer.guided.caption.grouped":"Grouped transition · no direct authored link","viewer.guided.caption.more":" +{count} more","viewer.guided.caption.reverse":"Reverse authored relationship","viewer.guided.caption.relationships":"{count} authored relationships","viewer.guided.caption.relationship":"Authored relationship","viewer.guided.caption.direction":"authored direction: {from} → {to}","viewer.guided.caption.starting":"Authored starting point","viewer.guided.beatLink":"Copy link to current story moment: Beat {index} of {total}: {label}","viewer.guided.noStory":"This diagram has no authored guided story.","viewer.guide.eyebrow":"Diagram guide","viewer.guide.close":"Close diagram guide","viewer.guide.inspecting":"Inspecting compiled semantics","viewer.guide.actions":"Diagram exploration actions","viewer.guide.find":"Find any node","viewer.guide.find.hint":"Search labels, responsibilities, kinds, and stable IDs.","viewer.guide.route":"Trace a route","viewer.guide.route.aria":"Trace a directed route","viewer.guide.route.hint":"Ask how two semantic nodes connect in authored direction.","viewer.guide.map":"See the whole system","viewer.guide.map.hint":"Open Semantic Radar with a live viewport and stable nodes.","viewer.guide.lens":"Compare semantic kinds","viewer.guide.lens.hint":"Count roles, reveal their traffic, and compare direct authored links.","viewer.guide.story":"Play the guided story","viewer.guide.story.hint":"Walk the authored chapters and real relationships.","viewer.guide.present":"Enter Presentation Stage","viewer.guide.present.hint":"Give the live diagram the viewport without changing export.","viewer.guide.shortcuts":"Additional keyboard shortcuts","viewer.guide.shortcut.export":"Export","viewer.guide.shortcut.theme":"Theme","viewer.guide.shortcut.style":"Style","viewer.guide.shortcut.reset":"Reset","viewer.guide.shortcut.zoomIn":"Zoom in","viewer.guide.shortcut.zoomOut":"Zoom out","viewer.guide.shortcut.close":"Close","viewer.guide.facts":"{nodes} · {relationships} · {views}","viewer.guide.fact.node.one":"{count} semantic node","viewer.guide.fact.node.other":"{count} semantic nodes","viewer.guide.fact.relationship.one":"{count} relationship","viewer.guide.fact.relationship.other":"{count} relationships","viewer.guide.fact.view.one":"{count} guided view","viewer.guide.fact.view.other":"{count} guided views","viewer.guide.story.available.one":"Walk {count} authored chapter and its real relationships.","viewer.guide.story.available.other":"Walk {count} authored chapters and their real relationships.","viewer.guide.story.unavailable":"No authored guided story in this diagram.","viewer.guide.open":"Open diagram guide","viewer.guide.noStory":"This diagram has no authored guided story.","viewer.finder.title":"Find a node","viewer.finder.close":"Close node finder","viewer.finder.placeholder":"Search labels or IDs","viewer.finder.search":"Search diagram nodes","viewer.finder.results":"Diagram nodes","viewer.finder.empty":"No matching nodes","viewer.finder.result.focus":"Focus {label}","viewer.finder.result.routeStart":"Choose {label} as route start","viewer.finder.result.routeTarget":"Choose {label} as route destination, {links}","viewer.finder.status.empty":"No matching nodes","viewer.finder.status.count.one":"{count} matching node","viewer.finder.status.count.other":"{count} matching nodes","viewer.finder.noun.nodes":"nodes","viewer.finder.link.one":"{count} link","viewer.finder.link.other":"{count} links","viewer.finder.result.focus.one":"Focus {label}, {count} related connection","viewer.finder.result.focus.other":"Focus {label}, {count} related connections","viewer.finder.status.filtered":"{visible} of {available} {noun}","viewer.finder.status.all":"{available} {noun}","viewer.passport.eyebrow":"Semantic passport","viewer.passport.metadata":"Node metadata","viewer.passport.evidence":"Verified source evidence","viewer.passport.verified":"Verified source","viewer.passport.reach":"Authored reach","viewer.passport.reach.trace":"Trace authored reachability","viewer.passport.upstream":"Upstream","viewer.passport.downstream":"Downstream","viewer.passport.upstream.trace":"Trace upstream authored reachability","viewer.passport.downstream.trace":"Trace downstream authored reachability","viewer.passport.close":"Close semantic passport","viewer.passport.copy":"Copy link","viewer.passport.copy.focus":"Copy link to focused node","viewer.passport.relations":"Relations","viewer.passport.relations.show":"Show connected relationships","viewer.passport.relations.hide":"Hide connected relationships","viewer.passport.relations.list":"Connected relationships","viewer.passport.copyRelation":"Copy relation","viewer.passport.copyNode":"Copy node","viewer.passport.copyPinned":"Copy link to pinned relationship","viewer.passport.copySource":"Copy link to source node","viewer.passport.copy.focused.success":"Focused node link copied","viewer.passport.copy.pinned.success":"Pinned relationship link copied","viewer.passport.copy.focused.failed":"Could not copy focused node link","viewer.passport.copy.pinned.failed":"Could not copy pinned relationship link","viewer.passport.relationship.none":"No connected relationships","viewer.passport.relationship.count.one":"{count} relation","viewer.passport.relationship.count.other":"{count} relations","viewer.passport.relationship.show.one":"Show {count} connected relationship","viewer.passport.relationship.show.other":"Show {count} connected relationships","viewer.passport.relationship.summary":"{out} outgoing · {in} incoming{loops}","viewer.passport.relationship.loops":" · {count} loop","viewer.passport.relationship.explorer":"Direct relationship explorer","viewer.passport.relationship.help":"Use arrow keys to explore relationships. Press Enter or Space to pin details; Escape clears.","viewer.passport.relationship.loopsBack":"loops back","viewer.passport.relationship.connectsTo":"connects to","viewer.passport.relationship.connectsFrom":"connects from","viewer.passport.relationship.pinned":"Pinned relationship · {from} → {to} · {label}","viewer.passport.relationship.inspect":"Inspect relationship {index} of {total}: {from} to {to}, {label}. Press Enter for details.","viewer.passport.relationship.group.out":"Outgoing","viewer.passport.relationship.group.in":"Incoming","viewer.passport.relationship.group.loop":"Self loops","viewer.passport.relationship.row":"{group}: {relationship}, {neighbor}","viewer.passport.relationship.direction.out":"OUT →","viewer.passport.relationship.direction.in":"← IN","viewer.passport.relationship.direction.loop":"LOOP","viewer.passport.sourceCount.one":"{count} verified source reference","viewer.passport.sourceCount.other":"{count} verified source references","viewer.passport.sourceMarker":"SRC","viewer.passport.beacon.one":"{count} verified source; focus this node to inspect","viewer.passport.beacon.other":"{count} verified sources; focus this node to inspect","viewer.passport.repository.open":"Open verified repository revision {revision}","viewer.passport.source.open":"Open verified source {path} at revision {revision}","viewer.passport.source.openLink":"Open ↗","viewer.passport.reach.upstream.one":"Trace {count} upstream authored node","viewer.passport.reach.upstream.other":"Trace {count} upstream authored nodes","viewer.passport.reach.downstream.one":"Trace {count} downstream authored node","viewer.passport.reach.downstream.other":"Trace {count} downstream authored nodes","viewer.passport.reach.noUpstream":"No upstream authored nodes","viewer.passport.reach.noDownstream":"No downstream authored nodes","viewer.passport.reach.status":"{direction} · {nodes} nodes · {links} links · max {hops} hops","viewer.route.eyebrow":"Route probe","viewer.route.start":"Choose a start node","viewer.route.start.find":"Find start","viewer.route.start.find.aria":"Find a route start","viewer.route.copy":"Copy link","viewer.route.copy.aria":"Copy link to traced route","viewer.route.clear":"Clear","viewer.route.clear.aria":"Clear route probe","viewer.route.traced":"Traced route","viewer.route.pickTwo":"Pick two semantic nodes on the diagram","viewer.route.pickOne":"Pick a semantic node on the diagram","viewer.route.controls":"Route journey controls","viewer.route.previous":"Previous route position","viewer.route.play":"Play route journey","viewer.route.pause":"Pause route journey","viewer.route.replay":"Replay route journey","viewer.route.next":"Next route position","viewer.route.journey":"Journey","viewer.route.pause.label":"Pause","viewer.route.replay.label":"Replay","viewer.route.overview":"Overview","viewer.route.overview.aria":"Show complete route overview","viewer.route.instructions":"Choose the source, then the destination. Direction matters.","viewer.route.destination":"Choose a destination from {label}","viewer.route.destination.find":"Find target","viewer.route.destination.find.aria":"Find a reachable route destination","viewer.route.differentDestination":"Choose a different destination","viewer.route.distinct":"A route needs two distinct semantic nodes.","viewer.route.unreachable":"No directed route to {label}","viewer.route.unreachable.detail":"{target} is not reachable from {source}. Pick a highlighted destination.","viewer.route.start.instructions":"Select the source. The next step will reveal only directed destinations.","viewer.route.copy.success":"Traced route link copied","viewer.route.copy.failed":"Could not copy traced route link","viewer.route.position":"Route position {index} of {total}: {label}","viewer.route.step":"Step {index} of {total} · {phase} · {label}","viewer.route.motionRequired":"Automatic journey requires Live motion","viewer.route.trigger.clear":"Clear traced route","viewer.route.overview.status":"{nodes} · {hops} · shortest authored route","viewer.route.overview.node.one":"{count} node","viewer.route.overview.node.other":"{count} nodes","viewer.route.overview.hop.one":"{count} directed hop","viewer.route.overview.hop.other":"{count} directed hops","viewer.route.phase.playing":"Playing","viewer.route.phase.complete":"Complete","viewer.route.phase.inspecting":"Inspecting","viewer.route.destination.count.one":"{count} directed destination available. Pick a highlighted node.","viewer.route.destination.count.other":"{count} directed destinations available. Pick a highlighted node.","viewer.route.noOutgoing":"No outgoing route starts here. Clear and choose another source.","viewer.route.result.title":"{source} to {target}","viewer.route.finder.source.title":"Choose route start","viewer.route.finder.source.placeholder":"Search route sources","viewer.route.finder.source.empty":"No matching route sources","viewer.route.finder.source.results":"Nodes that can start a route","viewer.route.finder.source.noun":"route sources","viewer.route.finder.source.badge":"start","viewer.route.finder.target.title":"Destination from {label}","viewer.route.finder.target.placeholder":"Search reachable destinations","viewer.route.finder.target.empty":"No matching reachable destinations","viewer.route.finder.target.results":"Reachable route destinations","viewer.route.finder.target.noun":"reachable destinations","viewer.route.hop.one":"{count} hop","viewer.route.hop.other":"{count} hops","viewer.lens.eyebrow":"Semantic lens","viewer.lens.title":"Compare system roles","viewer.lens.close":"Close semantic lens","viewer.lens.instruction":"Choose up to two semantic kinds. One reveals its real traffic; two compare only direct authored relationships.","viewer.lens.kinds":"Semantic kinds","viewer.lens.choose":"Choose a kind to inspect its nodes and touching relationships.","viewer.lens.copy":"Copy link to semantic lens","viewer.lens.clear":"Clear semantic lens","viewer.lens.open":"Open semantic lens","viewer.lens.openActive":"Open active semantic lens","viewer.lens.legend":"Semantic legend","viewer.lens.legend.inspect.one":"Inspect {label}, {count} node","viewer.lens.legend.inspect.other":"Inspect {label}, {count} nodes","viewer.lens.kind.count.one":"{label}, {count} node","viewer.lens.kind.count.other":"{label}, {count} nodes","viewer.lens.compare.one":"{first} → {second}: {forward} · {second} → {first}: {reverse} · {count} direct relationship","viewer.lens.compare.other":"{first} → {second}: {forward} · {second} → {first}: {reverse} · {count} direct relationships","viewer.lens.single":"{nodes} · {relationships} · connected peers remain visible","viewer.lens.node.one":"{count} {label} node","viewer.lens.node.other":"{count} {label} nodes","viewer.lens.relationship.one":"{count} touching relationship","viewer.lens.relationship.other":"{count} touching relationships","viewer.radar.title":"Semantic radar","viewer.radar.building":"Building overview","viewer.radar.openFull":"Open full semantic radar","viewer.radar.open":"Open radar","viewer.radar.close":"Close semantic radar","viewer.radar.surface":"Diagram overview. Click a node to focus it, or use arrow keys to pan.","viewer.radar.click":"Click node","viewer.radar.drag":"Drag to pan","viewer.radar.space":"Semantic radar needs more MAP space.","viewer.radar.nodes":"Semantic diagram radar nodes","viewer.radar.focus":"Focus {label} from Semantic Radar","viewer.radar.status":"{count} nodes · {viewport}","viewer.radar.fullMap":"{count} nodes · full map","viewer.radar.compacted":"Radar compacted to avoid covering the Semantic Passport or MAP controls.","viewer.radar.cancelWaiting":"Cancel semantic radar waiting for more MAP space","viewer.radar.needsSpace":"Semantic radar needs more visible MAP space","viewer.radar.viewport.full":"full map","viewer.radar.viewport.width":"{percent}% width","viewer.radar.viewport.scale":"{percent}% viewport","viewer.nav.controls":"Diagram view controls","viewer.nav.route":"Trace a directed route","viewer.nav.route.title":"Trace route (R)","viewer.nav.route.short":"PATH","viewer.nav.radar":"Open semantic radar","viewer.nav.radar.title":"Semantic radar (M)","viewer.nav.radar.short":"MAP","viewer.nav.lens":"Open semantic lens","viewer.nav.lens.title":"Semantic lens (L)","viewer.nav.lens.short":"LENS","viewer.nav.find":"Find a node","viewer.nav.find.title":"Find a node (/)","viewer.nav.guide":"Open diagram guide","viewer.nav.guide.title":"Diagram guide (?)","viewer.nav.zoomOut":"Zoom out","viewer.nav.zoomOut.title":"Zoom out (-)","viewer.nav.reset":"Reset diagram view","viewer.nav.reset.title":"Reset view (0)","viewer.nav.read":"READ","viewer.nav.zoomIn":"Zoom in","viewer.nav.zoomIn.title":"Zoom in (+)","viewer.nav.camera":"{hint}. Reset diagram view","viewer.nav.camera.title":"{semantic}{hint} · reset view (0)","viewer.nav.camera.semantic":"Semantic camera active · ","viewer.nav.level.map":"MAP","viewer.nav.level.read":"READ","viewer.nav.level.full":"FULL","viewer.nav.level.auto":"AUTO","viewer.nav.detail.map":"Zoom in to reveal relationship labels and node context","viewer.nav.detail.read":"Zoom in again to reveal tags and annotations","viewer.nav.detail.full":"Full diagram detail","viewer.intent.summary":"{label}. {out} outgoing, {in} incoming{loops}. {total} connections. Press Enter for details.","viewer.intent.loops":", {count} self loop","viewer.common.copied":"Copied","viewer.common.copyFailed":"Copy failed","viewer.common.copyLink":"Copy link","viewer.common.clear":"Clear","viewer.common.close":"Close"}}</script>
     <div class="guided-views no-print" id="guided-views" hidden aria-label="Guided diagram views">
       <button id="guided-view-prev" type="button" aria-label="Previous guided view" title="Previous guided view ([)">&#8592;</button>
@@ -5005,12 +5005,12 @@
       </nav>
     </div>
     
-      <div class="diagram-container" data-detail-level="read" data-preset-badge-editorial-plate="COCOLOCO / PLATE 01">
+      <div class="diagram-container" data-detail-level="read" data-preset-badge-editorial-plate="COCOLOCO / PLATE 02">
         <div class="diagram-shell">
           
-    <svg viewBox="0 0 1340 590" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
-        <title id="archify-diagram-title">Cocoloco Lane Task Map</title>
-        <desc id="archify-diagram-description">Full stack architecture and task diagram generated for Cocoloco Food Ordering System.</desc>
+    <svg viewBox="0 0 1140 560" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
+        <title id="archify-diagram-title">#204188 — Cocoloco Order Checkout &amp; Kitchen Lifecycle</title>
+        <desc id="archify-diagram-description">End-to-end checkout execution flow diagram generated by Archify for Cocoloco.</desc>
         <defs>
           <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
             <polygon points="0 0, 10 3.5, 0 7" class="m-default" />
@@ -5033,244 +5033,190 @@
         <rect width="100%" height="100%" fill="url(#grid)" />
 
         <!-- Swimlanes -->
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-0" x="40" y="52" width="1260" height="106" rx="10" class="c-lane" stroke-width="1"/>
-        <text x="54" y="74" class="t-dim" font-size="10" font-weight="600">01 / Client Presentation &amp; State · Flutter 3.24 + Riverpod 2.x</text>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-0" x="40" y="52" width="1060" height="106" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="54" y="74" class="t-dim" font-size="10" font-weight="600">01 / Client Intent &amp; Cart Computation · Flutter Riverpod 2.x</text>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-1" x="40" y="178" width="1260" height="106" rx="10" class="c-lane" stroke-width="1"/>
-        <text x="54" y="200" class="t-dim" font-size="10" font-weight="600">02 / Ingress Gateway &amp; Security Guard · FastAPI + Clerk RS256 JWKS</text>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-1" x="40" y="184" width="1060" height="106" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="54" y="206" class="t-dim" font-size="10" font-weight="600">02 / Ingress Security &amp; DTO Validation · Clerk RS256 + FastAPI</text>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-2" x="40" y="304" width="1260" height="106" rx="10" class="c-lane" stroke-width="1"/>
-        <text x="54" y="326" class="t-dim" font-size="10" font-weight="600">03 / Business Domain &amp; Atomic Transactions · Menu Catalog &amp; Order Engine</text>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-2" x="40" y="316" width="1060" height="106" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="54" y="338" class="t-dim" font-size="10" font-weight="600">03 / Atomic Core Tx &amp; DB Fulfillment · PostgreSQL 16 + asyncpg</text>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-3" x="40" y="430" width="1260" height="114" rx="10" class="c-lane" stroke-width="1"/>
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="exception-lane" data-composition-frame-id="lane-3-exception" x="46" y="436" width="1248" height="102" rx="8" class="c-security-group" stroke-width="1"/>
-        <text x="54" y="452" class="t-security" font-size="10" font-weight="600">EX / Guarded Traps &amp; Quality Gate · 400/403/N+1 &amp; 279 Tests</text>
-
-        <!-- Phase headers -->
-        <line x1="60" y1="35" x2="350" y2="35" class="a-default" stroke-width="1.1"/>
-        <rect x="60" y="27" width="290" height="16" rx="4" class="c-mask"/>
-        <text x="205" y="39" class="t-muted" font-size="8" font-weight="600" text-anchor="middle">Client Intent &amp; Presentation</text>
-
-        <line x1="380" y1="35" x2="710" y2="35" class="a-emphasis" stroke-width="1.1"/>
-        <rect x="380" y="27" width="330" height="16" rx="4" class="c-mask"/>
-        <text x="545" y="39" class="t-backend" font-size="8" font-weight="600" text-anchor="middle">Ingress Gateway &amp; Security</text>
-
-        <line x1="740" y1="35" x2="1020" y2="35" class="a-default" stroke-width="1.1"/>
-        <rect x="740" y="27" width="280" height="16" rx="4" class="c-mask"/>
-        <text x="880" y="39" class="t-messagebus" font-size="8" font-weight="600" text-anchor="middle">Domain Execution &amp; Atomic Tx</text>
-
-        <line x1="1050" y1="35" x2="1280" y2="35" class="a-dashed" stroke-width="1.1"/>
-        <rect x="1050" y="27" width="230" height="16" rx="4" class="c-mask"/>
-        <text x="1165" y="39" class="t-database" font-size="8" font-weight="600" text-anchor="middle">Persistence &amp; Quality Gate</text>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-3" x="40" y="448" width="1060" height="92" rx="10" class="c-lane" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="exception-lane" data-composition-frame-id="lane-3-exception" x="46" y="454" width="1048" height="80" rx="8" class="c-security-group" stroke-width="1"/>
+        <text x="54" y="470" class="t-security" font-size="10" font-weight="600">EX / Traps &amp; Rollback Exceptions · 400 Bad Request / 401 Unauth / 404 Not Found</text>
 
         <!-- Edge paths -->
-        <path data-edge-from="mobile_ui" data-edge-to="riverpod_state" data-edge-label="user interaction" data-edge-key="0" data-composition-points="210,120;250,120" d="M 210 120 L 250 120" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="riverpod_state" data-edge-to="cached_query" data-edge-label="read / mutate" data-edge-key="1" data-composition-points="390,120;430,120" d="M 390 120 L 430 120" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="cached_query" data-edge-to="api_ingress" data-edge-label="HTTP Bearer JWT" data-edge-key="2" data-composition-points="500,154;500,175;320,175;320,206" d="M 500 154 L 500 175 L 320 175 L 320 206" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="api_ingress" data-edge-to="clerk_jwks" data-edge-label="validate RS256 token" data-edge-key="3" data-composition-points="390,240;430,240" d="M 390 240 L 430 240" class="a-security" stroke-width="1.4" marker-end="url(#arrowhead-security)"/>
-        <path data-edge-from="clerk_jwks" data-edge-to="rbac_guard" data-edge-label="claims &amp; role check" data-edge-key="4" data-composition-points="570,240;610,240" d="M 570 240 L 610 240" class="a-security" stroke-width="1.4" marker-end="url(#arrowhead-security)"/>
-        <path data-edge-from="rbac_guard" data-edge-to="pydantic_dto" data-edge-label="authorized context" data-edge-key="5" data-composition-points="750,240;790,240" d="M 750 240 L 790 240" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="pydantic_dto" data-edge-to="catalog_repo" data-edge-label="GET /categories /items" data-edge-key="6" data-composition-points="830,274;830,295;680,295;680,332" d="M 830 274 L 830 295 L 680 295 L 680 332" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="pydantic_dto" data-edge-to="order_repo" data-edge-label="POST /orders payload" data-edge-key="7" data-composition-points="860,274;860,332" d="M 860 274 L 860 332" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="order_repo" data-edge-to="order_fsm" data-edge-label="init PENDING status" data-edge-key="8" data-composition-points="930,366;970,366" d="M 930 366 L 970 366" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="order_repo" data-edge-to="asyncpg_pool" data-edge-label="atomic tx commit" data-edge-key="9" data-composition-points="930,380;1110,380" d="M 930 380 L 1110 380" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="rbac_guard" data-edge-to="trap_self_lock" data-edge-label="admin self-lock guard" data-edge-key="10" data-composition-points="680,274;680,300;320,300;320,464" d="M 680 274 L 680 300 L 320 300 L 320 464" class="a-security" stroke-width="1.4" marker-end="url(#arrowhead-security)"/>
-        <path data-edge-from="order_repo" data-edge-to="trap_price_tamper" data-edge-label="authoritative unit_price" data-edge-key="11" data-composition-points="860,400;860,420;680,420;680,464" d="M 860 400 L 860 420 L 680 420 L 680 464" class="a-security" stroke-width="1.4" marker-end="url(#arrowhead-security)"/>
-        <path data-edge-from="asyncpg_pool" data-edge-to="trap_greenlet" data-edge-label="selectinload mandate" data-edge-key="12" data-composition-points="1180,400;1180,420;1040,420;1040,464" d="M 1180 400 L 1180 420 L 1040 420 L 1040 464" class="a-security" stroke-width="1.4" marker-end="url(#arrowhead-security)"/>
-        <path data-edge-from="quality_gate" data-edge-to="order_repo" data-edge-label="100% passing tests" data-edge-key="13" data-composition-points="1210,464;1210,410;900,410;900,400" d="M 1210 464 L 1210 410 L 900 410 L 900 400" class="a-dashed" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="cart_calc" data-edge-to="bearer_jwt" data-edge-label="valid items ready" data-edge-key="0" data-composition-points="220,120;280,120" d="M 220 120 L 280 120" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="bearer_jwt" data-edge-to="ingress_req" data-edge-label="HTTP POST Bearer" data-edge-key="1" data-composition-points="355,154;355,218" d="M 355 154 L 355 218" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="ingress_req" data-edge-to="jwks_verify" data-edge-label="token verify" data-edge-key="2" data-composition-points="430,252;480,252" d="M 430 252 L 480 252" class="a-security" stroke-width="1.4" marker-end="url(#arrowhead-security)"/>
+        <path data-edge-from="jwks_verify" data-edge-to="dto_guard" data-edge-label="valid user sub" data-edge-key="3" data-composition-points="630,252;680,252" d="M 630 252 L 680 252" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="dto_guard" data-edge-to="atomic_begin" data-edge-label="OrderCreate DTO" data-edge-key="4" data-composition-points="755,286;755,305;555,305;555,350" d="M 755 286 L 755 305 L 555 305 L 555 350" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="atomic_begin" data-edge-to="price_snap" data-edge-label="SELECT authoritative items" data-edge-key="5" data-composition-points="630,384;680,384" d="M 630 384 L 680 384" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="price_snap" data-edge-to="db_commit" data-edge-label="calculate total &amp; commit" data-edge-key="6" data-composition-points="830,384;880,384" d="M 830 384 L 880 384" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="db_commit" data-edge-to="client_optimistic" data-edge-label="201 Created + Order ID" data-edge-key="7" data-composition-points="955,350;955,154" d="M 955 350 L 955 154" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        
+        <!-- Exception Trap Edges -->
+        <path data-edge-from="cart_calc" data-edge-to="trap_empty_cart" data-edge-label="empty / negative qty" data-edge-key="8" data-composition-points="145,154;145,490;280,490" d="M 145 154 L 145 490 L 280 490" class="a-dashed" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="jwks_verify" data-edge-to="trap_unauth" data-edge-label="invalid token / expired" data-edge-key="9" data-composition-points="555,286;555,470" d="M 555 286 L 555 470" class="a-security" stroke-width="1.4" marker-end="url(#arrowhead-security)"/>
+        <path data-edge-from="price_snap" data-edge-to="trap_rollback" data-edge-label="item deactivated / missing" data-edge-key="10" data-composition-points="755,418;755,470" d="M 755 418 L 755 470" class="a-security" stroke-width="1.4" marker-end="url(#arrowhead-security)"/>
 
         <!-- Nodes -->
         <!-- Lane 01 Nodes -->
-        <g id="node-mobile_ui" data-node-id="mobile_ui" data-node-label="Flutter UI Screens" tabindex="0" role="button" aria-label="Focus Flutter UI Screens, Material 3, Client Presentation" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="Home, Cart, Checkout, Profile" data-node-tag="Material 3 · InkWell" data-node-context="Client Presentation › UI">
-          <title>Flutter UI Screens · Home, Cart, Checkout, Profile · Material 3 · InkWell</title>
-          <rect x="70" y="86" width="140" height="68" rx="6" class="c-mask"/>
-          <rect x="70" y="86" width="140" height="68" rx="6" class="c-frontend" stroke-width="1.5"/>
+        <g id="node-cart_calc" data-node-id="cart_calc" data-node-label="Cart Subtotal &amp; Calc" tabindex="0" role="button" aria-label="Focus Cart Subtotal &amp; Calc, CartNotifier, Client Intent" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="CartNotifier.dart" data-node-tag="Subtotal = sum(qty * price)" data-node-context="Client Intent › Cart">
+          <title>Cart Subtotal &amp; Calc · CartNotifier.dart · Subtotal = sum(qty * price)</title>
+          <rect x="70" y="86" width="150" height="68" rx="6" class="c-mask"/>
+          <rect x="70" y="86" width="150" height="68" rx="6" class="c-frontend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-frontend" transform="translate(76 92) scale(0.6875)">
             <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="140" y="107" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Flutter UI Screens</text>
-          <text data-detail="context" x="140" y="124" class="t-muted" font-size="8" text-anchor="middle">Home, Cart, Profile</text>
-          <text data-detail="fine" x="140" y="142" class="t-frontend" font-size="7" text-anchor="middle">Material 3 · InkWell</text>
+          <text data-node-label="" data-detail-anchor="" x="145" y="107" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Cart Subtotal &amp; Calc</text>
+          <text data-detail="context" x="145" y="124" class="t-muted" font-size="8" text-anchor="middle">CartNotifier.dart</text>
+          <text data-detail="fine" x="145" y="142" class="t-frontend" font-size="7" text-anchor="middle">Subtotal = sum(qty * price)</text>
         </g>
 
-        <g id="node-riverpod_state" data-node-id="riverpod_state" data-node-label="Riverpod Notifiers" tabindex="0" role="button" aria-label="Focus Riverpod Notifiers, State Management, Client Presentation" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="CartNotifier, AuthNotifier" data-node-tag="AutoDispose · State" data-node-context="Client Presentation › State">
-          <title>Riverpod Notifiers · CartNotifier, AuthNotifier · AutoDispose · Clean State</title>
-          <rect x="250" y="86" width="140" height="68" rx="6" class="c-mask"/>
-          <rect x="250" y="86" width="140" height="68" rx="6" class="c-frontend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-frontend" transform="translate(256 92) scale(0.6875)">
+        <g id="node-bearer_jwt" data-node-id="bearer_jwt" data-node-label="Attach Bearer JWT" tabindex="0" role="button" aria-label="Focus Attach Bearer JWT, SessionService, Client Intent" aria-pressed="false" data-node-kind="security" data-node-sublabel="SessionService.dart" data-node-tag="Active Clerk JWT Header" data-node-context="Client Intent › Auth">
+          <title>Attach Bearer JWT · SessionService.dart · Active Clerk JWT Header</title>
+          <rect x="280" y="86" width="150" height="68" rx="6" class="c-mask"/>
+          <rect x="280" y="86" width="150" height="68" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(286 92) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="355" y="107" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Attach Bearer JWT</text>
+          <text data-detail="context" x="355" y="124" class="t-muted" font-size="8" text-anchor="middle">SessionService.dart</text>
+          <text data-detail="fine" x="355" y="142" class="t-security" font-size="7" text-anchor="middle">Active Clerk JWT Header</text>
+        </g>
+
+        <g id="node-client_optimistic" data-node-id="client_optimistic" data-node-label="Navigate OrderSuccess" tabindex="0" role="button" aria-label="Focus Navigate OrderSuccess, Screen, Client Intent" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="Clear Cart &amp; Display Order ID" data-node-tag="Optimistic State Reset" data-node-context="Client Intent › Success">
+          <title>Navigate OrderSuccess · Clear Cart &amp; Display Order ID · Optimistic State Reset</title>
+          <rect x="880" y="86" width="150" height="68" rx="6" class="c-mask"/>
+          <rect x="880" y="86" width="150" height="68" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-frontend" transform="translate(886 92) scale(0.6875)">
             <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="320" y="107" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Riverpod Notifiers</text>
-          <text data-detail="context" x="320" y="124" class="t-muted" font-size="8" text-anchor="middle">CartNotifier, AuthNotifier</text>
-          <text data-detail="fine" x="320" y="142" class="t-frontend" font-size="7" text-anchor="middle">AutoDispose · State</text>
-        </g>
-
-        <g id="node-cached_query" data-node-id="cached_query" data-node-label="Cached Query + Dio" tabindex="0" role="button" aria-label="Focus Cached Query + Dio, Network Layer, Client Presentation" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="Local Cache &amp; Dio Client" data-node-tag="Bearer JWT · Offline Grace" data-node-context="Client Presentation › Network">
-          <title>Cached Query + Dio · Local Cache &amp; Dio Client · Bearer JWT · Offline Grace</title>
-          <rect x="430" y="86" width="140" height="68" rx="6" class="c-mask"/>
-          <rect x="430" y="86" width="140" height="68" rx="6" class="c-frontend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-frontend" transform="translate(436 92) scale(0.6875)">
-            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
-            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="500" y="107" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Cached Query + Dio</text>
-          <text data-detail="context" x="500" y="124" class="t-muted" font-size="8" text-anchor="middle">Local Cache &amp; Interceptor</text>
-          <text data-detail="fine" x="500" y="142" class="t-frontend" font-size="7" text-anchor="middle">Bearer JWT · Offline Grace</text>
+          <text data-node-label="" data-detail-anchor="" x="955" y="107" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Navigate OrderSuccess</text>
+          <text data-detail="context" x="955" y="124" class="t-muted" font-size="8" text-anchor="middle">Clear Cart &amp; Show ID</text>
+          <text data-detail="fine" x="955" y="142" class="t-frontend" font-size="7" text-anchor="middle">Optimistic State Reset</text>
         </g>
 
         <!-- Lane 02 Nodes -->
-        <g id="node-api_ingress" data-node-id="api_ingress" data-node-label="FastAPI Ingress" tabindex="0" role="button" aria-label="Focus FastAPI Ingress, Starlette Gateway, Ingress Gateway" aria-pressed="false" data-node-kind="backend" data-node-sublabel="/api/v1/orders, /items" data-node-tag="Async Purity · Starlette" data-node-context="Ingress Gateway › Routing">
-          <title>FastAPI Ingress · /api/v1/orders, /items · Async Purity · Starlette</title>
-          <rect x="250" y="206" width="140" height="68" rx="6" class="c-mask"/>
-          <rect x="250" y="206" width="140" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(256 212) scale(0.6875)">
+        <g id="node-ingress_req" data-node-id="ingress_req" data-node-label="POST /api/v1/orders" tabindex="0" role="button" aria-label="Focus POST /api/v1/orders, orders.py:32, Ingress Gateway" aria-pressed="false" data-node-kind="backend" data-node-sublabel="orders.py:create_order" data-node-tag="Dependency: get_current_user" data-node-context="Ingress Gateway › Route">
+          <title>POST /api/v1/orders · orders.py:create_order · Dependency: get_current_user</title>
+          <rect x="280" y="218" width="150" height="68" rx="6" class="c-mask"/>
+          <rect x="280" y="218" width="150" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(286 224) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="320" y="227" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">FastAPI Ingress</text>
-          <text data-detail="context" x="320" y="244" class="t-muted" font-size="8" text-anchor="middle">/api/v1/orders, /items</text>
-          <text data-detail="fine" x="320" y="262" class="t-backend" font-size="7" text-anchor="middle">Async Purity · Starlette</text>
+          <text data-node-label="" data-detail-anchor="" x="355" y="239" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">POST /api/v1/orders</text>
+          <text data-detail="context" x="355" y="256" class="t-muted" font-size="8" text-anchor="middle">orders.py:create_order</text>
+          <text data-detail="fine" x="355" y="274" class="t-backend" font-size="7" text-anchor="middle">Dependency: get_current_user</text>
         </g>
 
-        <g id="node-clerk_jwks" data-node-id="clerk_jwks" data-node-label="Clerk RS256 JWKS" tabindex="0" role="button" aria-label="Focus Clerk RS256 JWKS, Security Gateway, Ingress Gateway" aria-pressed="false" data-node-kind="security" data-node-sublabel="PyJWKClient LRU Cache" data-node-tag="5s Clock Skew · RS256" data-node-context="Ingress Gateway › Security">
-          <title>Clerk RS256 JWKS · PyJWKClient LRU Cache · 5s Clock Skew · RS256</title>
-          <rect x="430" y="206" width="140" height="68" rx="6" class="c-mask"/>
-          <rect x="430" y="206" width="140" height="68" rx="6" class="c-security" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(436 212) scale(0.6875)">
+        <g id="node-jwks_verify" data-node-id="jwks_verify" data-node-label="Clerk RS256 JWKS" tabindex="0" role="button" aria-label="Focus Clerk RS256 JWKS, PyJWKClient, Ingress Gateway" aria-pressed="false" data-node-kind="security" data-node-sublabel="security.py:PyJWKClient" data-node-tag="5s Clock Skew Leeway" data-node-context="Ingress Gateway › Security">
+          <title>Clerk RS256 JWKS · security.py:PyJWKClient · 5s Clock Skew Leeway</title>
+          <rect x="480" y="218" width="150" height="68" rx="6" class="c-mask"/>
+          <rect x="480" y="218" width="150" height="68" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(486 224) scale(0.6875)">
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="500" y="227" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Clerk RS256 JWKS</text>
-          <text data-detail="context" x="500" y="244" class="t-muted" font-size="8" text-anchor="middle">PyJWKClient LRU Cache</text>
-          <text data-detail="fine" x="500" y="262" class="t-security" font-size="7" text-anchor="middle">5s Clock Skew · RS256</text>
+          <text data-node-label="" data-detail-anchor="" x="555" y="239" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Clerk RS256 JWKS</text>
+          <text data-detail="context" x="555" y="256" class="t-muted" font-size="8" text-anchor="middle">security.py:PyJWKClient</text>
+          <text data-detail="fine" x="555" y="274" class="t-security" font-size="7" text-anchor="middle">5s Clock Skew Leeway</text>
         </g>
 
-        <g id="node-rbac_guard" data-node-id="rbac_guard" data-node-label="2-Tier RBAC Guard" tabindex="0" role="button" aria-label="Focus 2-Tier RBAC Guard, RBAC Authorization, Ingress Gateway" aria-pressed="false" data-node-kind="security" data-node-sublabel="USER vs ADMIN Roles" data-node-tag="Active Guard · Soft-Disable" data-node-context="Ingress Gateway › RBAC">
-          <title>2-Tier RBAC Guard · USER vs ADMIN Roles · Active Guard · Soft-Disable</title>
-          <rect x="610" y="206" width="140" height="68" rx="6" class="c-mask"/>
-          <rect x="610" y="206" width="140" height="68" rx="6" class="c-security" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(616 212) scale(0.6875)">
-            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
-            <path d="m5.8 8 1.5 1.5 3-3"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="680" y="227" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">2-Tier RBAC Guard</text>
-          <text data-detail="context" x="680" y="244" class="t-muted" font-size="8" text-anchor="middle">USER vs ADMIN Roles</text>
-          <text data-detail="fine" x="680" y="262" class="t-security" font-size="7" text-anchor="middle">Active Guard · Soft-Disable</text>
-        </g>
-
-        <g id="node-pydantic_dto" data-node-id="pydantic_dto" data-node-label="Pydantic V2 DTOs" tabindex="0" role="button" aria-label="Focus Pydantic V2 DTOs, Request Validation, Ingress Gateway" aria-pressed="false" data-node-kind="backend" data-node-sublabel="OrderCreateRequest, ItemDTO" data-node-tag="Strict Schema · Rust Core" data-node-context="Ingress Gateway › Validation">
-          <title>Pydantic V2 DTOs · OrderCreateRequest, ItemDTO · Strict Schema · Rust Core</title>
-          <rect x="790" y="206" width="140" height="68" rx="6" class="c-mask"/>
-          <rect x="790" y="206" width="140" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(796 212) scale(0.6875)">
+        <g id="node-dto_guard" data-node-id="dto_guard" data-node-label="OrderCreateRequest" tabindex="0" role="button" aria-label="Focus OrderCreateRequest, Pydantic V2 DTO, Ingress Gateway" aria-pressed="false" data-node-kind="backend" data-node-sublabel="order_schemas.py" data-node-tag="Reject Empty / Duplicate Items" data-node-context="Ingress Gateway › Validation">
+          <title>OrderCreateRequest · order_schemas.py · Reject Empty / Duplicate Items</title>
+          <rect x="680" y="218" width="150" height="68" rx="6" class="c-mask"/>
+          <rect x="680" y="218" width="150" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(686 224) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="860" y="227" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Pydantic V2 DTOs</text>
-          <text data-detail="context" x="860" y="244" class="t-muted" font-size="8" text-anchor="middle">OrderCreateRequest, ItemDTO</text>
-          <text data-detail="fine" x="860" y="262" class="t-backend" font-size="7" text-anchor="middle">Strict Schema · Rust Core</text>
+          <text data-node-label="" data-detail-anchor="" x="755" y="239" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">OrderCreateRequest</text>
+          <text data-detail="context" x="755" y="256" class="t-muted" font-size="8" text-anchor="middle">order_schemas.py</text>
+          <text data-detail="fine" x="755" y="274" class="t-backend" font-size="7" text-anchor="middle">Reject Empty / Duplicate Items</text>
         </g>
 
         <!-- Lane 03 Nodes -->
-        <g id="node-catalog_repo" data-node-id="catalog_repo" data-node-label="Catalog Repository" tabindex="0" role="button" aria-label="Focus Catalog Repository, Category &amp; Items, Domain Execution" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Categories, Items, Soft Delete" data-node-tag="Active Filter · Indexing" data-node-context="Domain Execution › Catalog">
-          <title>Catalog Repository · Categories, Items, Soft Delete · Active Filter · Indexing</title>
-          <rect x="610" y="332" width="140" height="68" rx="6" class="c-mask"/>
-          <rect x="610" y="332" width="140" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(616 338) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="680" y="353" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Catalog Repository</text>
-          <text data-detail="context" x="680" y="370" class="t-muted" font-size="8" text-anchor="middle">Categories &amp; Items</text>
-          <text data-detail="fine" x="680" y="388" class="t-backend" font-size="7" text-anchor="middle">Active Filter · Indexing</text>
-        </g>
-
-        <g id="node-order_repo" data-node-id="order_repo" data-node-label="Order Repository" tabindex="0" role="button" aria-label="Focus Order Repository, Atomic Tx, Domain Execution" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Atomic Tx &amp; Price Snapshot" data-node-tag="Unit Price Snapshot" data-node-context="Domain Execution › Orders">
-          <title>Order Repository · Atomic Tx &amp; Price Snapshot · Unit Price Snapshot</title>
-          <rect x="790" y="332" width="140" height="68" rx="6" class="c-mask"/>
-          <rect x="790" y="332" width="140" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(796 338) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="860" y="353" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Order Repository</text>
-          <text data-detail="context" x="860" y="370" class="t-muted" font-size="8" text-anchor="middle">Atomic Tx &amp; Snapshot</text>
-          <text data-detail="fine" x="860" y="388" class="t-backend" font-size="7" text-anchor="middle">Unit Price Snapshot</text>
-        </g>
-
-        <g id="node-order_fsm" data-node-id="order_fsm" data-node-label="Kitchen Status FSM" tabindex="0" role="button" aria-label="Focus Kitchen Status FSM, State Machine, Domain Execution" aria-pressed="false" data-node-kind="backend" data-node-sublabel="PENDING ➔ READY ➔ DELIVERED" data-node-tag="Admin State Machine" data-node-context="Domain Execution › Kitchen">
-          <title>Kitchen Status FSM · PENDING ➔ READY ➔ DELIVERED · Admin State Machine</title>
-          <rect x="970" y="332" width="140" height="68" rx="6" class="c-mask"/>
-          <rect x="970" y="332" width="140" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(976 338) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="1040" y="353" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Kitchen Status FSM</text>
-          <text data-detail="context" x="1040" y="370" class="t-muted" font-size="8" text-anchor="middle">PENDING ➔ PREPARING</text>
-          <text data-detail="fine" x="1040" y="388" class="t-backend" font-size="7" text-anchor="middle">Admin State Machine</text>
-        </g>
-
-        <g id="node-asyncpg_pool" data-node-id="asyncpg_pool" data-node-label="PostgreSQL 16 &amp; asyncpg" tabindex="0" role="button" aria-label="Focus PostgreSQL 16 &amp; asyncpg, Database Pool, Persistence" aria-pressed="false" data-node-kind="database" data-node-sublabel="SQLAlchemy 2.0 Async" data-node-tag="Zero Sync · Session per req" data-node-context="Domain Execution › Database">
-          <title>PostgreSQL 16 &amp; asyncpg · SQLAlchemy 2.0 Async · Zero Sync · Session per req</title>
-          <rect x="1110" y="332" width="170" height="68" rx="6" class="c-mask"/>
-          <rect x="1110" y="332" width="170" height="68" rx="6" class="c-database" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(1116 338) scale(0.6875)">
+        <g id="node-atomic_begin" data-node-id="atomic_begin" data-node-label="async with session.begin()" tabindex="0" role="button" aria-label="Focus async with session.begin(), Transaction Boundary, Atomic Core" aria-pressed="false" data-node-kind="database" data-node-sublabel="OrderRepository.py" data-node-tag="AsyncPG Transaction" data-node-context="Atomic Core › Transaction">
+          <title>async with session.begin() · OrderRepository.py · AsyncPG Transaction</title>
+          <rect x="480" y="350" width="150" height="68" rx="6" class="c-mask"/>
+          <rect x="480" y="350" width="150" height="68" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(486 356) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="1195" y="353" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">PostgreSQL 16 · asyncpg</text>
-          <text data-detail="context" x="1195" y="370" class="t-muted" font-size="8" text-anchor="middle">SQLAlchemy 2.0 Async</text>
-          <text data-detail="fine" x="1195" y="388" class="t-database" font-size="7" text-anchor="middle">Zero Sync · Isolated Session</text>
+          <text data-node-label="" data-detail-anchor="" x="555" y="371" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">session.begin() Boundary</text>
+          <text data-detail="context" x="555" y="388" class="t-muted" font-size="8" text-anchor="middle">OrderRepository.py</text>
+          <text data-detail="fine" x="555" y="406" class="t-database" font-size="7" text-anchor="middle">AsyncPG Transaction</text>
+        </g>
+
+        <g id="node-price_snap" data-node-id="price_snap" data-node-label="Snapshot unit_price" tabindex="0" role="button" aria-label="Focus Snapshot unit_price, Price Integrity, Atomic Core" aria-pressed="false" data-node-kind="backend" data-node-sublabel="DB Authoritative Price" data-node-tag="Prevents Price Tampering" data-node-context="Atomic Core › Integrity">
+          <title>Snapshot unit_price · DB Authoritative Price · Prevents Price Tampering</title>
+          <rect x="680" y="350" width="150" height="68" rx="6" class="c-mask"/>
+          <rect x="680" y="350" width="150" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(686 356) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="755" y="371" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Snapshot unit_price</text>
+          <text data-detail="context" x="755" y="388" class="t-muted" font-size="8" text-anchor="middle">DB Authoritative Price</text>
+          <text data-detail="fine" x="755" y="406" class="t-backend" font-size="7" text-anchor="middle">Prevents Price Tampering</text>
+        </g>
+
+        <g id="node-db_commit" data-node-id="db_commit" data-node-label="PostgreSQL 16 Commit" tabindex="0" role="button" aria-label="Focus PostgreSQL 16 Commit, Database Insert, Atomic Core" aria-pressed="false" data-node-kind="database" data-node-sublabel="Insert order + order_items" data-node-tag="Order ID #COCO-8942" data-node-context="Atomic Core › Persistence">
+          <title>PostgreSQL 16 Commit · Insert order + order_items · Order ID #COCO-8942</title>
+          <rect x="880" y="350" width="150" height="68" rx="6" class="c-mask"/>
+          <rect x="880" y="350" width="150" height="68" rx="6" class="c-database" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(886 356) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="955" y="371" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">PostgreSQL 16 Commit</text>
+          <text data-detail="context" x="955" y="388" class="t-muted" font-size="8" text-anchor="middle">Insert order &amp; items</text>
+          <text data-detail="fine" x="955" y="406" class="t-database" font-size="7" text-anchor="middle">Order ID #COCO-8942</text>
         </g>
 
         <!-- Lane EX Nodes -->
-        <g id="node-trap_self_lock" data-node-id="trap_self_lock" data-node-label="Admin Self-Lock Guard" tabindex="0" role="button" aria-label="Focus Admin Self-Lock Guard, RBAC Protection, Guarded Traps" aria-pressed="false" data-node-kind="security" data-node-sublabel="Prevents Self-Demotion" data-node-tag="400 Bad Request Trap" data-node-context="Guarded Traps › Security">
-          <title>Admin Self-Lock Guard · Prevents Self-Demotion · 400 Bad Request Trap</title>
-          <rect x="250" y="464" width="140" height="64" rx="6" class="c-mask"/>
-          <rect x="250" y="464" width="140" height="64" rx="6" class="c-security" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(256 470) scale(0.6875)">
+        <g id="node-trap_empty_cart" data-node-id="trap_empty_cart" data-node-label="400 Bad Request" tabindex="0" role="button" aria-label="Focus 400 Bad Request, Empty Cart, Traps" aria-pressed="false" data-node-kind="security" data-node-sublabel="Empty Cart / Negative Qty" data-node-tag="FastAPI HTTP 400" data-node-context="Traps › Validation">
+          <title>400 Bad Request · Empty Cart / Negative Qty · FastAPI HTTP 400</title>
+          <rect x="280" y="468" width="150" height="56" rx="6" class="c-mask"/>
+          <rect x="280" y="468" width="150" height="56" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(286 474) scale(0.6875)">
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="320" y="484" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">Admin Self-Lock Guard</text>
-          <text data-detail="context" x="320" y="501" class="t-muted" font-size="8" text-anchor="middle">Prevents Self-Demotion</text>
-          <text data-detail="fine" x="320" y="518" class="t-security" font-size="7" text-anchor="middle">400 Bad Request Trap</text>
+          <text data-node-label="" data-detail-anchor="" x="355" y="488" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">400 Bad Request</text>
+          <text data-detail="context" x="355" y="503" class="t-muted" font-size="8" text-anchor="middle">Empty Cart / Zero Qty</text>
+          <text data-detail="fine" x="355" y="516" class="t-security" font-size="7" text-anchor="middle">FastAPI HTTP 400</text>
         </g>
 
-        <g id="node-trap_price_tamper" data-node-id="trap_price_tamper" data-node-label="Price Tamper Guard" tabindex="0" role="button" aria-label="Focus Price Tamper Guard, Monetary Integrity, Guarded Traps" aria-pressed="false" data-node-kind="security" data-node-sublabel="Rejects Client Prices" data-node-tag="Authoritative DB Snapshot" data-node-context="Guarded Traps › Monetary">
-          <title>Price Tamper Guard · Rejects Client Prices · Authoritative DB Snapshot</title>
-          <rect x="610" y="464" width="140" height="64" rx="6" class="c-mask"/>
-          <rect x="610" y="464" width="140" height="64" rx="6" class="c-security" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(616 470) scale(0.6875)">
+        <g id="node-trap_unauth" data-node-id="trap_unauth" data-node-label="401 / 403 Forbidden" tabindex="0" role="button" aria-label="Focus 401 / 403 Forbidden, Security Rejection, Traps" aria-pressed="false" data-node-kind="security" data-node-sublabel="Invalid Token / Inactive" data-node-tag="Clerk JWKS Rejection" data-node-context="Traps › Security">
+          <title>401 / 403 Forbidden · Invalid Token / Inactive · Clerk JWKS Rejection</title>
+          <rect x="480" y="468" width="150" height="56" rx="6" class="c-mask"/>
+          <rect x="480" y="468" width="150" height="56" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(486 474) scale(0.6875)">
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="680" y="484" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">Price Tamper Guard</text>
-          <text data-detail="context" x="680" y="501" class="t-muted" font-size="8" text-anchor="middle">DB Price Snapshot</text>
-          <text data-detail="fine" x="680" y="518" class="t-security" font-size="7" text-anchor="middle">Authoritative Snapshot</text>
+          <text data-node-label="" data-detail-anchor="" x="555" y="488" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">401 / 403 Forbidden</text>
+          <text data-detail="context" x="555" y="503" class="t-muted" font-size="8" text-anchor="middle">Invalid Token / Inactive</text>
+          <text data-detail="fine" x="555" y="516" class="t-security" font-size="7" text-anchor="middle">Clerk JWKS Rejection</text>
         </g>
 
-        <g id="node-trap_greenlet" data-node-id="trap_greenlet" data-node-label="MissingGreenlet Trap" tabindex="0" role="button" aria-label="Focus MissingGreenlet Trap, N+1 Prevention, Guarded Traps" aria-pressed="false" data-node-kind="security" data-node-sublabel="Bans Implicit Lazy Load" data-node-tag="selectinload Mandate" data-node-context="Guarded Traps › Concurrency">
-          <title>MissingGreenlet Trap · Bans Implicit Lazy Load · selectinload Mandate</title>
-          <rect x="970" y="464" width="140" height="64" rx="6" class="c-mask"/>
-          <rect x="970" y="464" width="140" height="64" rx="6" class="c-security" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(976 470) scale(0.6875)">
+        <g id="node-trap_rollback" data-node-id="trap_rollback" data-node-label="Rollback on Error" tabindex="0" role="button" aria-label="Focus Rollback on Error, Safe Exception Handling, Traps" aria-pressed="false" data-node-kind="security" data-node-sublabel="Auto Rollback on Failure" data-node-tag="Zero Corrupted Orders" data-node-context="Traps › Persistence">
+          <title>Rollback on Error · Auto Rollback on Failure · Zero Corrupted Orders</title>
+          <rect x="680" y="468" width="150" height="56" rx="6" class="c-mask"/>
+          <rect x="680" y="468" width="150" height="56" rx="6" class="c-security" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(686 474) scale(0.6875)">
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="1040" y="484" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">MissingGreenlet Trap</text>
-          <text data-detail="context" x="1040" y="501" class="t-muted" font-size="8" text-anchor="middle">Bans Lazy Load N+1</text>
-          <text data-detail="fine" x="1040" y="518" class="t-security" font-size="7" text-anchor="middle">selectinload Mandate</text>
-        </g>
-
-        <g id="node-quality_gate" data-node-id="quality_gate" data-node-label="Quality Gate (279 Tests)" tabindex="0" role="button" aria-label="Focus Quality Gate (279 Tests), Pytest + Flutter, Guarded Traps" aria-pressed="false" data-node-kind="backend" data-node-sublabel="177 Pytest + 102 Flutter" data-node-tag="100% Pass · Cov &gt;= 85%" data-node-context="Guarded Traps › Quality">
-          <title>Quality Gate (279 Tests) · 177 Pytest + 102 Flutter · 100% Pass · Cov &gt;= 85%</title>
-          <rect x="1140" y="464" width="140" height="64" rx="6" class="c-mask"/>
-          <rect x="1140" y="464" width="140" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(1146 470) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="1210" y="484" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">Quality Gate (279 Tests)</text>
-          <text data-detail="context" x="1210" y="501" class="t-muted" font-size="8" text-anchor="middle">177 Pytest + 102 Flutter</text>
-          <text data-detail="fine" x="1210" y="518" class="t-backend" font-size="7" text-anchor="middle">100% Pass · Cov &gt;= 85%</text>
+          <text data-node-label="" data-detail-anchor="" x="755" y="488" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">Rollback on Error</text>
+          <text data-detail="context" x="755" y="503" class="t-muted" font-size="8" text-anchor="middle">Auto Rollback on Exception</text>
+          <text data-detail="fine" x="755" y="516" class="t-security" font-size="7" text-anchor="middle">Zero Corrupted Orders</text>
         </g>
     </svg>
     
@@ -5466,46 +5412,47 @@
     <div class="cards">
       <div class="card">
         <div class="card-header">
-          <div class="card-dot emerald"></div>
-          <h3>End-to-End Async Purity &amp; Clean Architecture</h3>
+          <div class="card-dot rose"></div>
+          <h3>The Unit Price Snapshot Mandate</h3>
         </div>
-        <p>The Cocoloco API enforces 100% non-blocking async execution using native Python 3.12+ async/await and the asyncpg driver. Implicit lazy loading is eradicated via explicit selectinload() eager queries.</p>
+        <p>A fatal vulnerability in amateur e-commerce systems is trusting the prices sent by client mobile apps in request payloads. In Cocoloco, the backend strictly ignores client-sent prices.</p>
         <ul>
-          <li>&bull; Repository Pattern isolates business rules from SQLAlchemy ORM entities.</li>
-          <li>&bull; Pydantic V2 DTOs ensure OpenAPI schema contracts remain unbroken.</li>
-          <li>&bull; Scoped async session per HTTP request with automatic rollback on error.</li>
+          <li>&bull; When receiving an order, OrderRepository queries PostgreSQL for the current authoritative price of each active item.</li>
+          <li>&bull; The authoritative unit price is snapshotted into order_items.unit_price at the exact moment of order creation.</li>
+          <li>&bull; Subsequent price adjustments by administrators do not retroactively mutate past historical orders.</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot rose"></div>
-          <h3>Clerk RS256 JWKS &amp; Active RBAC Defense</h3>
+          <div class="card-dot emerald"></div>
+          <h3>Zero-Sync Concurrency &amp; Rollback Safety</h3>
         </div>
-        <p>Cryptographic RS256 JWT verification using PyJWKClient with LRU key caching and 5-second clock skew tolerance protects every protected route.</p>
+        <p>All database I/O is non-blocking via PostgreSQL 16 and asyncpg. By wrapping order creation in async with session.begin(), atomicity is guaranteed without manual commit boilerplate.</p>
         <ul>
-          <li>&bull; 2-Tier RBAC: Strict segregation between USER and ADMIN capabilities.</li>
-          <li>&bull; Soft-Disable Active Guard rejects deactivated users at the gateway layer.</li>
-          <li>&bull; Admin Self-Lock Guard strictly prevents administrators from demoting or disabling themselves.</li>
+          <li>&bull; If any item is inactive or missing, the session raises an HTTPException and automatically rolls back.</li>
+          <li>&bull; No partial orders or dangling order items are ever committed to disk.</li>
+          <li>&bull; Database connection is cleanly returned to the asyncpg connection pool immediately after response dispatch.</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot amber"></div>
-          <h3>Comprehensive Quality Gate: 279 Automated Tests</h3>
+          <h3>Admin Kitchen State Machine &amp; Fulfillment</h3>
         </div>
-        <p>Zero regression policy guarded by 177 Backend Pytest unit/integration tests and 102 Flutter unit and widget tests.</p>
+        <p>Once created, orders start in PENDING status and can only transition forward according to strict business logic:</p>
         <ul>
-          <li>&bull; 177 Backend Pytest tests passing at 100% with SQLite in-memory async engine.</li>
-          <li>&bull; 102 Flutter Mobile tests covering Riverpod Notifiers, UI state rendering, and Dio interceptors.</li>
-          <li>&bull; Strict coverage requirement &gt;= 85% enforced before any code can merge.</li>
+          <li>&bull; PENDING ➔ PREPARING (Kitchen accepts and starts brewing/baking).</li>
+          <li>&bull; PREPARING ➔ READY (Items are packaged and awaiting pickup).</li>
+          <li>&bull; READY ➔ DELIVERED (Customer receives order; terminal state).</li>
+          <li>&bull; Only users with role ADMIN are authorized to trigger order status transitions.</li>
         </ul>
       </div>
     </div>
     
     </div>
-    <script id="archify-source-evidence-data" type="application/json">{"verified": true, "repository": {"url": "https://github.com/agilityio/cocoloco-platform", "revision": "main", "shortRevision": "main"}, "nodes": {"mobile_ui": [{"path": "apps/flutter_practice/blog_app/lib/features/cart/presentation/cart_screen.dart", "line": 28, "label": "cart_screen.dart:28"}, {"path": "apps/flutter_practice/blog_app/lib/features/home/presentation/home_screen.dart", "line": 34, "label": "home_screen.dart:34"}], "riverpod_state": [{"path": "apps/flutter_practice/blog_app/lib/core/providers/cart_provider.dart", "line": 15, "label": "cart_provider.dart:15"}, {"path": "apps/flutter_practice/blog_app/lib/core/providers/auth_provider.dart", "line": 22, "label": "auth_provider.dart:22"}], "cached_query": [{"path": "apps/flutter_practice/blog_app/lib/core/providers/network_providers.dart", "line": 40, "label": "network_providers.dart:40"}], "api_ingress": [{"path": "app/api/v1/orders.py", "line": 32, "label": "orders.py:32"}, {"path": "app/api/v1/items.py", "line": 25, "label": "items.py:25"}], "clerk_jwks": [{"path": "app/core/security.py", "line": 45, "label": "security.py:45"}], "rbac_guard": [{"path": "app/core/dependencies.py", "line": 52, "label": "dependencies.py:52"}], "pydantic_dto": [{"path": "app/schemas/order_schemas.py", "line": 18, "label": "order_schemas.py:18"}, {"path": "app/schemas/item_schemas.py", "line": 14, "label": "item_schemas.py:14"}], "catalog_repo": [{"path": "app/repositories/item_repository.py", "line": 38, "label": "item_repository.py:38"}], "order_repo": [{"path": "app/repositories/order_repository.py", "line": 48, "label": "order_repository.py:48"}], "order_fsm": [{"path": "app/repositories/order_repository.py", "line": 112, "label": "order_repository.py:112"}], "asyncpg_pool": [{"path": "app/core/database.py", "line": 22, "label": "database.py:22"}], "trap_self_lock": [{"path": "app/api/v1/users.py", "line": 64, "label": "users.py:64"}], "trap_price_tamper": [{"path": "app/repositories/order_repository.py", "line": 72, "label": "order_repository.py:72"}], "trap_greenlet": [{"path": "app/repositories/category_repository.py", "line": 29, "label": "category_repository.py:29"}], "quality_gate": [{"path": "tests/test_orders.py", "line": 1, "label": "test_orders.py:1"}, {"path": "tests/test_auth.py", "line": 1, "label": "test_auth.py:1"}]}}</script>
+    <script id="archify-source-evidence-data" type="application/json">{"verified": true, "repository": {"url": "https://github.com/agilityio/cocoloco-platform", "revision": "main", "shortRevision": "main"}, "nodes": {"cart_calc": [{"path": "apps/flutter_practice/blog_app/lib/core/providers/cart_provider.dart", "line": 25, "label": "cart_provider.dart:25"}], "bearer_jwt": [{"path": "apps/flutter_practice/blog_app/lib/core/services/session_service.dart", "line": 18, "label": "session_service.dart:18"}], "ingress_req": [{"path": "app/api/v1/orders.py", "line": 32, "label": "orders.py:32"}], "jwks_verify": [{"path": "app/core/security.py", "line": 50, "label": "security.py:50"}], "dto_guard": [{"path": "app/schemas/order_schemas.py", "line": 22, "label": "order_schemas.py:22"}], "atomic_begin": [{"path": "app/repositories/order_repository.py", "line": 52, "label": "order_repository.py:52"}], "price_snap": [{"path": "app/repositories/order_repository.py", "line": 74, "label": "order_repository.py:74"}], "db_commit": [{"path": "app/repositories/order_repository.py", "line": 95, "label": "order_repository.py:95"}], "client_optimistic": [{"path": "apps/flutter_practice/blog_app/lib/features/cart/presentation/order_success_screen.dart", "line": 15, "label": "order_success_screen.dart:15"}], "trap_empty_cart": [{"path": "app/api/v1/orders.py", "line": 38, "label": "orders.py:38"}], "trap_unauth": [{"path": "app/core/security.py", "line": 62, "label": "security.py:62"}], "trap_rollback": [{"path": "app/repositories/order_repository.py", "line": 85, "label": "order_repository.py:85"}]}}</script>
     <script>
     var Archify = {};
     var archifyI18nData = (function () {

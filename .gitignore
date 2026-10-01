@@ -62,3 +62,7 @@ coverage.xml
 # ===========================
 # Keep migration files, ignore auto-generated pycache
 alembic/__pycache__/
+
+# Colleague reference files (local only)
+html-dongnghiep/
+
