@@ -12,6 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from sqlalchemy import select
+
 from app.core.database import AsyncSessionLocal
 from app.models.user import User, UserRole
 
@@ -27,7 +28,9 @@ async def set_user_role(identifier: str, role_str: str = "ADMIN") -> bool:
         )
         user = result.scalar_one_or_none()
         if not user:
-            print(f"❌ User with email or clerk_id '{identifier}' not found in database.")
+            print(
+                f"❌ User with email or clerk_id '{identifier}' not found in database."
+            )
             return False
 
         old_role = user.role.value
@@ -42,7 +45,10 @@ async def set_user_role(identifier: str, role_str: str = "ADMIN") -> bool:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: uv run python scripts/promote_admin.py <email_or_clerk_id> [ADMIN|USER]")
+        print(
+            "Usage: uv run python scripts/promote_admin.py "
+            "<email_or_clerk_id> [ADMIN|USER]"
+        )
         sys.exit(1)
 
     target_identifier = sys.argv[1]
