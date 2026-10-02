@@ -885,6 +885,114 @@
       background: var(--c-policy);
       color: #fff;
     }
+
+    /* REST Error Matrix Styles */
+    .rest-error-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--err-accent, var(--c-policy));
+      border-radius: 0.65rem;
+      padding: 1.1rem;
+      margin-bottom: 1.1rem;
+      transition: all 0.2s ease;
+    }
+    .rest-error-card:hover {
+      border-color: rgba(244, 63, 94, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    .rest-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 0.5rem;
+    }
+    .rest-status-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 0.25rem 0.65rem;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+    .rest-status-badge.b-4xx {
+      background: rgba(244, 63, 94, 0.18);
+      color: #FDA4AF;
+      border: 1px solid rgba(244, 63, 94, 0.45);
+    }
+    .rest-status-badge.b-5xx {
+      background: rgba(239, 68, 68, 0.22);
+      color: #FCA5A5;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+    }
+    .rest-status-badge.b-rfc {
+      background: rgba(14, 165, 233, 0.18);
+      color: #7DD3FC;
+      border: 1px solid rgba(14, 165, 233, 0.45);
+    }
+    .rest-meta-tags {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .rest-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-dim);
+    }
+    .tag-rfc { color: #38BDF8; border-color: rgba(56, 189, 248, 0.3); }
+    .tag-layer { color: #FBBF24; border-color: rgba(251, 191, 36, 0.3); }
+    .tag-file { color: #A7F3D0; border-color: rgba(167, 243, 208, 0.3); }
+    .rest-card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #F8FAFC;
+      margin-bottom: 0.4rem;
+    }
+    .rest-card-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 0.8rem;
+    }
+    .rest-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+    }
+    @media (max-width: 768px) {
+      .rest-card-grid { grid-template-columns: 1fr; }
+    }
+    .rest-box {
+      background: #020617;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.75rem;
+    }
+    .rest-box-title {
+      font-weight: 700;
+      color: #94A3B8;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .rest-box pre {
+      font-family: 'JetBrains Mono', monospace;
+      color: #E2E8F0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin: 0;
+      line-height: 1.4;
+    }
+
     .modal-card {
       background: rgba(11, 18, 33, 0.96);
       border: 1px solid var(--card-border);
@@ -1265,10 +1373,10 @@
         <span>🌙 Dark</span>
       </button>
       <button class="btn-chip active" id="preset-btn">
-        <span>Classic ▾</span>
+        <span id="btn-label-preset">Classic ▾</span>
       </button>
       <button class="btn-chip" onclick="toggleFullScreen()" id="present-btn">
-        <span>⛶ Present</span>
+        <span id="btn-label-present">⛶ Trình chiếu</span>
       </button>
 
       <!-- Interactive Review Tools -->
@@ -1279,16 +1387,16 @@
         <span>ReDoc /redoc</span>
       </button>
       <button class="btn-chip" onclick="openModal('erd-modal')" id="btn-erd" title="Sơ đồ quan hệ thực thể cơ sở dữ liệu Cocoloco">
-        <span>🗄️ Database ERD</span>
+        <span id="btn-label-erd">🗄️ Database ERD</span>
       </button>
       <button class="btn-chip" onclick="openModal('quality-modal')" id="btn-quality" title="Chỉ số kiểm thử tự động 279 Tests (98% Coverage)">
-        <span>🧪 Quality Gates (98%)</span>
+        <span id="btn-label-quality">🧪 Quality Gates (98%)</span>
       </button>
-      <button class="btn-chip" onclick="openModal('error-modal')" id="btn-errors" style="background: rgba(244, 63, 94, 0.2); border-color: var(--c-policy); color: #FDA4AF; font-weight: 700;" title="Bảng tra cứu 12 mã lỗi thực tế &amp; cơ chế bẫy phòng thủ">
-        <span style="color: var(--c-policy);">🚨</span> <span id="btn-label-errors">Tra Cứu Bẫy Lỗi (12 Lỗi)</span>
+      <button class="btn-chip" onclick="openModal('error-modal')" id="btn-errors" style="background: rgba(244, 63, 94, 0.2); border-color: var(--c-policy); color: #FDA4AF; font-weight: 700;" title="Ma trận lỗi RESTful &amp; Đặc tả RFC 9457 (12 Bẫy Lỗi)">
+        <span style="color: var(--c-policy);">⚠️</span> <span id="btn-label-errors">REST Error Matrix (12 Traps)</span>
       </button>
       <button class="btn-chip highlight-chip" onclick="openModal('cheatsheet-modal')" id="btn-cheatsheet" title="Phao tra cứu 12 Target & 10 câu hỏi vấn đáp cho buổi Review">
-        <span>📖 Defense Cheatsheet</span>
+        <span id="btn-label-cheatsheet">📖 Defense Cheatsheet</span>
       </button>
     </div>
   </header>
@@ -1954,7 +2062,7 @@
           <div class="metric-tile" style="--tile-color: #38BDF8;">
             <div class="metric-sub">Backend Coverage</div>
             <div class="metric-val" style="color: #38BDF8;">98%</div>
-            <div class="metric-desc">Vượt xa chuẩn công nghiệp (≥85%)</div>
+            <div class="metric-desc" id="q-desc-2">Vượt xa chuẩn công nghiệp (≥85%)</div>
           </div>
           <div class="metric-tile" style="--tile-color: #EC4899;">
             <div class="metric-sub">Flutter Mobile Tests</div>
@@ -1969,7 +2077,7 @@
         </div>
 
         <div class="cmd-shelf">
-          <div class="cmd-shelf-title">
+          <div class="cmd-shelf-title" id="cmd-shelf-title">
             <span>⚙️</span> <span>Lệnh Chạy Kiểm Thử Nhanh (Click để sao chép)</span>
           </div>
           
@@ -2039,6 +2147,16 @@
             <div class="qa-q"><span class="qa-q-num">Q6</span> <span>Tại sao nút "+ Add Item" trên màn hình chính Flutter cần Riverpod AuthRoleNotifier thay vì plain Provider?</span></div>
             <div class="qa-a">Plain <code>Provider&lt;SessionService&gt;</code> chỉ so sánh tham chiếu đối tượng (identity equality). Vì <code>SessionService.instance</code> là Singleton, địa chỉ ô nhớ không đổi nên Riverpod bỏ qua việc rebuild. Sử dụng <code>AuthRoleNotifier</code> lắng nghe <code>notifyListeners()</code> và phát state mới <code>AppRole</code>, kích hoạt Riverpod rebuild lập tức hiển thị nút FloatingActionButton.</div>
           </div>
+
+          <div class="qa-card">
+            <div class="qa-q"><span class="qa-q-num">Q7</span> <span>Hệ thống Cocoloco phân tầng và kiểm soát các mã lỗi RESTful như thế nào theo chuẩn RFC 9457?</span></div>
+            <div class="qa-a">Toàn bộ ngoại lệ được bẫy theo 5 tầng kiến trúc rõ rệt: <strong>Cửa ngõ Ingress</strong> (401 Bearer Token, 405 Method), <strong>Kiểm thực Schema DTO</strong> (422 Pydantic v2 Core Rust), <strong>Chính sách & Nghiệp vụ</strong> (400 Giỏ rỗng/Tự khóa Admin, 403 Phân quyền RBAC), <strong>Tầng Lưu trữ & Dữ liệu</strong> (404 Không tìm thấy món/đơn, 409 Trùng danh tính), và <strong>Hạ tầng Máy chủ</strong> (500 Che giấu lỗi an toàn, 502 Mất kết nối Clerk, 503 Quá tải DB pool, 504 Timeout). Tất cả đều trả về định dạng <code>application/problem+json</code> theo chuẩn <strong>IETF RFC 9457</strong> có mã <code>error_code</code> bất biến, giúp ứng dụng Flutter (Dio Interceptor) bắt lỗi và hiển thị giao diện thân thiện mà không bao giờ bị crash.</div>
+          </div>
+
+          <div class="qa-card">
+            <div class="qa-q"><span class="qa-q-num">Q8</span> <span>Xử lý tải ảnh sản phẩm từ thiết bị (Local Upload) thế nào để vừa an toàn bảo mật vừa đồng bộ mượt mà với giao diện Flutter?</span></div>
+            <div class="qa-a">Trên ứng dụng Flutter, modal <code>AdminProductFormModal</code> sử dụng thư viện <code>image_picker</code> cho phép chủ quán chọn ảnh từ thư viện máy hoặc chụp trực tiếp. File ảnh được đóng gói dạng Multipart <code>FormData</code> và gửi lên endpoint <code>POST /api/v1/uploads/image</code>. Tại backend FastAPI, endpoint được bảo vệ bởi Guard <code>require_role([UserRole.ADMIN])</code>, kiểm thực nghiêm ngặt định dạng MIME (chỉ chấp nhận <code>image/jpeg, png, webp</code>) và giới hạn dung lượng tối đa 5MB. File được lưu trữ an toàn với tên UUID ngẫu nhiên tại thư mục static và trả về URL ảnh <code>/static/images/...</code> để Flutter gán ngay vào đối tượng sản phẩm mới.</div>
+          </div>
         </div>
 
         <div id="pane-targets" style="display: none;">
@@ -2077,6 +2195,626 @@
           Hệ thống được thiết kế theo tiêu chuẩn <strong>Defensive Backend Architecture</strong>: Triệt tiêu hoàn toàn rò rỉ ngoại lệ thô (Zero Raw Stack Trace Leaks), bẫy lỗi có cấu trúc theo <strong>RFC 9457 Problem Details</strong>, và tự động Rollback giao dịch khi gặp sự cố bất khả kháng.
         </div>
 
+        <!-- Tab Bar for REST Error Spectrum & RFC 9457 -->
+        <div class="tab-bar">
+          <button class="tab-item active" id="tab-btn-4xx" onclick="switchErrorTab('4xx')">4xx Client Errors (8 Mã)</button>
+          <button class="tab-item" id="tab-btn-5xx" onclick="switchErrorTab('5xx')">5xx Server Errors (4 Mã)</button>
+          <button class="tab-item" id="tab-btn-rfc" onclick="switchErrorTab('rfc')">Chuẩn RFC 9457 Problem Details</button>
+          <button class="tab-item" id="tab-btn-sim" onclick="switchErrorTab('sim')">🎯 Mô Phỏng 12 Bẫy Lỗi Cocoloco</button>
+        </div>
+
+        <!-- PANE 1: 4xx Client Errors (8 Core REST Status Codes) -->
+        <div id="pane-4xx" style="max-height: 60vh; overflow-y: auto; padding-right: 0.5rem;">
+          
+          <!-- 400 Bad Request -->
+          <div class="rest-error-card" style="--err-accent: #F43F5E;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-4xx">400 BAD REQUEST</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 9110 §15.5.1</span>
+                <span class="rest-tag tag-layer">Business Guard & Cart DTO</span>
+                <span class="rest-tag tag-file">app/api/v1/orders.py & users.py</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Chốt chặn tự khóa Admin, Giỏ hàng rỗng & Lỗi tải file ảnh</div>
+            <div class="rest-card-desc">
+              Xảy ra khi request gửi lên vi phạm quy tắc bất biến nghiệp vụ: <strong>Admin cố tình tự vô hiệu hóa tài khoản của chính mình</strong> (<code>current_user.id == target_user.id</code>), giỏ hàng rỗng (<code>items=[]</code>), trùng lặp item ID trong đơn hàng, hoặc file upload vượt quá 5MB / sai định dạng.
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📦</span> Response JSON Payload (RFC 9457)</div>
+                <pre>{
+  "type": "https://errors.cocoloco.com/admin-self-lock-prevented",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Action prohibited: Administrators cannot demote or deactivate their own account",
+  "instance": "/api/v1/users/324c720a-f698-49b2-936c-3b366ea31b3e/status",
+  "error_code": "ADMIN_SELF_LOCK_PREVENTED"
+}</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📱</span> Cơ chế Phòng thủ & Xử lý UI Flutter</div>
+                <pre>// Cocoloco Flutter App (Dio Interceptor)
+if (err.response?.statusCode == 400) {
+  final code = err.response?.data['error_code'];
+  if (code == 'EMPTY_CART') {
+    AppSnackBar.showError(context, "Giỏ hàng rỗng, hãy chọn món!");
+  } else {
+    AppSnackBar.showError(context, err.response?.data['detail']);
+  }
+}</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 401 Unauthorized -->
+          <div class="rest-error-card" style="--err-accent: #FB7185;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-4xx">401 UNAUTHORIZED</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 9110 §15.5.2 & RFC 6750</span>
+                <span class="rest-tag tag-layer">Security Ingress Gateway</span>
+                <span class="rest-tag tag-file">app/core/security.py</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Cửa ngõ xác thực: Bearer Token không hợp lệ hoặc hết hạn</div>
+            <div class="rest-card-desc">
+              Client không gửi header <code>Authorization: Bearer &lt;token&gt;</code>, token Clerk đã hết hạn (vượt quá 5s clock skew leeway), chữ ký mã hóa bất đối xứng RS256 không hợp lệ hoặc Public Key không tồn tại trên JWKS endpoint của Clerk.
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📦</span> Response JSON Payload (RFC 9457)</div>
+                <pre>{
+  "type": "https://errors.cocoloco.com/unauthorized",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Could not validate credentials: token expired or invalid RS256 signature",
+  "instance": "/api/v1/orders",
+  "error_code": "TOKEN_INVALID_OR_EXPIRED"
+}</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📱</span> Cơ chế Phòng thủ & Xử lý UI Flutter</div>
+                <pre>// Tự động điều hướng về màn hình Đăng nhập
+if (statusCode == 401) {
+  await ref.read(sessionServiceProvider).clearSession();
+  Navigator.of(context).pushNamedAndRemoveUntil(
+    AppRoutes.login, (route) => false
+  );
+  AppSnackBar.showWarning(context, "Phiên đăng nhập hết hạn.");
+}</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 403 Forbidden -->
+          <div class="rest-error-card" style="--err-accent: #E11D48;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-4xx">403 FORBIDDEN</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 9110 §15.5.4</span>
+                <span class="rest-tag tag-layer">RBAC & Account Policy Guard</span>
+                <span class="rest-tag tag-file">app/api/deps.py</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Chốt chặn phân quyền RBAC & Tài khoản bị vô hiệu hóa</div>
+            <div class="rest-card-desc">
+              Người dùng có vai trò <code>USER</code> (khách hàng) nhưng cố tình gọi các API quản trị (<code>POST /api/v1/products</code>, <code>POST /api/v1/uploads/image</code>, <code>PATCH /api/v1/orders/{id}/status</code>); hoặc tài khoản đã bị Admin vô hiệu hóa (<code>is_active=False</code>).
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📦</span> Response JSON Payload (RFC 9457)</div>
+                <pre>{
+  "type": "https://errors.cocoloco.com/forbidden-admin-only",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "Operation not permitted: Administrator privileges required",
+  "instance": "/api/v1/products",
+  "error_code": "FORBIDDEN_ADMIN_ROLE_REQUIRED"
+}</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📱</span> Cơ chế Phòng thủ & Xử lý UI Flutter</div>
+                <pre>// Riverpod AuthRoleNotifier ẩn các nút Admin
+final userRole = ref.watch(authRoleProvider);
+if (userRole != AppRole.admin) {
+  // FloatingActionButton thêm món được ẩn hoàn toàn
+  return const SizedBox.shrink();
+}</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 404 Not Found -->
+          <div class="rest-error-card" style="--err-accent: #0EA5E9;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-4xx">404 NOT FOUND</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 9110 §15.5.5</span>
+                <span class="rest-tag tag-layer">Domain Repository Layer</span>
+                <span class="rest-tag tag-file">app/repositories/product_repo.py & order_repo.py</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Chốt chặn thực thể: Món không tồn tại & Bảo vệ BOLA/IDOR</div>
+            <div class="rest-card-desc">
+              Sản phẩm không tồn tại hoặc đã bị soft-deleted (<code>is_active=False</code>); hoặc khách hàng tra cứu đơn hàng của người khác bằng cách đoán UUID (nguy cơ tấn công BOLA / IDOR - OWASP API1).
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📦</span> Response JSON Payload (RFC 9457)</div>
+                <pre>{
+  "type": "https://errors.cocoloco.com/resource-not-found",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Product item 'f66fe585-...' not found or currently unavailable",
+  "instance": "/api/v1/products/f66fe585-6512-45f7-b66f-6bdbe11b146e",
+  "error_code": "RESOURCE_NOT_FOUND"
+}</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📱</span> Cơ chế Phòng thủ & Xử lý UI Flutter</div>
+                <pre>// Trả về Empty State trên Mobile
+if (statusCode == 404) {
+  return EmptyStateWidget(
+    icon: Icons.coffee_maker_outlined,
+    message: "Món này hiện đang tạm hết hoặc ngừng phục vụ.",
+    actionLabel: "Xem món khác",
+  );
+}</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 405 Method Not Allowed -->
+          <div class="rest-error-card" style="--err-accent: #64748B;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-4xx">405 METHOD NOT ALLOWED</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 9110 §15.5.6</span>
+                <span class="rest-tag tag-layer">FastAPI Routing Engine</span>
+                <span class="rest-tag tag-file">app/api/v1/orders.py & main.py</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Phương thức HTTP không được hỗ trợ cho Endpoint</div>
+            <div class="rest-card-desc">
+              Client gửi sai phương thức HTTP lên endpoint định sẵn (ví dụ: gửi <code>GET</code> lên <code>/api/v1/orders</code> thay vì <code>POST</code> để đặt hàng, hoặc gửi <code>POST</code> lên <code>/health</code>). Server tự động đính kèm header <code>Allow: POST, OPTIONS</code>.
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📦</span> Response JSON Payload (RFC 9457)</div>
+                <pre>{
+  "type": "https://errors.cocoloco.com/method-not-allowed",
+  "title": "Method Not Allowed",
+  "status": 405,
+  "detail": "Method 'GET' not allowed for endpoint '/api/v1/orders'. Use 'POST'.",
+  "instance": "/api/v1/orders",
+  "error_code": "HTTP_METHOD_NOT_SUPPORTED"
+}</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📱</span> Cơ chế Phòng thủ & Xử lý UI Flutter</div>
+                <pre>// Kiểm tra tính tương thích hợp đồng API
+// Tầng Data Source dùng đúng phương thức:
+Future&lt;Order&gt; placeOrder(OrderPayload payload) async {
+  final res = await _dio.post('/api/v1/orders', data: payload.toJson());
+  return Order.fromJson(res.data);
+}</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 409 Conflict -->
+          <div class="rest-error-card" style="--err-accent: #A855F7;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-4xx">409 CONFLICT</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 9110 §15.5.10</span>
+                <span class="rest-tag tag-layer">Database Integrity Constraint</span>
+                <span class="rest-tag tag-file">app/api/v1/auth.py (sync_user)</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Xung đột tính toàn vẹn danh tính người dùng</div>
+            <div class="rest-card-desc">
+              Xảy ra xung đột tính toàn vẹn Unique Constraint trong cơ sở dữ liệu PostgreSQL khi đồng bộ người dùng từ Clerk (email hoặc clerk_id đã gắn với tài khoản khác trong hệ thống).
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📦</span> Response JSON Payload (RFC 9457)</div>
+                <pre>{
+  "type": "https://errors.cocoloco.com/user-identity-conflict",
+  "title": "Conflict",
+  "status": 409,
+  "detail": "User with this Clerk ID or Email already exists in the local database",
+  "instance": "/api/v1/auth/sync",
+  "error_code": "USER_IDENTITY_CONFLICT"
+}</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📱</span> Cơ chế Phòng thủ & Xử lý UI Flutter</div>
+                <pre>// Thông báo hướng dẫn người dùng
+if (code == 'USER_IDENTITY_CONFLICT') {
+  AppSnackBar.showError(
+    context,
+    "Email này đã gắn với một tài khoản khác. Vui lòng đăng nhập lại."
+  );
+}</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 422 Unprocessable Content -->
+          <div class="rest-error-card" style="--err-accent: #EAB308;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-4xx">422 UNPROCESSABLE</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 9110 §15.5.21</span>
+                <span class="rest-tag tag-layer">Pydantic v2 Core Rust Ingress</span>
+                <span class="rest-tag tag-file">app/schemas/order_schemas.py & upload.py</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Lỗi kiểm thực Schema DTO: Sai định dạng dữ liệu đầu vào</div>
+            <div class="rest-card-desc">
+              Request JSON gửi lên sai kiểu dữ liệu: số lượng món nhỏ hơn hoặc bằng 0 (<code>quantity &lt;= 0</code>), chuỗi UUID không đúng định dạng, hoặc upload file không phải là định dạng ảnh hợp lệ (chỉ chấp nhận <code>.jpg, .jpeg, .png, .webp</code>).
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📦</span> Response JSON Payload (RFC 9457)</div>
+                <pre>{
+  "type": "https://errors.cocoloco.com/validation-error",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "detail": "Validation error in request payload",
+  "instance": "/api/v1/orders",
+  "error_code": "SCHEMA_VALIDATION_FAILED",
+  "invalid_params": [
+    { "field": "items.0.quantity", "reason": "Input should be greater than 0" }
+  ]
+}</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📱</span> Cơ chế Phòng thủ & Xử lý UI Flutter</div>
+                <pre>// Hiển thị lỗi đỏ dưới đúng ô Input
+final errors = err.response?.data['invalid_params'];
+for (var err in errors) {
+  formKey.currentState?.fields[err['field']]
+      ?.invalidate(err['reason']);
+}</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 429 Too Many Requests -->
+          <div class="rest-error-card" style="--err-accent: #F97316;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-4xx">429 TOO MANY REQUESTS</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 6585 §4</span>
+                <span class="rest-tag tag-layer">Ingress Rate Limiter & Throttling</span>
+                <span class="rest-tag tag-file">app/core/middleware.py</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Vượt quá giới hạn tần suất gửi yêu cầu (Rate Limit Exceeded)</div>
+            <div class="rest-card-desc">
+              Khách hàng spam nút Đặt Hàng hoặc gửi request quá nhanh vượt ngưỡng burst quota. Server phản hồi kèm header <code>Retry-After: 60</code> để bảo vệ cơ sở dữ liệu không bị nghẽn tải.
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📦</span> Response JSON Payload (RFC 9457)</div>
+                <pre>{
+  "type": "https://errors.cocoloco.com/rate-limit-exceeded",
+  "title": "Too Many Requests",
+  "status": 429,
+  "detail": "Too many requests. Rate limit quota exceeded. Please retry after 60 seconds.",
+  "instance": "/api/v1/orders",
+  "error_code": "RATE_LIMIT_EXCEEDED"
+}</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📱</span> Cơ chế Phòng thủ & Xử lý UI Flutter</div>
+                <pre>// Khóa nút bấm và đếm ngược thời gian chờ
+final retryAfter = int.tryParse(err.response?.headers.value('retry-after') ?? '60') ?? 60;
+startCooldownTimer(retryAfter);
+AppSnackBar.showWarning(context, "Thao tác quá nhanh. Thử lại sau $retryAfter giây.");</pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- PANE 2: 5xx Server Errors (4 Infrastructure & System Codes) -->
+        <div id="pane-5xx" style="display: none; max-height: 60vh; overflow-y: auto; padding-right: 0.5rem;">
+          
+          <!-- 500 Internal Server Error -->
+          <div class="rest-error-card" style="--err-accent: #EF4444;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-5xx">500 INTERNAL SERVER ERROR</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 9110 §15.6.1</span>
+                <span class="rest-tag tag-layer">Unhandled Exception Handler</span>
+                <span class="rest-tag tag-file">app/main.py</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Lỗi Runtime phía máy chủ & Mặt nạ che giấu ngoại lệ an toàn</div>
+            <div class="rest-card-desc">
+              Sự cố bất ngờ chưa được lường trước trong code backend. Server ghi log kèm mã <code>tracking_id</code> nhưng giấu hoàn toàn Stack Trace thô trước Client (tuân thủ tiêu chuẩn an toàn bảo mật OWASP và CWE-209).
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📦</span> Response JSON Payload (RFC 9457)</div>
+                <pre>{
+  "type": "https://errors.cocoloco.com/internal-server-error",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred. Please contact technical support with tracking ID.",
+  "instance": "/api/v1/orders",
+  "error_code": "INTERNAL_SERVER_ERROR",
+  "tracking_id": "c7f91a24-8b3c-4e12-921e-128479eab120"
+}</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📱</span> Cơ chế Phòng thủ & Xử lý UI Flutter</div>
+                <pre>// Hiển thị màn hình lỗi thân thiện không gây hoang mang
+ErrorDialog.show(
+  context,
+  title: "Đã xảy ra sự cố kỹ thuật",
+  message: "Hệ thống đang được kiểm tra. Mã theo dõi: c7f91a24...",
+  onRetry: () => ref.refresh(orderListProvider),
+);</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 502 Bad Gateway -->
+          <div class="rest-error-card" style="--err-accent: #DC2626;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-5xx">502 BAD GATEWAY</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 9110 §15.6.3</span>
+                <span class="rest-tag tag-layer">Upstream Identity Proxy</span>
+                <span class="rest-tag tag-file">app/core/security.py (PyJWKClient)</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Cổng Ingress không thể liên lạc tới Clerk Cloud JWKS</div>
+            <div class="rest-card-desc">
+              Backend không nhận được phản hồi hợp lệ từ máy chủ Clerk JWKS do mất kết nối Internet hoặc sự cố gián đoạn dịch vụ từ nhà cung cấp Identity Cloud.
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📦</span> Response JSON Payload (RFC 9457)</div>
+                <pre>{
+  "type": "https://errors.cocoloco.com/bad-gateway",
+  "title": "Bad Gateway",
+  "status": 502,
+  "detail": "Unable to communicate with upstream Identity Provider (Clerk JWKS).",
+  "instance": "/api/v1/auth/sync",
+  "error_code": "UPSTREAM_IAM_UNREACHABLE"
+}</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📱</span> Cơ chế Phòng thủ & Xử lý UI Flutter</div>
+                <pre>// Thông báo kiểm tra mạng và thử lại
+AppSnackBar.showWarning(
+  context,
+  "Không thể kết nối máy chủ xác thực. Vui lòng kiểm tra Internet và thử lại sau."
+);</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 503 Service Unavailable -->
+          <div class="rest-error-card" style="--err-accent: #B91C1C;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-5xx">503 SERVICE UNAVAILABLE</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 9110 §15.6.4</span>
+                <span class="rest-tag tag-layer">PostgreSQL Connection Pool</span>
+                <span class="rest-tag tag-file">app/core/database.py</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Cạn kiệt Connection Pool Cơ sở dữ liệu PostgreSQL 16</div>
+            <div class="rest-card-desc">
+              Toàn bộ kết nối trong connection pool của <code>asyncpg</code> đang bận phục vụ các request khác (<code>TooManyConnectionsError</code>), hoặc DB đang bảo trì. Kèm header <code>Retry-After: 30</code>.
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📦</span> Response JSON Payload (RFC 9457)</div>
+                <pre>{
+  "type": "https://errors.cocoloco.com/service-unavailable",
+  "title": "Service Unavailable",
+  "status": 503,
+  "detail": "Database connection pool is temporarily saturated. Service unavailable.",
+  "instance": "/api/v1/orders",
+  "error_code": "DATABASE_POOL_EXHAUSTED"
+}</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📱</span> Cơ chế Phòng thủ & Xử lý UI Flutter</div>
+                <pre>// Nút Retry tự động kích hoạt sau khoảng thời gian Retry-After
+final retrySeconds = int.tryParse(err.response?.headers.value('retry-after') ?? '30') ?? 30;
+Future.delayed(Duration(seconds: retrySeconds), () {
+  ref.read(cartControllerProvider.notifier).checkout();
+});</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 504 Gateway Timeout -->
+          <div class="rest-error-card" style="--err-accent: #991B1B;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-5xx">504 GATEWAY TIMEOUT</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 9110 §15.6.5</span>
+                <span class="rest-tag tag-layer">Database Lock Contention</span>
+                <span class="rest-tag tag-file">app/repositories/order_repo.py</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Quá thời gian chờ giao dịch đơn hàng (DB Lock Contention)</div>
+            <div class="rest-card-desc">
+              Giao dịch checkout tranh chấp khóa bản ghi (Row Lock Contention) hoặc câu query vượt quá ngưỡng timeout quy định (&gt; 30 giây).
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📦</span> Response JSON Payload (RFC 9457)</div>
+                <pre>{
+  "type": "https://errors.cocoloco.com/gateway-timeout",
+  "title": "Gateway Timeout",
+  "status": 504,
+  "detail": "Database transaction timed out while acquiring row lock for checkout.",
+  "instance": "/api/v1/orders",
+  "error_code": "TRANSACTION_LOCK_TIMEOUT"
+}</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📱</span> Cơ chế Phòng thủ & Xử lý UI Flutter</div>
+                <pre>// Kiểm tra lịch sử đơn trước khi thử lại để tránh trùng đơn
+AppDialog.showConfirmation(
+  context,
+  title: "Đơn hàng đang xử lý",
+  message: "Hệ thống đang ghi nhận đơn của bạn. Vui lòng kiểm tra mục 'Lịch sử đơn' trước khi đặt lại!",
+  onViewOrders: () => Navigator.pushNamed(context, AppRoutes.orders),
+);</pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- PANE 3: RFC 9457 Problem Details Specification -->
+        <div id="pane-rfc" style="display: none; max-height: 60vh; overflow-y: auto; padding-right: 0.5rem;">
+          
+          <div class="erd-callout" style="border-color: var(--c-cloud); background: rgba(14, 165, 233, 0.08); color: #7DD3FC; margin-bottom: 1.2rem;">
+            📌 <strong>Tiêu Chuẩn IETF RFC 9457 (Problem Details for HTTP APIs):</strong> Được phê chuẩn chính thức thay thế RFC 7807, thiết lập định dạng chuẩn mực hóa toàn cầu cho payload phản hồi lỗi API RESTful qua Header <code>Content-Type: application/problem+json</code>.
+          </div>
+
+          <!-- Section: 5 Mandatory Standard Fields -->
+          <div class="rest-error-card" style="--err-accent: #0EA5E9;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge b-rfc">IETF RFC 9457 · CORE MEMBERS</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-rfc">RFC 9457 §3</span>
+                <span class="rest-tag tag-layer">Standard Contract</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Bộ 5 Trường Chuẩn Bắt Buộc Của RFC 9457</div>
+            <div class="rest-card-desc">
+              Mọi lỗi trả về từ Cocoloco FastAPI backend đều tuân thủ cấu trúc đồng nhất, giúp team Flutter không phải phán đoán định dạng lỗi:
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 0.8rem;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--card-border); color: #94A3B8; text-align: left;">
+                  <th style="padding: 0.5rem;">Trường</th>
+                  <th style="padding: 0.5rem;">Kiểu dữ liệu</th>
+                  <th style="padding: 0.5rem;">Ý nghĩa chuẩn quốc tế</th>
+                </tr>
+              </thead>
+              <tbody style="color: var(--text);">
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 0.5rem; font-family: monospace; color: #38BDF8;">type</td>
+                  <td style="padding: 0.5rem;">URI Reference</td>
+                  <td style="padding: 0.5rem;">Đường dẫn định danh loại lỗi để tra cứu tài liệu kỹ thuật</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 0.5rem; font-family: monospace; color: #38BDF8;">title</td>
+                  <td style="padding: 0.5rem;">String</td>
+                  <td style="padding: 0.5rem;">Tóm tắt ngắn gọn lỗi ở mức tổng quan (bất biến theo status)</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 0.5rem; font-family: monospace; color: #38BDF8;">status</td>
+                  <td style="padding: 0.5rem;">Integer</td>
+                  <td style="padding: 0.5rem;">Mã trạng thái HTTP (phải khớp chính xác với HTTP Header)</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                  <td style="padding: 0.5rem; font-family: monospace; color: #38BDF8;">detail</td>
+                  <td style="padding: 0.5rem;">String</td>
+                  <td style="padding: 0.5rem;">Giải thích nguyên nhân cụ thể, thân thiện cho con người đọc</td>
+                </tr>
+                <tr>
+                  <td style="padding: 0.5rem; font-family: monospace; color: #38BDF8;">instance</td>
+                  <td style="padding: 0.5rem;">URI Reference</td>
+                  <td style="padding: 0.5rem;">Đường dẫn API cụ thể nơi phát sinh lỗi (vd: /api/v1/orders)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Section: Corporate Extension Members -->
+          <div class="rest-error-card" style="--err-accent: #10B981;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge" style="background: rgba(16,185,129,0.2); color: #6EE7B7; border: 1px solid rgba(16,185,129,0.4);">ENTERPRISE EXTENSIONS</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-layer">Machine-Readable Contract</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Các Trường Mở Rộng Doanh Nghiệp (Cocoloco Architecture)</div>
+            <div class="rest-card-desc">
+              Nhằm hỗ trợ ứng dụng Flutter Riverpod và React Web xử lý UX chuẩn mực, Cocoloco bổ sung 3 trường mở rộng:
+            </div>
+            <div class="rest-card-grid">
+              <div class="rest-box">
+                <div class="rest-box-title"><span>🏷️</span> Mã lỗi máy đọc (error_code)</div>
+                <pre>"error_code": "ADMIN_SELF_LOCK_PREVENTED"
+"error_code": "EMPTY_CART"
+"error_code": "FILE_TOO_LARGE"
+"error_code": "TOKEN_INVALID_OR_EXPIRED"</pre>
+              </div>
+              <div class="rest-box">
+                <div class="rest-box-title"><span>📋</span> Chi tiết Form (invalid_params)</div>
+                <pre>"invalid_params": [
+  { "field": "price", "reason": "Phải lớn hơn 0" },
+  { "field": "image", "reason": "Dung lượng > 5MB" }
+]</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Flutter Dio Interceptor Code -->
+          <div class="rest-error-card" style="--err-accent: #EC4899;">
+            <div class="rest-card-head">
+              <span class="rest-status-badge" style="background: rgba(236,72,153,0.2); color: #F472B6; border: 1px solid rgba(236,72,153,0.4);">FLUTTER DIO INTERCEPTOR</span>
+              <div class="rest-meta-tags">
+                <span class="rest-tag tag-file">lib/core/network/error_interceptor.dart</span>
+              </div>
+            </div>
+            <div class="rest-card-title">Cơ Chế Bắt Lỗi RFC 9457 Trong Ứng Dụng Flutter Mobile</div>
+            <div class="rest-card-desc">
+              Đoạn mã mẫu triển khai tại tầng Network của Flutter App, chuyển đổi Problem Details JSON thành domain exception an toàn:
+            </div>
+            <div class="rest-box">
+              <pre style="max-height: 260px; overflow-y: auto;">class ProblemDetailsInterceptor extends Interceptor {
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (err.response?.headers.value('content-type')?.contains('application/problem+json') == true ||
+        err.response?.data is Map&lt;String, dynamic&gt;) {
+      final json = err.response!.data as Map&lt;String, dynamic&gt;;
+      final problem = ProblemDetails(
+        type: json['type'] ?? '',
+        title: json['title'] ?? 'Lỗi',
+        status: json['status'] ?? err.response?.statusCode ?? 500,
+        detail: json['detail'] ?? 'Đã có lỗi xảy ra',
+        instance: json['instance'] ?? '',
+        errorCode: json['error_code'] ?? 'UNKNOWN_ERROR',
+        invalidParams: json['invalid_params'],
+      );
+      // Ném exception có cấu trúc thay vì crash app
+      return handler.reject(
+        DioException(
+          requestOptions: err.requestOptions,
+          response: err.response,
+          error: problem,
+          type: err.type,
+        ),
+      );
+    }
+    handler.next(err);
+  }
+}</pre>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- PANE 4: 12 Interactive Simulator Traps -->
+        <div id="pane-sim" style="display: none;">
         <!-- Filter Chips Bar -->
         <div class="error-filter-bar">
           <button class="filter-chip-btn active" onclick="filterErrors('all', this)">Tất cả (12 Lỗi)</button>
@@ -2273,6 +3011,7 @@
           </div>
 
         </div>
+        </div> <!-- end pane-sim -->
       </div>
     </div>
   </div>
@@ -2280,6 +3019,12 @@
   <!-- ================= JAVASCRIPT LOGIC ================= -->
   <script>
     let currentLang = 'vi';
+    try {
+      const savedLang = localStorage.getItem('cocoloco_workflow_lang');
+      if (savedLang === 'vi' || savedLang === 'en') {
+        currentLang = savedLang;
+      }
+    } catch (e) {}
     let currentLockedScenario = 0;
     const mainSvg = document.getElementById('main-svg');
     const inspectTag = document.getElementById('inspect-tag');
@@ -2288,26 +3033,202 @@
       vi: {
         title: "Cocoloco Food Ordering System",
         sub: "FastAPI & Flutter End-to-End Workflow Map",
+        exploreLabel: "GUIDED VIEWS 0 / 5 ─────",
         exploreSub: "Khám phá toàn bộ hệ thống Cocoloco",
         playStory: "Phát kịch bản",
         stopStory: "Dừng phát",
+        escHint: "Click nền hoặc nhấn <kbd>Esc</kbd> để thoát tiêu điểm",
         next: "KẾ TIẾP",
+        btnCopy: "# Sao chép khoảnh khắc",
+        btnShowAll: "Xem tất cả",
         toastCopied: "Đã sao chép khoảnh khắc vào Clipboard!",
         langBtn: "🇻🇳 Tiếng Việt",
+        langTooltip: "Chuyển sang Tiếng Anh / Switch to English",
         themeDark: "🌙 Dark",
-        themeLight: "☀️ Light"
+        themeLight: "☀️ Light",
+        btnPresent: "⛶ Trình chiếu",
+        btnErd: "🗄️ Database ERD",
+        btnQuality: "🧪 Quality Gates (98%)",
+        btnErrors: "REST Error Matrix (12 Traps)",
+        btnCheatsheet: "📖 Defense Cheatsheet",
+        tooltipHealth: "Trạng thái Server FastAPI: http://localhost:8000",
+        tooltipErd: "Sơ đồ quan hệ thực thể cơ sở dữ liệu Cocoloco",
+        tooltipQuality: "Chỉ số kiểm thử tự động 279 Tests (98% Coverage)",
+        tooltipErrors: "Ma trận lỗi RESTful & Đặc tả RFC 9457 (12 Bẫy Lỗi)",
+        tooltipCheatsheet: "Phao tra cứu 12 Target & 10 câu hỏi vấn đáp cho buổi Review",
+
+        // SVG Columns
+        col1: "01 CLIENT RUNNER & CỔNG XÁC THỰC",
+        col2: "02 FASTAPI GATEWAY & CHỐT CHẶN DOMAIN",
+        col3: "03 DOMAIN REPOSITORIES & NGHIỆP VỤ",
+        col4: "04 LƯU TRỮ POSTGRESQL 16",
+
+        // SVG Swimlanes
+        lane1: "01 / CLIENT RUNNER & CỔNG TIẾP NHẬN XÁC THỰC",
+        lane2: "02 / FASTAPI DEPENDENCY INJECTION & CHỐT CHẶN BẢO MẬT",
+        lane3: "03 / CLEAN REPOSITORIES & BẢNG DỮ LIỆU POSTGRESQL 16",
+        laneEx: "EX / CÁC BẪY LỖI & CHÍNH SÁCH BỊ TỪ CHỐI (401, 403, 400, 409)",
+
+        // Lane EX Node Subtitles
+        trap401Sub: "Expired Token / RS256 Fail",
+        trap403Sub: "Chặn: Khách vào Admin CRUD",
+        trap400Sub: "Admin không tự khóa mình",
+        trap404Sub: "Món Inactive / BOLA Trap",
+        trapCartSub: "Giỏ rỗng / Trùng Item / Qty<1",
+        trap500Sub: "MissingGreenlet & Auto Rollback",
+
+        // Legend
+        legendTitle: "CHÚ GIẢI",
+        leg1: "Xử lý định tuyến Router (4)",
+        leg2: "Chính sách & Chốt chặn Guard (3)",
+        leg3: "Repository & PostgreSQL (3)",
+        leg4: "Bảo mật & Clerk Token (2)",
+        leg5: "Khách hàng Flutter Mobile (2)",
+
+        // 4 Bottom Summary Cards
+        sum1Title: "1. Bất đồng bộ Thuần túy (Asyncpg Pool)",
+        sum1Body: `<ul>
+          <li>Toàn bộ I/O path đạt 100% <code>async/await</code>, không nghẽn Event Loop.</li>
+          <li>Trình điều khiển PostgreSQL độc quyền <code>asyncpg</code> hiệu năng siêu cao.</li>
+          <li>Phiên làm việc độc lập <code>get_db</code> scoped theo từng HTTP request kèm tự động rollback.</li>
+        </ul>`,
+        sum2Title: "2. Bảo mật RS256 JWKS & 2-Tier RBAC",
+        sum2Body: `<ul>
+          <li>Xác thực chữ ký số bất đối xứng RS256 qua Clerk JWKS bộ nhớ đệm LRU.</li>
+          <li>Độ trễ thời gian 5s clock skew leeway chống trôi lệch thời gian giữa các server.</li>
+          <li>Soft-Disable Active Guard & Admin Self-Lock Guard bảo vệ toàn vẹn tài khoản.</li>
+        </ul>`,
+        sum3Title: "3. Toàn vẹn Đơn hàng (Atomic Tx & Snapshot)",
+        sum3Body: `<ul>
+          <li>Khóa giá cố định <code>unit_price</code> tại thời điểm checkout, không bị ảnh hưởng khi menu đổi giá.</li>
+          <li>Giao dịch Atomic Database bảo đảm hoặc tạo đơn toàn vẹn hoặc hoàn tác sạch sẽ.</li>
+          <li>Triệt tiêu vấn nạn N+1 query với cơ chế tải trước <code>selectinload(Order.items)</code>.</li>
+        </ul>`,
+        sum4Title: "4. Flutter Mobile & Session Persistence",
+        sum4Body: `<ul>
+          <li>Khôi phục tài khoản tự động bằng <code>SharedPreferences</code> trước khi render cây widget.</li>
+          <li>Cầu nối phản ứng <code>AuthRoleNotifier</code> giúp nút "+ Add Item" hiển thị tức thì khi đổi quyền.</li>
+          <li>Tương thích đa nền tảng iOS, Android và Web với mã nguồn kiểm thử 102/102 test sạch bóng.</li>
+        </ul>`,
+
+        // Modals
+        erdTitle: "Cocoloco PostgreSQL 16 — Sơ đồ Thực thể Cơ sở dữ liệu (ERD)",
+        erdCallout: "Sơ đồ quan hệ thực tế gồm 5 bảng lõi với liên kết khóa ngoại chặt chẽ. Khóa giá snapshot trong <code>order_items</code> bảo vệ lịch sử giao dịch và doanh thu bất biến.",
+        qualityTitle: "Chỉ số Kiểm thử & Cổng Chất lượng (Quality Gates)",
+        cmdShelfTitle: "Lệnh Chạy Kiểm Thử Nhanh (Click để sao chép)",
+        btnCopyCmd: "Copy Lệnh",
+        qDesc2: "Vượt xa chuẩn công nghiệp (≥85%)",
+        cheatsheetTitle: "Defense Cheatsheet — Cẩm nang Bảo vệ Kiến trúc & Vấn đáp",
+        tabQa: "10 Câu hỏi Vấn đáp Code Review",
+        tabTargets: "12 Tiêu chuẩn Thiết kế Kiến trúc",
+        errorTitle: "Cocoloco Platform — Danh Mục Bẫy Lỗi & Cơ Chế Phòng Thủ (Error & Failure Modes Matrix)",
+        errorCallout: "Hệ thống được thiết kế theo tiêu chuẩn <strong>Defensive Backend Architecture</strong>: Triệt tiêu hoàn toàn rò rỉ ngoại lệ thô (Zero Raw Stack Trace Leaks), bẫy lỗi có cấu trúc theo <strong>RFC 9457 Problem Details</strong>, và tự động Rollback giao dịch khi gặp sự cố bất khả kháng.",
+        tab4xx: "4xx Client Errors (8 Mã)",
+        tab5xx: "5xx Server Errors (4 Mã)",
+        tabRfc: "Chuẩn RFC 9457 Problem Details",
+        tabSim: "🎯 Mô Phỏng 12 Bẫy Lỗi Cocoloco",
+        btnSimTrap: "🎯 Mô phỏng bẫy trên sơ đồ",
+        filterAll: "Tất cả (12 Lỗi)"
       },
       en: {
         title: "Cocoloco Food Ordering System",
         sub: "FastAPI & Flutter End-to-End Workflow Map",
+        exploreLabel: "GUIDED VIEWS 0 / 5 ─────",
         exploreSub: "Explore all architecture workflows",
         playStory: "Play Story",
         stopStory: "Stop",
+        escHint: "Click background or press <kbd>Esc</kbd> to exit focus",
         next: "NEXT",
+        btnCopy: "# Copy Moment",
+        btnShowAll: "View All",
         toastCopied: "Moment Copied to Clipboard!",
         langBtn: "🇬🇧 English",
+        langTooltip: "Switch to Vietnamese / Chuyển sang Tiếng Việt",
         themeDark: "🌙 Dark",
-        themeLight: "☀️ Light"
+        themeLight: "☀️ Light",
+        btnPresent: "⛶ Present",
+        btnErd: "🗄️ Database ERD",
+        btnQuality: "🧪 Quality Gates (98%)",
+        btnErrors: "REST Error Matrix (12 Traps)",
+        btnCheatsheet: "📖 Defense Cheatsheet",
+        tooltipHealth: "FastAPI Server Health: http://localhost:8000",
+        tooltipErd: "Cocoloco Database Entity Relationship Diagram",
+        tooltipQuality: "Automated test metrics: 279 Tests (98% Coverage)",
+        tooltipErrors: "RESTful Error Matrix & RFC 9457 Problem Details (12 Traps)",
+        tooltipCheatsheet: "Defense Cheatsheet: 12 Targets & 10 Defense Q&As",
+
+        // SVG Columns
+        col1: "01 CLIENT RUNNER & AUTH INGRESS",
+        col2: "02 FASTAPI GATEWAY & DOMAIN GUARDS",
+        col3: "03 DOMAIN REPOSITORIES & BUSINESS",
+        col4: "04 POSTGRESQL 16 PERSISTENCE",
+
+        // SVG Swimlanes
+        lane1: "01 / CLIENT RUNNER & AUTHENTICATION INGRESS",
+        lane2: "02 / FASTAPI DEPENDENCY INJECTION & DOMAIN GUARDS",
+        lane3: "03 / CLEAN REPOSITORIES & POSTGRESQL 16 TABLES",
+        laneEx: "EX / GUARDED TRAPS & REJECTED POLICIES (401, 403, 400, 409)",
+
+        // Lane EX Node Subtitles
+        trap401Sub: "Expired Token / RS256 Fail",
+        trap403Sub: "Block: Non-Admin to Admin CRUD",
+        trap400Sub: "Admin cannot self-lock",
+        trap404Sub: "Inactive Item / BOLA Trap",
+        trapCartSub: "Empty Cart / Duplicate Item / Qty<1",
+        trap500Sub: "MissingGreenlet & Auto Rollback",
+
+        // Legend
+        legendTitle: "LEGEND",
+        leg1: "Router Endpoints (4)",
+        leg2: "Policies & Guards (3)",
+        leg3: "Repositories & DB (3)",
+        leg4: "Security & Clerk Tokens (2)",
+        leg5: "Flutter Mobile Client (2)",
+
+        // 4 Bottom Summary Cards
+        sum1Title: "1. Pure Asynchronous Core (Asyncpg Pool)",
+        sum1Body: `<ul>
+          <li>100% <code>async/await</code> across all I/O paths, zero Event Loop blocking.</li>
+          <li>High-performance native <code>asyncpg</code> PostgreSQL driver.</li>
+          <li>Isolated request-scoped <code>get_db</code> session with automatic exception rollback.</li>
+        </ul>`,
+        sum2Title: "2. RS256 JWKS Security & 2-Tier RBAC",
+        sum2Body: `<ul>
+          <li>Asymmetric RS256 cryptographic verification via Clerk JWKS with LRU cache.</li>
+          <li>5-second clock skew leeway to prevent drift across distributed clocks.</li>
+          <li>Soft-Disable Active Guard & Admin Self-Lock Guard ensuring account integrity.</li>
+        </ul>`,
+        sum3Title: "3. Order Integrity (Atomic Tx & Snapshot)",
+        sum3Body: `<ul>
+          <li>Freezes <code>unit_price</code> at checkout time, immune to future menu price changes.</li>
+          <li>Atomic database transactions guarantee complete order creation or clean rollback.</li>
+          <li>Completely eliminates N+1 queries via <code>selectinload(Order.items)</code> batch fetching.</li>
+        </ul>`,
+        sum4Title: "4. Flutter Mobile & Session Persistence",
+        sum4Body: `<ul>
+          <li>Auto-restores session from <code>SharedPreferences</code> before rendering the widget tree.</li>
+          <li>Reactive <code>AuthRoleNotifier</code> instantly updates "+ Add Item" button upon role switch.</li>
+          <li>Cross-platform iOS, Android, and Web compatibility with 102/102 passing tests.</li>
+        </ul>`,
+
+        // Modals
+        erdTitle: "Cocoloco PostgreSQL 16 — Database Entity Relationship Diagram (ERD)",
+        erdCallout: "Production relational schema comprising 5 core tables with strict foreign key constraints. Price snapshot in <code>order_items</code> guarantees immutable transaction history and revenue integrity.",
+        qualityTitle: "Automated Test Metrics & Quality Gates (279 Tests)",
+        cmdShelfTitle: "Quick Test Execution Commands (Click to copy)",
+        btnCopyCmd: "Copy Command",
+        qDesc2: "Exceeds industry standard (≥85%)",
+        cheatsheetTitle: "Defense Cheatsheet — Architecture Defense & Q&A Guide",
+        tabQa: "10 Code Review Defense Q&As",
+        tabTargets: "12 Architectural Design Standards",
+        errorTitle: "Cocoloco Platform — Comprehensive Error Matrix & Failure Defense Catalog",
+        errorCallout: "Architected following <strong>Defensive Backend Standards</strong>: Zero raw stack trace leakage, structured RFC 9457 Problem Details responses, and automatic transaction rollback on unforeseen failures.",
+        tab4xx: "4xx Client Errors (8 Codes)",
+        tab5xx: "5xx Server Errors (4 Codes)",
+        tabRfc: "RFC 9457 Problem Details Standard",
+        tabSim: "🎯 Simulate 12 Cocoloco Traps",
+        btnSimTrap: "🎯 Simulate trap on diagram",
+        filterAll: "All (12 Errors)"
       }
     };
 
@@ -2316,6 +3237,10 @@
         id: 1,
         counter_vi: "GUIDED VIEWS 1 / 5",
         counter_en: "GUIDED VIEWS 1 / 5",
+        badge_vi: "01 Đặt món & Checkout",
+        badge_en: "01 Order & Checkout",
+        pill_vi: "01 Luồng chính: Đặt món & Checkout từ Mobile (5 chặng)",
+        pill_en: "01 Main Flow: Mobile Order & Checkout (5 Hops)",
         title_vi: "Flutter Mobile ➔ POST /api/v1/orders ➔ OrderRepository",
         title_en: "Flutter Mobile ➔ POST /api/v1/orders ➔ OrderRepository",
         sub_vi: "Clerk Bearer RS256 · Atomic Transaction · Price Snapshot · app.repositories.order_repo",
@@ -2330,6 +3255,10 @@
         id: 2,
         counter_vi: "GUIDED VIEWS 2 / 5",
         counter_en: "GUIDED VIEWS 2 / 5",
+        badge_vi: "02 Bẫy RBAC (403)",
+        badge_en: "02 RBAC Trap (403)",
+        pill_vi: "02 Bẫy RBAC: 403 Forbidden khi khách vào Admin",
+        pill_en: "02 RBAC Trap: 403 Forbidden on Admin Endpoint",
         title_vi: "Bẫy RBAC: Chặn khách thường cố tạo sản phẩm hoặc duyệt đơn",
         title_en: "RBAC Guard Trap: Non-Admin blocked from mutating catalog",
         sub_vi: "HTTP 403 Forbidden · require_admin · app.api.deps > 2-Tier RBAC Guard",
@@ -2344,6 +3273,10 @@
         id: 3,
         counter_vi: "GUIDED VIEWS 3 / 5",
         counter_en: "GUIDED VIEWS 3 / 5",
+        badge_vi: "03 Tự Khóa (400)",
+        badge_en: "03 Self-Lock (400)",
+        pill_vi: "03 Kiểm duyệt: 400 Chống tự khóa Admin",
+        pill_en: "03 Guard Trap: 400 Admin Self-Lock Protection",
         title_vi: "Kiểm duyệt: Admin không thể tự vô hiệu hóa tài khoản của chính mình",
         title_en: "Self-Lock Guard: Admin prevented from deactivating self",
         sub_vi: "HTTP 400 Bad Request · Admin Self-Lock Guard · app.repositories.user_repo",
@@ -2358,6 +3291,10 @@
         id: 4,
         counter_vi: "GUIDED VIEWS 4 / 5",
         counter_en: "GUIDED VIEWS 4 / 5",
+        badge_vi: "04 Toàn Vẹn Giá & N+1",
+        badge_en: "04 Price & N+1",
+        pill_vi: "04 Toàn vẹn: Price Snapshot & Chống N+1 (selectinload)",
+        pill_en: "04 Integrity: Price Snapshot & Anti-N+1 (selectinload)",
         title_vi: "Toàn vẹn giá: Price Snapshot tại thời điểm đặt & selectinload()",
         title_en: "Price Integrity: Snapshot at order time & selectinload()",
         sub_vi: "Financial Immutability · Triệt tiêu N+1 Query · app.repositories.order_repo",
@@ -2372,6 +3309,10 @@
         id: 5,
         counter_vi: "GUIDED VIEWS 5 / 5",
         counter_en: "GUIDED VIEWS 5 / 5",
+        badge_vi: "05 Kiểm Thử (279 Tests)",
+        badge_en: "05 Test Suite (279)",
+        pill_vi: "05 Kiểm thử: 177 Pytest (98%) & 102 Flutter Tests",
+        pill_en: "05 Test Suite: 177 Pytest (98%) & 102 Flutter Tests",
         title_vi: "Bộ Kiểm thử Tự động: 177 Pytest (98%) & 102 Flutter Tests (100%)",
         title_en: "Automated Suite: 177 Pytest (98%) & 102 Flutter Tests (100%)",
         sub_vi: "Zero Regressions · Negative Testing · SQLite in-memory · tests/ & test/",
@@ -2642,24 +3583,166 @@
       }
     };
 
+    let lastInspectedKey = null;
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
     function toggleLanguage() {
       currentLang = currentLang === 'vi' ? 'en' : 'vi';
+      try {
+        localStorage.setItem('cocoloco_workflow_lang', currentLang);
+      } catch (e) {}
       renderLanguage();
       showToast(currentLang === 'vi' ? 'Đã chuyển sang Tiếng Việt' : 'Switched to English');
     }
 
     function renderLanguage() {
       const t = I18N[currentLang];
-      document.getElementById('lang-btn').innerHTML = `<span>${t.langBtn}</span>`;
-      document.getElementById('main-title').innerHTML = `${t.title} <span id="main-subtitle">${t.sub}</span>`;
-      document.getElementById('explore-sub').innerText = t.exploreSub;
 
+      // 1. Header items
+      const langBtn = document.getElementById('lang-btn');
+      if (langBtn) {
+        langBtn.innerHTML = `<span>${t.langBtn}</span>`;
+        langBtn.setAttribute('title', t.langTooltip);
+      }
+      const mainTitle = document.getElementById('main-title');
+      if (mainTitle) mainTitle.innerHTML = `${t.title} <span id="main-subtitle">${t.sub}</span>`;
+
+      const liveHealth = document.getElementById('live-health');
+      if (liveHealth) liveHealth.setAttribute('title', t.tooltipHealth);
+
+      const presentSpan = document.getElementById('btn-label-present');
+      if (presentSpan) presentSpan.innerText = t.btnPresent;
+
+      const erdBtn = document.getElementById('btn-erd');
+      if (erdBtn) {
+        erdBtn.setAttribute('title', t.tooltipErd);
+        const s = document.getElementById('btn-label-erd');
+        if (s) s.innerText = t.btnErd;
+      }
+      const qBtn = document.getElementById('btn-quality');
+      if (qBtn) {
+        qBtn.setAttribute('title', t.tooltipQuality);
+        const s = document.getElementById('btn-label-quality');
+        if (s) s.innerText = t.btnQuality;
+      }
+      const errBtn = document.getElementById('btn-errors');
+      if (errBtn) {
+        errBtn.setAttribute('title', t.tooltipErrors);
+        const s = document.getElementById('btn-label-errors');
+        if (s) s.innerText = t.btnErrors;
+      }
+      const csBtn = document.getElementById('btn-cheatsheet');
+      if (csBtn) {
+        csBtn.setAttribute('title', t.tooltipCheatsheet);
+        const s = document.getElementById('btn-label-cheatsheet');
+        if (s) s.innerText = t.btnCheatsheet;
+      }
+
+      // 2. Guided Views bar
+      const expLabel = document.getElementById('explore-label');
+      if (expLabel) expLabel.innerText = t.exploreLabel;
+      const expSub = document.getElementById('explore-sub');
+      if (expSub) expSub.innerText = t.exploreSub;
+      const escHint = document.getElementById('esc-hint');
+      if (escHint) escHint.innerHTML = t.escHint;
+      const nextLabel = document.getElementById('next-label');
+      if (nextLabel) nextLabel.innerText = t.next;
+      const btnCopy = document.getElementById('btn-copy');
+      if (btnCopy) btnCopy.innerText = t.btnCopy;
+      const btnShowAll = document.getElementById('btn-show-all');
+      if (btnShowAll) btnShowAll.innerText = t.btnShowAll;
+
+      // 3. Play button status
+      updatePlayButtons(storyInterval !== null);
+
+      // 4. Scenario Pills & Step Badges
+      SCENARIOS.forEach(sc => {
+        const pillText = document.querySelector(`#pill-${sc.id} .pill-text`);
+        if (pillText) pillText.innerText = currentLang === 'vi' ? sc.pill_vi : sc.pill_en;
+        const badge = document.getElementById(`step-badge-${sc.id}`);
+        if (badge) badge.innerText = currentLang === 'vi' ? sc.badge_vi : sc.badge_en;
+      });
+
+      // 5. Active Stepper box info if locked
       if (currentLockedScenario > 0) {
         const sc = SCENARIOS[currentLockedScenario - 1];
         document.getElementById('step-counter').innerText = currentLang === 'vi' ? sc.counter_vi : sc.counter_en;
         document.getElementById('stepper-title').innerText = currentLang === 'vi' ? sc.title_vi : sc.title_en;
         document.getElementById('stepper-sub').innerText = currentLang === 'vi' ? sc.sub_vi : sc.sub_en;
         document.getElementById('stepper-next-val').innerText = currentLang === 'vi' ? sc.next_vi : sc.next_en;
+      }
+
+      // 6. SVG Columns
+      const col1 = document.getElementById('col-header-1'); if (col1) col1.textContent = t.col1;
+      const col2 = document.getElementById('col-header-2'); if (col2) col2.textContent = t.col2;
+      const col3 = document.getElementById('col-header-3'); if (col3) col3.textContent = t.col3;
+      const col4 = document.getElementById('col-header-4'); if (col4) col4.textContent = t.col4;
+
+      // 7. SVG Swimlanes
+      const lane1 = document.getElementById('lane-title-1'); if (lane1) lane1.textContent = t.lane1;
+      const lane2 = document.getElementById('lane-title-2'); if (lane2) lane2.textContent = t.lane2;
+      const lane3 = document.getElementById('lane-title-3'); if (lane3) lane3.textContent = t.lane3;
+      const laneEx = document.getElementById('lane-title-ex'); if (laneEx) laneEx.textContent = t.laneEx;
+
+      // 8. Lane EX Subtitles
+      const sub401 = document.getElementById('trap-sub-401'); if (sub401) sub401.textContent = t.trap401Sub;
+      const sub403 = document.getElementById('trap-sub-403'); if (sub403) sub403.textContent = t.trap403Sub;
+      const sub400 = document.getElementById('trap-sub-400'); if (sub400) sub400.textContent = t.trap400Sub;
+      const sub404 = document.getElementById('trap-sub-404'); if (sub404) sub404.textContent = t.trap404Sub;
+      const subCart = document.getElementById('trap-sub-400-cart'); if (subCart) subCart.textContent = t.trapCartSub;
+      const sub500 = document.getElementById('trap-sub-500'); if (sub500) sub500.textContent = t.trap500Sub;
+
+      // 9. Legend
+      const legTitle = document.getElementById('legend-title'); if (legTitle) legTitle.textContent = t.legendTitle;
+      const leg1 = document.getElementById('leg-item-1'); if (leg1) leg1.textContent = t.leg1;
+      const leg2 = document.getElementById('leg-item-2'); if (leg2) leg2.textContent = t.leg2;
+      const leg3 = document.getElementById('leg-item-3'); if (leg3) leg3.textContent = t.leg3;
+      const leg4 = document.getElementById('leg-item-4'); if (leg4) leg4.textContent = t.leg4;
+      const leg5 = document.getElementById('leg-item-5'); if (leg5) leg5.textContent = t.leg5;
+
+      // 10. 4 Bottom Summary Cards
+      const sumT1 = document.getElementById('sum-title-1'); if (sumT1) sumT1.textContent = t.sum1Title;
+      const sumB1 = document.getElementById('sum-body-1'); if (sumB1) sumB1.innerHTML = t.sum1Body;
+      const sumT2 = document.getElementById('sum-title-2'); if (sumT2) sumT2.textContent = t.sum2Title;
+      const sumB2 = document.getElementById('sum-body-2'); if (sumB2) sumB2.innerHTML = t.sum2Body;
+      const sumT3 = document.getElementById('sum-title-3'); if (sumT3) sumT3.textContent = t.sum3Title;
+      const sumB3 = document.getElementById('sum-body-3'); if (sumB3) sumB3.innerHTML = t.sum3Body;
+      const sumT4 = document.getElementById('sum-title-4'); if (sumT4) sumT4.textContent = t.sum4Title;
+      const sumB4 = document.getElementById('sum-body-4'); if (sumB4) sumB4.innerHTML = t.sum4Body;
+
+      // 11. Modals
+      const erdModalTitle = document.getElementById('erd-modal-title'); if (erdModalTitle) erdModalTitle.textContent = t.erdTitle;
+      const erdCallout = document.getElementById('erd-callout'); if (erdCallout) erdCallout.innerHTML = t.erdCallout;
+      const qModalTitle = document.getElementById('quality-modal-title'); if (qModalTitle) qModalTitle.textContent = t.qualityTitle;
+      const cmdShelf = document.getElementById('cmd-shelf-title'); if (cmdShelf) cmdShelf.innerHTML = `<span>⚙️</span> <span>${t.cmdShelfTitle}</span>`;
+      const qDesc2 = document.getElementById('q-desc-2'); if (qDesc2) qDesc2.textContent = t.qDesc2;
+      document.querySelectorAll('.btn-copy-chip').forEach(b => b.textContent = t.btnCopyCmd);
+
+      const csModalTitle = document.getElementById('cheatsheet-modal-title'); if (csModalTitle) csModalTitle.textContent = t.cheatsheetTitle;
+      const tabQa = document.getElementById('tab-btn-qa'); if (tabQa) tabQa.textContent = t.tabQa;
+      const tabTargets = document.getElementById('tab-btn-targets'); if (tabTargets) tabTargets.textContent = t.tabTargets;
+
+      const errModalTitle = document.getElementById('error-modal-title'); if (errModalTitle) errModalTitle.textContent = t.errorTitle;
+      const errCallout = document.getElementById('error-callout'); if (errCallout) errCallout.innerHTML = t.errorCallout;
+      const tab4xx = document.getElementById('tab-btn-4xx'); if (tab4xx) tab4xx.textContent = t.tab4xx;
+      const tab5xx = document.getElementById('tab-btn-5xx'); if (tab5xx) tab5xx.textContent = t.tab5xx;
+      const tabRfc = document.getElementById('tab-btn-rfc'); if (tabRfc) tabRfc.textContent = t.tabRfc;
+      const tabSim = document.getElementById('tab-btn-sim'); if (tabSim) tabSim.textContent = t.tabSim;
+      document.querySelectorAll('.btn-simulate-error').forEach(b => b.textContent = t.btnSimTrap);
+
+      const filterAllBtn = document.querySelector('.error-filter-bar .filter-chip-btn');
+      if (filterAllBtn) filterAllBtn.textContent = t.filterAll;
+
+      // 12. If Inspector drawer is active, refresh its content in current language
+      if (lastInspectedKey && document.getElementById('drawer') && document.getElementById('drawer').classList.contains('show')) {
+        inspectNode(lastInspectedKey);
       }
     }
 
@@ -2836,6 +3919,7 @@
         closeModal('erd-modal');
         closeModal('quality-modal');
         closeModal('cheatsheet-modal');
+        closeModal('error-modal');
         closeDrawer();
         resetToExploreAll();
       }
@@ -2859,10 +3943,7 @@
       const title = sc ? (currentLang === 'vi' ? sc.title_vi : sc.title_en) : (currentLang === 'vi' ? "Toàn bộ kiến trúc Cocoloco" : "Explore All Cocoloco Architecture");
       const textToCopy = `Cocoloco Food Ordering System Architecture Map - ${title}`;
       navigator.clipboard.writeText(textToCopy).then(() => {
-        const toast = document.getElementById('toast');
-        toast.innerText = t.toastCopied;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2200);
+        showToast(t.toastCopied);
       });
     }
 
@@ -2951,6 +4032,7 @@
     }
 
     function inspectNode(key) {
+      lastInspectedKey = key;
       const data = NODE_DETAILS[key];
       if (!data) return;
 
@@ -2963,6 +4045,7 @@
 
     function closeDrawer() {
       document.getElementById('drawer').classList.remove('show');
+      lastInspectedKey = null;
     }
 
     let currentScale = 1;
@@ -2993,6 +4076,9 @@
       const current = document.documentElement.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
+      try {
+        localStorage.setItem('cocoloco_workflow_theme', next);
+      } catch (e) {}
       document.getElementById('theme-btn').innerHTML = next === 'dark' ? '<span>🌙 Dark</span>' : '<span>☀️ Light</span>';
     }
 
@@ -3043,17 +4129,33 @@
       document.getElementById('pane-targets').style.display = tab === 'targets' ? 'block' : 'none';
     }
 
+    function switchErrorTab(tab) {
+      document.getElementById('tab-btn-4xx').classList.toggle('active', tab === '4xx');
+      document.getElementById('tab-btn-5xx').classList.toggle('active', tab === '5xx');
+      document.getElementById('tab-btn-rfc').classList.toggle('active', tab === 'rfc');
+      document.getElementById('tab-btn-sim').classList.toggle('active', tab === 'sim');
+
+      document.getElementById('pane-4xx').style.display = tab === '4xx' ? 'block' : 'none';
+      document.getElementById('pane-5xx').style.display = tab === '5xx' ? 'block' : 'none';
+      document.getElementById('pane-rfc').style.display = tab === 'rfc' ? 'block' : 'none';
+      document.getElementById('pane-sim').style.display = tab === 'sim' ? 'block' : 'none';
+    }
+
     function checkBackendHealth(manual = false) {
       const dot = document.getElementById('health-dot');
       const text = document.getElementById('health-text');
       if (!dot || !text) return;
 
-      fetch('http://localhost:8000/docs', { mode: 'no-cors' })
-        .then(() => {
-          dot.classList.add('online');
-          text.innerText = "API :8000 (ONLINE)";
-          text.style.color = "#10B981";
-          if (manual) showToast(currentLang === 'vi' ? "🟢 Server FastAPI Cocoloco đang hoạt động tốt!" : "🟢 Cocoloco FastAPI Server is Healthy!");
+      fetch('http://localhost:8000/health', { method: 'GET', cache: 'no-store' })
+        .then(res => {
+          if (res.ok) {
+            dot.classList.add('online');
+            text.innerText = "API :8000 (ONLINE)";
+            text.style.color = "#10B981";
+            if (manual) showToast(currentLang === 'vi' ? "🟢 Server FastAPI Cocoloco đang hoạt động tốt!" : "🟢 Cocoloco FastAPI Server is Healthy!");
+          } else {
+            throw new Error();
+          }
         })
         .catch(() => {
           dot.classList.remove('online');
@@ -3063,8 +4165,31 @@
         });
     }
 
-    setTimeout(() => checkBackendHealth(false), 1200);
-    setInterval(() => checkBackendHealth(false), 15000);
+    // 1. Kiểm tra 1 lần duy nhất khi vừa mở trang
+    setTimeout(() => checkBackendHealth(false), 800);
+
+    // 2. Tối ưu Smart Visibility: Chỉ kiểm tra khi người dùng quay lại tab (Focus hoặc Visibility Active)
+    window.addEventListener('focus', () => checkBackendHealth(false));
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        checkBackendHealth(false);
+      }
+    });
+
+    // 3. Tần suất nền thư giãn: Kéo giãn chu kỳ lên 60 giây và CHỈ chạy khi tab đang hiển thị
+    setInterval(() => {
+      if (!document.hidden) {
+        checkBackendHealth(false);
+      }
+    }, 60000);
+
+    try {
+      const savedTheme = localStorage.getItem('cocoloco_workflow_theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.getElementById('theme-btn').innerHTML = savedTheme === 'dark' ? '<span>🌙 Dark</span>' : '<span>☀️ Light</span>';
+      }
+    } catch (e) {}
 
     renderLanguage();
     resetToExploreAll();
