@@ -11,16 +11,34 @@ CORS:
     during development. Tighten in production via ALLOWED_ORIGINS env var.
 """
 
+import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
 from app.core.database import async_engine
 from app.core.exceptions import setup_exception_handlers
+
+
+class EndpointFilter(logging.Filter):
+    """
+    Filters out noisy health check requests from uvicorn access logs.
+    Keeps terminal logs clean during development, load balancers, and CI monitoring.
+    """
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        msg = record.getMessage()
+        return msg.find("GET /health") == -1
+
+
+# Suppress noisy health checks from uvicorn terminal output
+logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
 # ---------------------------------------------------------------------------
 # Lifespan — startup & shutdown hooks
@@ -154,4 +172,12 @@ async def health_check() -> JSONResponse:
 from app.api.v1.api import api_router  # noqa: E402
 
 app.include_router(api_router, prefix="/api/v1")
+
+# ---------------------------------------------------------------------------
+# Static Files — Serves uploaded product images & media assets
+# ---------------------------------------------------------------------------
+upload_dir = Path("uploads")
+upload_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory="uploads"), name="static")
+
 
