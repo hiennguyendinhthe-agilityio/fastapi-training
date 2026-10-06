@@ -43,8 +43,14 @@ def setup_exception_handlers(app: FastAPI) -> None:
         Handles Pydantic schema validation failures.
         Returns a standardized 422 Unprocessable Entity response.
         """
+        logger.warning(
+            "⚠️ [422 Validation Error] %s %s: %s",
+            request.method,
+            request.url.path,
+            exc.errors(),
+        )
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             content={
                 "detail": "Validation error",
                 "errors": jsonable_encoder(exc.errors()),
