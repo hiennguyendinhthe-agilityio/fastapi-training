@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#143c32">
+  <title>Cocoloco — Hành trình một đơn gọi món</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17382f;
+      --muted: #62766f;
+      --paper: #f4f7f3;
+      --white: #fff;
+      --line: #d8e1da;
+      --green: #1c7557;
+      --green-dark: #143c32;
+      --lime: #c5e36a;
+      --coral: #ed765d;
+      --blue: #4585a0;
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: radial-gradient(#cdd9d0 0.65px, transparent 0.65px);
+      background-size: 17px 17px;
+      font-family: var(--sans);
+      min-width: 320px;
+    }
+    button { font: inherit; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 15px clamp(20px, 5vw, 76px);
+      color: #f7fbf5;
+      background: var(--green-dark);
+      border-bottom: 3px solid var(--lime);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      aspect-ratio: 1;
+      color: var(--green-dark);
+      background: var(--lime);
+      border-radius: 50% 50% 50% 12px;
+      font-size: 19px;
+      font-weight: 800;
+    }
+    .brand-name { font-size: 14px; font-weight: 800; }
+    .brand-caption { margin-top: 2px; color: #b5c9c0; font: 10px var(--mono); }
+    .header-tools { display: flex; align-items: center; gap: 12px; }
+    .language-switch {
+      display: inline-flex;
+      padding: 4px;
+      border: 1px solid #567267;
+      border-radius: 7px;
+      background: #20483d;
+    }
+    .language-switch button {
+      min-width: 38px;
+      border: 0;
+      border-radius: 4px;
+      padding: 8px 9px;
+      color: #d0ded7;
+      background: transparent;
+      cursor: pointer;
+      font: 11px var(--mono);
+    }
+    .language-switch button[aria-pressed="true"] { color: var(--green-dark); background: var(--lime); }
+    .role-switch {
+      display: inline-flex;
+      padding: 4px;
+      border: 1px solid #567267;
+      border-radius: 7px;
+      background: #20483d;
+    }
+    .role-switch button {
+      border: 0;
+      border-radius: 4px;
+      padding: 9px 13px;
+      color: #d0ded7;
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .role-switch button[aria-pressed="true"] { color: var(--green-dark); background: var(--lime); }
+    main { max-width: 1440px; margin: auto; padding: 0 clamp(20px, 5vw, 76px) 56px; }
+    .intro {
+      display: grid;
+      grid-template-columns: 1fr;
+      align-items: center;
+      gap: clamp(28px, 6vw, 90px);
+      padding: 50px 0 40px;
+      animation: enter 500ms ease both;
+    }
+    .eyebrow, .section-kicker, .meta-label {
+      color: var(--green);
+      font: 11px var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 660px;
+      margin: 13px 0 16px;
+      font-size: clamp(36px, 5vw, 64px);
+      line-height: 1.03;
+      letter-spacing: 0;
+    }
+    .intro-copy { max-width: 620px; margin: 0; color: #496158; font-size: 16px; line-height: 1.65; }
+    .intro-copy strong { color: var(--ink); }
+    .facts-rail {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.58);
+    }
+    .fact { min-height: 72px; padding: 15px 18px; border-right: 1px solid var(--line); }
+    .fact:last-child { border: 0; }
+    .fact strong { display: block; margin-bottom: 5px; font-size: 12px; }
+    .fact span { color: var(--muted); font: 10px var(--mono); }
+    .workflow { padding-top: 38px; }
+    .workflow-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 18px; }
+    h2 { margin: 7px 0 0; font-size: 25px; letter-spacing: 0; }
+    .flow-count { color: var(--muted); font: 11px var(--mono); }
+    .step-nav {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .step-button {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+      padding: 16px 12px;
+      border: 0;
+      border-right: 1px solid var(--line);
+      color: var(--muted);
+      text-align: left;
+      background: transparent;
+      cursor: pointer;
+    }
+    .step-button:last-child { border-right: 0; }
+    .step-number {
+      display: grid;
+      flex: 0 0 30px;
+      place-items: center;
+      width: 30px;
+      aspect-ratio: 1;
+      border: 1px solid #aabbb0;
+      border-radius: 50%;
+      font: 11px var(--mono);
+    }
+    .step-button[aria-current="step"] { color: var(--ink); background: #e6efe5; }
+    .step-button[aria-current="step"] .step-number { color: #fff; border-color: var(--green); background: var(--green); }
+    .step-label { font-size: 12px; font-weight: 700; line-height: 1.3; }
+    .story-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 330px;
+      gap: clamp(30px, 6vw, 90px);
+      padding: 30px 0 34px;
+      border-bottom: 1px solid var(--line);
+      animation: enter 300ms ease both;
+    }
+    .story-main { min-height: 255px; }
+    .story-index { color: var(--coral); font: 12px var(--mono); }
+    h3 { margin: 9px 0 12px; font-size: 27px; line-height: 1.15; }
+    .story-summary { max-width: 680px; margin: 0; color: #52675f; font-size: 15px; line-height: 1.7; }
+    .story-detail {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 760px;
+      margin-top: 25px;
+    }
+    .detail-block { padding-top: 11px; border-top: 2px solid var(--line); }
+    .detail-block.system { border-color: var(--blue); }
+    .detail-block.person { border-color: var(--coral); }
+    .detail-block p { margin: 7px 0 0; color: #52675f; font-size: 12px; line-height: 1.6; }
+    .endpoint {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      padding: 8px 10px;
+      color: #2d637a;
+      background: #e1edf0;
+      font: 11px var(--mono);
+    }
+    .endpoint b { color: #1d7659; }
+    .order-board {
+      align-self: start;
+      padding: 18px 19px 16px;
+      color: #f5f7ee;
+      background: var(--green-dark);
+      border-top: 4px solid var(--lime);
+    }
+    .workflow-illustration {
+      margin: 0 0 16px;
+      background: #fff;
+    }
+    .screen-frame {
+      position: relative;
+      overflow: hidden;
+      background: #f4f2ef;
+      border-radius: 5px;
+    }
+    .workflow-illustration img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: min(68vh, 620px);
+      object-fit: contain;
+      transition: opacity 180ms ease;
+    }
+    .workflow-illustration img.is-changing { opacity: 0.35; }
+    .illustration-index {
+      position: absolute;
+      top: 11px;
+      left: 11px;
+      padding: 6px 8px;
+      color: #f7fbf5;
+      background: rgba(20, 60, 50, 0.88);
+      font: 10px var(--mono);
+    }
+    .illustration-source {
+      position: absolute;
+      top: 11px;
+      right: 11px;
+      max-width: 68%;
+      padding: 6px 8px;
+      color: #f7fbf5;
+      background: rgba(20, 60, 50, 0.88);
+      font: 9px var(--mono);
+      text-align: right;
+    }
+    .privacy-mask {
+      position: absolute;
+      top: 17%;
+      left: 30%;
+      display: grid;
+      width: 54%;
+      height: 5.7%;
+      place-items: center;
+      border-radius: 4px;
+      color: #64766e;
+      background: rgba(255, 255, 255, 0.98);
+      font: 8px var(--mono);
+      text-align: center;
+    }
+    .privacy-mask[hidden] { display: none; }
+    .illustration-caption {
+      padding: 10px 2px 0;
+      color: var(--ink);
+    }
+    .illustration-title { font-size: 13px; font-weight: 800; }
+    .illustration-description { margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .board-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-bottom: 13px; border-bottom: 1px solid #466257; }
+    .board-title { font-size: 13px; font-weight: 700; }
+    .demo-tag { color: var(--lime); font: 9px var(--mono); text-transform: uppercase; }
+    .board-meta { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; color: #b9cbc2; font: 10px var(--mono); }
+    .order-line { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #355448; }
+    .item-name { font-size: 11px; font-weight: 700; }
+    .item-qty { margin-top: 3px; color: #b9cbc2; font: 9px var(--mono); }
+    .item-price { font: 10px var(--mono); }
+    .total-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; padding-top: 13px; border-top: 1px solid #71877d; }
+    .total-row span { color: #b9cbc2; font-size: 11px; }
+    .total-row strong { color: var(--lime); font: 20px var(--mono); }
+    .delivery-row { display: flex; justify-content: space-between; padding-top: 8px; color: #b9cbc2; font-size: 10px; }
+    .delivery-row strong { color: #f5f7ee; font: 11px var(--mono); }
+    .total-row.cart-total { margin-top: 10px; border-top-style: dashed; }
+    .board-note { margin: 13px 0 0; color: #b9cbc2; font-size: 10px; line-height: 1.55; }
+    .board-status { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #355448; color: var(--lime); font: 10px var(--mono); }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+    .flow-controls { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding-top: 15px; }
+    .text-button { padding: 8px 0; border: 0; color: var(--green); background: transparent; cursor: pointer; font-size: 12px; font-weight: 700; }
+    .text-button:disabled { color: #a0afa6; cursor: default; }
+    .scope-note {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 40px;
+      padding: 18px 0;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+    }
+    .scope-note p { margin: 6px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    footer { display: flex; justify-content: space-between; gap: 16px; padding-top: 18px; color: var(--muted); font: 10px var(--mono); }
+    :focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+    @keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 850px) {
+      .story-grid { grid-template-columns: minmax(0, 1fr) 290px; gap: 28px; }
+      .step-button { padding: 13px 7px; gap: 7px; }
+      .step-label { font-size: 10px; }
+    }
+    @media (max-width: 650px) {
+      .topbar { align-items: flex-start; flex-direction: column; gap: 13px; padding-top: 12px; padding-bottom: 12px; }
+      .header-tools { align-items: stretch; flex-direction: column-reverse; width: 100%; gap: 9px; }
+      .language-switch { align-self: flex-end; }
+      .role-switch { width: 100%; }
+      .role-switch button { flex: 1; }
+      .intro { grid-template-columns: 1fr; padding-top: 34px; }
+      h1 { font-size: 42px; }
+      .facts-rail { grid-template-columns: 1fr; }
+      .fact { min-height: auto; padding: 11px 14px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .fact:last-child { border-bottom: 0; }
+      .workflow-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
+      .step-nav { grid-template-columns: repeat(4, minmax(115px, 1fr)); overflow-x: auto; }
+      .step-button { border-bottom: 0; }
+      .story-grid { grid-template-columns: 1fr; gap: 24px; }
+      .story-main { min-height: 0; }
+      .story-detail { gap: 14px; }
+      .order-board { width: 100%; }
+      .scope-note { grid-template-columns: 1fr; gap: 12px; }
+      footer { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" aria-label="Cocoloco Food and Coffee">
+      <div class="brand-mark" aria-hidden="true">C</div>
+      <div>
+        <div class="brand-name">COCOLOCO</div>
+        <div class="brand-caption">FOOD &amp; COFFEE · BUSINESS FLOW</div>
+      </div>
+    </div>
+    <div class="header-tools">
+      <div class="language-switch" role="group" aria-label="Language" data-i18n-aria="languageGroup">
+        <button type="button" data-language="vi" aria-pressed="true">VI</button>
+        <button type="button" data-language="en" aria-pressed="false">EN</button>
+      </div>
+      <div class="role-switch" role="group" aria-label="Chọn góc nhìn quy trình" data-i18n-aria="roleGroup">
+        <button type="button" data-role="customer" aria-pressed="true" data-i18n="roleCustomer">Khách đặt món</button>
+        <button type="button" data-role="admin" aria-pressed="false" data-i18n="roleAdmin">Admin cửa hàng</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <div class="eyebrow" data-i18n="introEyebrow">Câu chuyện vận hành · 01 đơn hàng</div>
+        <h1 id="page-title" data-i18n="headline">Từ menu đến đơn hàng sẵn sàng xử lý.</h1>
+        <p class="intro-copy" id="intro-copy"></p>
+      </div>
+    </section>
+
+    <section class="facts-rail" aria-label="Tóm tắt nghiệp vụ" data-i18n-aria="factsAria">
+      <div class="fact"><strong data-i18n="factCustomerTitle">01 · Khách hàng</strong><span data-i18n="factCustomer">Xem menu công khai · đăng nhập để đặt</span></div>
+      <div class="fact"><strong data-i18n="factBackendTitle">02 · Backend</strong><span data-i18n="factBackend">Tự xác thực món · tính tổng · lưu đơn</span></div>
+      <div class="fact"><strong data-i18n="factStoreTitle">03 · Cửa hàng</strong><span data-i18n="factStore">Admin quản lý catalog và trạng thái đơn</span></div>
+    </section>
+
+    <section class="workflow" aria-labelledby="workflow-title">
+      <div class="workflow-heading">
+        <div>
+          <div class="section-kicker" id="flow-kicker">01 / CUSTOMER JOURNEY</div>
+          <h2 id="workflow-title">Góc nhìn khách hàng</h2>
+        </div>
+        <div class="flow-count" id="flow-count" aria-live="polite">BƯỚC 01 / 04</div>
+      </div>
+
+      <nav class="step-nav" id="step-nav" aria-label="Các bước trong quy trình" data-i18n-aria="stepsAria"></nav>
+
+      <div class="story-grid" id="story-grid" aria-live="polite">
+        <article class="story-main">
+          <div class="story-index" id="story-index">01 — DISCOVER</div>
+          <h3 id="story-title">Khách mở menu và chọn món</h3>
+          <p class="story-summary" id="story-summary"></p>
+          <div class="story-detail">
+            <div class="detail-block person">
+              <div class="meta-label" data-i18n="personLabel">Người dùng làm gì</div>
+              <p id="person-action"></p>
+            </div>
+            <div class="detail-block system">
+              <div class="meta-label" data-i18n="systemLabel">Hệ thống làm gì</div>
+              <p id="system-action"></p>
+            </div>
+          </div>
+          <div class="endpoint" id="endpoint"><b>GET</b><span>/api/v1/products</span></div>
+        </article>
+
+        <aside class="order-board" aria-label="Đơn hàng minh họa" data-i18n-aria="orderAria">
+          <figure class="workflow-illustration">
+            <div class="screen-frame">
+              <img id="stage-image" src="docs/assets/screenshots/01_guest_account.png" alt="Ảnh chụp màn hình tài khoản khách của ứng dụng Cocoloco" fetchpriority="high">
+              <span class="illustration-index" id="illustration-index">01 / 07</span>
+              <span class="illustration-source" id="illustration-source">ẢNH CHỤP FE</span>
+              <span class="privacy-mask" id="privacy-mask" hidden></span>
+            </div>
+            <figcaption class="illustration-caption">
+              <div class="illustration-title" id="illustration-title">Tài khoản khách</div>
+              <div class="illustration-description" id="illustration-description">Khách có thể bắt đầu đăng nhập từ khu vực tài khoản.</div>
+            </figcaption>
+          </figure>
+          <div class="board-head">
+            <div class="board-title" id="board-title" data-i18n="boardTitle">Đơn hàng minh họa</div>
+            <div class="demo-tag" data-i18n="demoTag">DEMO DATA</div>
+          </div>
+          <div class="board-meta"><span>FE CART CAPTURE</span><span>2 ITEMS</span></div>
+          <div class="order-line">
+            <div><div class="item-name">Cappuccino</div><div class="item-qty">COFFEE · QTY 2 · $5.00 EACH</div></div>
+            <div class="item-price">$10.00</div>
+          </div>
+          <div class="total-row"><span data-i18n="boardSubtotal">Tạm tính trên FE</span><strong>$10.00</strong></div>
+          <div class="delivery-row"><span data-i18n="deliveryFee">Phí giao hàng trên FE</span><strong>$2.00</strong></div>
+          <div class="total-row cart-total"><span data-i18n="boardTotal">Tổng giỏ hàng trên FE</span><strong>$12.00</strong></div>
+          <p class="board-note" id="board-note" data-i18n="boardNote">Số liệu theo ảnh FE; API hiện chỉ nhận product_id và quantity, tự lấy giá trong database và chưa tính add-on/phí giao hàng.</p>
+          <div class="board-status"><span class="status-dot"></span><span id="board-status">PENDING · Đơn vừa được ghi nhận</span></div>
+        </aside>
+      </div>
+
+      <div class="flow-controls">
+        <button class="text-button" id="prev-step" type="button" data-i18n="prevStep">← Bước trước</button>
+        <button class="text-button" id="next-step" type="button" data-i18n="nextStep">Bước tiếp theo →</button>
+      </div>
+    </section>
+
+    <section class="scope-note" aria-label="Phạm vi chức năng hiện tại" data-i18n-aria="scopeAria">
+      <div>
+        <div class="meta-label" data-i18n="scopeTitle">Dự án đang làm gì</div>
+        <p data-i18n="scopeDescription">Backend FastAPI phục vụ menu cà phê và đồ ăn, đồng bộ tài khoản Clerk, tạo đơn có giá snapshot, xem lịch sử và hỗ trợ admin quản lý sản phẩm, người dùng, trạng thái đơn.</p>
+      </div>
+      <div>
+        <div class="meta-label" data-i18n="scopeLimitTitle">Ngoài phạm vi trang này</div>
+        <p data-i18n="scopeLimit">Chưa mô tả thanh toán trực tuyến, giao hàng, tồn kho định lượng hay thông báo trạng thái thời gian thực vì các luồng đó không nằm trong API hiện tại.</p>
+      </div>
+    </section>
+
+    <footer><span>COCOLOCO · FOOD &amp; COFFEE ORDERING</span><span>Business workflow · Based on implemented API routes</span></footer>
+  </main>
+
+  <script>
+    const translations = {
+      vi: {
+        pageTitle: 'Cocoloco — Hành trình một đơn gọi món',
+        roleGroup: 'Chọn góc nhìn quy trình', languageGroup: 'Chọn ngôn ngữ',
+        roleCustomer: 'Khách đặt món', roleAdmin: 'Admin cửa hàng',
+        introEyebrow: 'Câu chuyện vận hành · 01 đơn hàng',
+        headline: 'Từ menu đến đơn hàng sẵn sàng xử lý.',
+        introCopy: 'Cocoloco là nền tảng gọi <strong>cà phê và đồ ăn</strong>: khách xem menu, gửi đơn; hệ thống ghi nhận giá và lịch sử; admin quản lý catalog, theo dõi và cập nhật trạng thái đơn.',
+        factsAria: 'Tóm tắt nghiệp vụ', factCustomerTitle: '01 · Khách hàng',
+        factCustomer: 'Xem menu công khai · đăng nhập để đặt',
+        factBackendTitle: '02 · Backend', factBackend: 'Tự xác thực món · tính tổng · lưu đơn',
+        factStoreTitle: '03 · Cửa hàng', factStore: 'Admin quản lý catalog và trạng thái đơn',
+        stepsAria: 'Các bước trong quy trình', orderAria: 'Đơn hàng minh họa',
+        personLabel: 'Người dùng làm gì', systemLabel: 'Hệ thống làm gì',
+        boardTitle: 'Đơn hàng minh họa', demoTag: 'DEMO DATA',
+        boardSubtotal: 'Tạm tính trên FE', deliveryFee: 'Phí giao hàng trên FE',
+        boardTotal: 'Tổng giỏ hàng trên FE',
+        boardNote: 'Số liệu theo ảnh FE; API hiện chỉ nhận product_id và quantity, tự lấy giá trong database và chưa tính add-on/phí giao hàng.',
+        privacyLabel: 'Đã ẩn tên và email',
+        prevStep: '← Bước trước', nextStep: 'Bước tiếp theo →',
+        scopeAria: 'Phạm vi chức năng hiện tại', scopeTitle: 'Dự án đang làm gì',
+        scopeDescription: 'Backend FastAPI phục vụ menu cà phê và đồ ăn, đồng bộ tài khoản Clerk, tạo đơn có giá snapshot, xem lịch sử và hỗ trợ admin quản lý sản phẩm, người dùng, trạng thái đơn.',
+        scopeLimitTitle: 'Ngoài phạm vi trang này',
+        scopeLimit: 'Chưa mô tả thanh toán trực tuyến, giao hàng, tồn kho định lượng hay thông báo trạng thái thời gian thực vì các luồng đó không nằm trong API hiện tại.',
+        customer: {
+          title: 'Góc nhìn khách hàng', count: 'BƯỚC', kicker: '01 / GÓC NHÌN KHÁCH HÀNG',
+          steps: [
+            {
+              short: 'Tài khoản Guest', code: 'GUEST', title: 'Khách bắt đầu từ tài khoản Guest',
+              summary: 'Ảnh FE cho thấy trạng thái chưa đăng nhập và nút bắt đầu Clerk sign-in. Khách có thể duyệt menu công khai trước khi đăng nhập.',
+              person: 'Mở khu vực tài khoản và chọn đăng nhập khi muốn đặt món.',
+              system: 'Đây là trạng thái giao diện; chưa có tài khoản người dùng nội bộ để gắn đơn.',
+              method: 'FE', path: 'Guest account', status: 'GUEST · Chưa đăng nhập'
+            },
+            {
+              short: 'Clerk sign-in', code: 'AUTH', title: 'Khách xác thực bằng Clerk',
+              summary: 'Ứng dụng mở màn hình đăng nhập Clerk. Sau khi Clerk xác thực, ứng dụng gửi Bearer token để backend đồng bộ tài khoản.',
+              person: 'Đăng nhập bằng phương thức được cấu hình trong Clerk.',
+              system: 'Backend xác minh token và đồng bộ hồ sơ nội bộ qua auth sync; ảnh này là màn hình FE/Clerk.',
+              method: 'POST', path: '/api/v1/auth/sync', status: 'AUTHENTICATED · Clerk verified'
+            },
+            {
+              short: 'Menu đã đăng nhập', code: 'CATALOG', title: 'Menu hiển thị hồ sơ đã đăng nhập',
+              summary: 'Sau khi đăng nhập, màn hình menu hiển thị avatar chữ H. Catalog vẫn được tải từ endpoint sản phẩm công khai.',
+              person: 'Duyệt danh mục và chọn Cappuccino.',
+              system: 'Trả danh sách sản phẩm có phân trang và lọc category.',
+              method: 'GET', path: '/api/v1/products', status: 'SIGNED IN · Catalog loaded'
+            },
+            {
+              short: 'Chi tiết món', code: 'PRODUCT', title: 'Khách xem chi tiết Cappuccino',
+              summary: 'Màn hình FE hiển thị ảnh món, giá, số lượng và các tùy chọn như Extra milk, Iced hoặc Light foam.',
+              person: 'Chọn số lượng và tùy chỉnh món trước khi thêm vào giỏ.',
+              system: 'Backend có endpoint đọc sản phẩm; các tùy chọn trong ảnh chưa thuộc payload/order model hiện tại.',
+              method: 'GET', path: '/api/v1/products/{id}', status: 'PRODUCT · Details loaded'
+            },
+            {
+              short: 'Giỏ hàng', code: 'CART', title: 'Khách kiểm tra giỏ trước khi đặt',
+              summary: 'Ảnh FE minh họa hai Cappuccino, subtotal $10 và delivery fee $2. Đây là số liệu hiển thị trong app, không phải số tiền backend đã xác nhận.',
+              person: 'Kiểm tra món và tiếp tục checkout.',
+              system: 'API tạo đơn chỉ nhận product_id và quantity; backend tự lấy giá từ database. Add-on và delivery fee chưa được API hỗ trợ.',
+              method: 'POST', path: '/api/v1/orders', status: 'CART · Ready for checkout'
+            },
+            {
+              short: 'Đặt thành công', code: 'ORDER CREATED', title: 'Ứng dụng xác nhận đã nhận đơn',
+              summary: 'FE hiển thị màn hình “Ordered!” sau khi hoàn tất checkout. Dòng “ready in 3 minutes” là nội dung giao diện, không phải cam kết thời gian từ backend.',
+              person: 'Xem xác nhận sau khi gửi yêu cầu đặt món.',
+              system: 'Backend tạo order với trạng thái ban đầu PENDING; API hiện chưa quản lý thời gian chuẩn bị.',
+              method: 'POST', path: '/api/v1/orders', status: 'PENDING · Order recorded'
+            },
+            {
+              short: 'Tài khoản & lịch sử', code: 'HISTORY', title: 'Khách quay lại khu vực tài khoản',
+              summary: 'Ảnh cuối cho thấy hồ sơ người dùng và lối vào Order History. Backend cung cấp API lấy lịch sử riêng của người dùng; ảnh chưa mở màn hình danh sách chi tiết.',
+              person: 'Mở mục Order History để xem các đơn đã đặt.',
+              system: 'Trả lịch sử đơn có phân trang và giới hạn theo tài khoản hiện tại.',
+              method: 'GET', path: '/api/v1/orders/me', status: 'ORDER HISTORY · User scoped'
+            }
+          ]
+        },
+        admin: {
+          title: 'Góc nhìn admin cửa hàng', count: 'BƯỚC', kicker: '02 / GÓC NHÌN ADMIN CỬA HÀNG',
+          steps: [
+            {
+              short: 'Chuẩn bị menu', code: 'CATALOG', title: 'Admin duy trì menu đang bán',
+              summary: 'Admin tạo món mới, cập nhật mô tả hoặc giá, và gỡ món khỏi catalog khi cần. Khách nhìn thấy dữ liệu catalog mà backend đang phục vụ.',
+              person: 'Đăng nhập tài khoản ADMIN rồi thêm hoặc chỉnh thông tin món.',
+              system: 'Bảo vệ các thao tác ghi bằng role ADMIN. Món đã có trong đơn lịch sử không thể xóa cứng; có thể chuyển sang không còn khả dụng.',
+              method: 'POST / PUT', path: '/api/v1/products', status: 'CATALOG · Menu được quản lý'
+            },
+            {
+              short: 'Nhận đơn', code: 'INCOMING ORDER', title: 'Admin xem các đơn cần xử lý',
+              summary: 'Đơn khách vừa tạo bắt đầu ở trạng thái PENDING. Admin có thể xem danh sách đơn toàn hệ thống và mở chi tiết để biết món, số lượng, tổng tiền.',
+              person: 'Mở danh sách đơn mới, kiểm tra nội dung trước khi cập nhật.',
+              system: 'Chỉ ADMIN được xem danh sách tất cả đơn. Giá từng món vẫn là snapshot tại thời điểm khách checkout.',
+              method: 'GET', path: '/api/v1/orders', status: 'PENDING · Chờ cửa hàng xử lý'
+            },
+            {
+              short: 'Cập nhật', code: 'ORDER STATUS', title: 'Admin cập nhật vòng đời đơn',
+              summary: 'Sau khi xử lý tại cửa hàng, admin có thể chuyển trạng thái đơn sang CONFIRMED, COMPLETED hoặc CANCELLED. Khách xem trạng thái mới qua lịch sử hoặc chi tiết đơn.',
+              person: 'Chọn trạng thái phù hợp với kết quả xử lý đơn.',
+              system: 'Ghi trạng thái mới vào đơn; khách chỉ đọc được đơn của mình, admin có quyền xem đơn toàn hệ thống.',
+              method: 'PATCH', path: '/api/v1/orders/{id}/status', status: 'CONFIRMED · COMPLETED · CANCELLED'
+            }
+          ]
+        }
+      },
+      en: {
+        pageTitle: 'Cocoloco — A Food Order in Motion',
+        roleGroup: 'Choose a workflow perspective', languageGroup: 'Choose language',
+        roleCustomer: 'Customer', roleAdmin: 'Store admin',
+        introEyebrow: 'A real-world workflow · one order',
+        headline: 'From browsing the menu to an order ready to handle.',
+        introCopy: 'Cocoloco is a <strong>coffee and food ordering platform</strong>: customers browse the menu and place orders; the system records prices and history; admins manage the catalog and update order status.',
+        factsAria: 'Business workflow summary', factCustomerTitle: '01 · Customer',
+        factCustomer: 'Browse the public menu · sign in to order',
+        factBackendTitle: '02 · Backend', factBackend: 'Validate items · calculate totals · save orders',
+        factStoreTitle: '03 · Store', factStore: 'Admins manage the catalog and order status',
+        stepsAria: 'Workflow steps', orderAria: 'Illustrative order',
+        personLabel: 'Customer action', systemLabel: 'System response',
+        boardTitle: 'Illustrative order', demoTag: 'DEMO DATA',
+        boardSubtotal: 'FE subtotal', deliveryFee: 'FE delivery fee',
+        boardTotal: 'FE cart total',
+        boardNote: 'Values match the FE screenshot. The API accepts product_id and quantity, reads prices from the database, and does not yet calculate add-ons or delivery fees.',
+        privacyLabel: 'Name and email hidden',
+        prevStep: '← Previous step', nextStep: 'Next step →',
+        scopeAria: 'Current feature scope', scopeTitle: 'What the project does',
+        scopeDescription: 'The FastAPI backend serves a coffee and food catalog, syncs Clerk accounts, creates orders with price snapshots, provides order history, and lets admins manage products, users, and order status.',
+        scopeLimitTitle: 'Not included in this workflow',
+        scopeLimit: 'Online payments, delivery, quantity-based inventory, and real-time status notifications are not shown because those flows are not part of the current API.',
+        customer: {
+          title: 'Customer journey', count: 'STEP', kicker: '01 / CUSTOMER JOURNEY',
+          steps: [
+            {
+              short: 'Guest account', code: 'GUEST', title: 'The customer starts as a guest',
+              summary: 'The FE screenshot shows a signed-out account and the Clerk sign-in entry point. Customers can browse the public catalog before signing in.',
+              person: 'Open the account area and choose sign-in when ready to place an order.',
+              system: 'This is a frontend state; no local user account is linked to an order yet.',
+              method: 'FE', path: 'Guest account', status: 'GUEST · Signed out'
+            },
+            {
+              short: 'Clerk sign-in', code: 'AUTH', title: 'The customer authenticates with Clerk',
+              summary: 'The app opens Clerk sign-in. After authentication, it sends a Bearer token so the backend can sync the user account.',
+              person: 'Sign in with a method configured in Clerk.',
+              system: 'The backend verifies the token and syncs the local profile through auth sync; this is a FE/Clerk screen capture.',
+              method: 'POST', path: '/api/v1/auth/sync', status: 'AUTHENTICATED · Clerk verified'
+            },
+            {
+              short: 'Signed-in menu', code: 'CATALOG', title: 'The catalog reflects the signed-in session',
+              summary: 'After sign-in, the menu screen shows the H profile avatar. The product catalog is still loaded from the public products endpoint.',
+              person: 'Browse categories and choose a Cappuccino.',
+              system: 'Returns a paginated product catalog with optional category filtering.',
+              method: 'GET', path: '/api/v1/products', status: 'SIGNED IN · Catalog loaded'
+            },
+            {
+              short: 'Product details', code: 'PRODUCT', title: 'The customer views Cappuccino details',
+              summary: 'The FE screen shows the product photo, price, quantity controls, and options such as Extra milk, Iced, or Light foam.',
+              person: 'Choose a quantity and customize the drink before adding it to the cart.',
+              system: 'The backend exposes product lookup; the options shown in the screenshot are not part of the current order payload/model.',
+              method: 'GET', path: '/api/v1/products/{id}', status: 'PRODUCT · Details loaded'
+            },
+            {
+              short: 'Cart', code: 'CART', title: 'The customer reviews the cart before checkout',
+              summary: 'The FE screenshot illustrates two Cappuccinos, a $10 subtotal, and a $2 delivery fee. These are app display values, not a total confirmed by the backend.',
+              person: 'Review the items and continue to checkout.',
+              system: 'The order API accepts product_id and quantity; the backend reads prices from the database. Add-ons and delivery fees are not supported by the API yet.',
+              method: 'POST', path: '/api/v1/orders', status: 'CART · Ready for checkout'
+            },
+            {
+              short: 'Order placed', code: 'ORDER CREATED', title: 'The app confirms that the order was received',
+              summary: 'The FE displays “Ordered!” after checkout. The “ready in 3 minutes” line is frontend copy, not a backend preparation-time guarantee.',
+              person: 'View the confirmation after submitting the order request.',
+              system: 'The backend creates the order with initial status PENDING; preparation time is not managed by the current API.',
+              method: 'POST', path: '/api/v1/orders', status: 'PENDING · Order recorded'
+            },
+            {
+              short: 'Account & history', code: 'HISTORY', title: 'The customer returns to the account area',
+              summary: 'The final screenshot shows the user profile and the Order History entry point. The backend provides a user-scoped order history API; the screenshot does not show the detailed order list.',
+              person: 'Open Order History to review previous orders.',
+              system: 'Returns paginated order history scoped to the authenticated user.',
+              method: 'GET', path: '/api/v1/orders/me', status: 'ORDER HISTORY · User scoped'
+            }
+          ]
+        },
+        admin: {
+          title: 'Store admin workflow', count: 'STEP', kicker: '02 / STORE ADMIN WORKFLOW',
+          steps: [
+            {
+              short: 'Manage menu', code: 'CATALOG', title: 'The admin maintains the active menu',
+              summary: 'The admin adds products, updates descriptions or prices, and removes items from the catalog when needed. Customers see the catalog served by the backend.',
+              person: 'Sign in as an ADMIN, then add a product or edit its details.',
+              system: 'Protects catalog write operations with the ADMIN role. A product referenced by order history cannot be hard-deleted; it can be marked unavailable instead.',
+              method: 'POST / PUT', path: '/api/v1/products', status: 'CATALOG · Menu maintained'
+            },
+            {
+              short: 'Review orders', code: 'INCOMING ORDER', title: 'The admin reviews incoming orders',
+              summary: 'A newly placed order starts as PENDING. The admin can view all platform orders and open one to review its items, quantities, and total.',
+              person: 'Open the incoming order list and review an order before updating it.',
+              system: 'Only ADMIN users can list all orders. Each item retains the price snapshot recorded at checkout.',
+              method: 'GET', path: '/api/v1/orders', status: 'PENDING · Awaiting store action'
+            },
+            {
+              short: 'Update status', code: 'ORDER STATUS', title: 'The admin updates the order lifecycle',
+              summary: 'After handling the order, the admin can set its status to CONFIRMED, COMPLETED, or CANCELLED. The customer can see the updated status in order history or details.',
+              person: 'Choose the status that matches how the store handled the order.',
+              system: 'Saves the new status. Customers can only read their own orders; admins can access orders across the platform.',
+              method: 'PATCH', path: '/api/v1/orders/{id}/status', status: 'CONFIRMED · COMPLETED · CANCELLED'
+            }
+          ]
+        }
+      }
+    };
+
+    const illustrations = {
+      customer: [
+        {
+          src: 'docs/assets/screenshots/01_guest_account.png',
+          source: { vi: 'ẢNH CHỤP APP THẬT', en: 'REAL APP SCREEN' },
+          vi: { title: 'Tài khoản Guest', description: 'Điểm bắt đầu cho khách chưa đăng nhập.', alt: 'Màn hình tài khoản Guest của ứng dụng Cocoloco.' },
+          en: { title: 'Guest account', description: 'The starting point for a signed-out customer.', alt: 'The Cocoloco guest account screen.' }
+        },
+        {
+          src: 'docs/assets/screenshots/02_clerk_sign_in.png',
+          source: { vi: 'ẢNH CHỤP APP THẬT', en: 'REAL APP SCREEN' },
+          vi: { title: 'Clerk sign-in', description: 'Khách xác thực trước khi tiếp tục đặt món.', alt: 'Màn hình Clerk sign-in của ứng dụng Cocoloco.' },
+          en: { title: 'Clerk sign-in', description: 'The customer authenticates before continuing to checkout.', alt: 'The Cocoloco Clerk sign-in screen.' }
+        },
+        {
+          src: 'docs/assets/screenshots/03_home_catalog_authenticated.png',
+          source: { vi: 'ẢNH CHỤP APP THẬT', en: 'REAL APP SCREEN' },
+          vi: { title: 'Menu đã đăng nhập', description: 'Avatar H xuất hiện trên menu sau khi xác thực.', alt: 'Menu Cocoloco ở trạng thái đã đăng nhập với avatar chữ H.' },
+          en: { title: 'Signed-in menu', description: 'The H avatar appears on the menu after authentication.', alt: 'The signed-in Cocoloco menu showing the H avatar.' }
+        },
+        {
+          src: 'docs/assets/screenshots/04_product_detail_capuchino.png',
+          source: { vi: 'ẢNH CHỤP APP THẬT', en: 'REAL APP SCREEN' },
+          vi: { title: 'Chi tiết Cappuccino', description: 'Màn hình FE có số lượng và tùy chọn thêm cho món.', alt: 'Trang chi tiết Cappuccino trong ứng dụng Cocoloco.' },
+          en: { title: 'Cappuccino details', description: 'The FE screen shows quantity controls and drink options.', alt: 'The Cappuccino details screen in the Cocoloco app.' }
+        },
+        {
+          src: 'docs/assets/screenshots/05_cart_checkout.png',
+          source: { vi: 'ẢNH CHỤP APP THẬT', en: 'REAL APP SCREEN' },
+          vi: { title: 'Giỏ hàng & checkout', description: 'Ảnh FE minh họa món, số lượng, phí giao hàng và tổng giỏ.', alt: 'Màn hình giỏ hàng và checkout của ứng dụng Cocoloco.' },
+          en: { title: 'Cart & checkout', description: 'The FE capture shows items, quantities, a delivery fee, and cart total.', alt: 'The Cocoloco cart and checkout screen.' }
+        },
+        {
+          src: 'docs/assets/screenshots/06_order_confirmation_success.png',
+          source: { vi: 'ẢNH CHỤP APP THẬT', en: 'REAL APP SCREEN' },
+          vi: { title: 'Đặt món thành công', description: 'FE xác nhận đơn; backend khởi tạo order ở trạng thái PENDING.', alt: 'Màn hình Ordered xác nhận ứng dụng đã gửi đơn hàng.' },
+          en: { title: 'Order confirmation', description: 'The FE confirms the order; the backend creates it as PENDING.', alt: 'The Ordered confirmation screen after submitting an order.' }
+        },
+        {
+          src: 'docs/assets/screenshots/07_user_account_order_history.png',
+          source: { vi: 'ẢNH CHỤP APP THẬT', en: 'REAL APP SCREEN' },
+          redact: true,
+          vi: { title: 'Tài khoản & Order History', description: 'Ảnh cho thấy hồ sơ và lối vào lịch sử; tên/email đã được che.', alt: 'Trang tài khoản Cocoloco có mục Order History; thông tin cá nhân đã được che.' },
+          en: { title: 'Account & order history', description: 'The screen shows the profile and history entry; name and email are masked.', alt: 'The Cocoloco account page with an Order History entry; personal details are masked.' }
+        }
+      ],
+      admin: [
+        {
+          src: 'docs/assets/screenshots/03_home_catalog_authenticated.png',
+          source: { vi: 'ẢNH PHÍA KHÁCH · KHÔNG PHẢI ADMIN UI', en: 'CUSTOMER SCREEN · NOT ADMIN UI' },
+          vi: { title: 'Catalog phía khách', description: 'Ảnh thật cho thấy menu được phục vụ; không có ảnh màn hình chỉnh sửa admin.', alt: 'Menu Cocoloco phía khách; bộ ảnh không có dashboard quản trị.' },
+          en: { title: 'Customer-facing catalog', description: 'This real screen shows the served menu; no admin editing screen was provided.', alt: 'The customer-facing Cocoloco catalog; no admin dashboard capture was provided.' }
+        },
+        {
+          src: 'docs/assets/screenshots/06_order_confirmation_success.png',
+          source: { vi: 'ẢNH PHÍA KHÁCH · KHÔNG PHẢI ADMIN UI', en: 'CUSTOMER SCREEN · NOT ADMIN UI' },
+          vi: { title: 'Đơn gửi từ phía khách', description: 'Đơn mới bắt đầu PENDING; admin xem danh sách qua API.', alt: 'Màn hình xác nhận đơn phía khách; danh sách admin chưa có ảnh chụp.' },
+          en: { title: 'Order submitted by customer', description: 'A new order starts as PENDING; admins list orders through the API.', alt: 'The customer order confirmation; no admin order-list capture was provided.' }
+        },
+        {
+          src: 'docs/assets/screenshots/07_user_account_order_history.png',
+          source: { vi: 'ẢNH PHÍA KHÁCH · KHÔNG PHẢI ADMIN UI', en: 'CUSTOMER SCREEN · NOT ADMIN UI' },
+          redact: true,
+          vi: { title: 'Lối vào lịch sử đơn', description: 'API cho phép admin cập nhật trạng thái; chưa có ảnh UI admin.', alt: 'Trang tài khoản phía khách có lối vào Order History; thông tin cá nhân đã được che.' },
+          en: { title: 'Customer order-history entry', description: 'The API supports admin status updates; no admin UI capture was provided.', alt: 'The customer account page with an Order History entry; personal details are masked.' }
+        }
+      ]
+    };
+
+    let currentLanguage = 'vi';
+    try {
+      const savedLanguage = localStorage.getItem('cocoloco_business_workflow_lang');
+      if (savedLanguage === 'vi' || savedLanguage === 'en') currentLanguage = savedLanguage;
+    } catch (error) {}
+    let activeRole = 'customer';
+    let activeStep = 0;
+    const stepNav = document.getElementById('step-nav');
+
+    function renderFlow() {
+      const flow = translations[currentLanguage][activeRole];
+      const step = flow.steps[activeStep];
+      document.getElementById('workflow-title').textContent = flow.title;
+      document.getElementById('flow-kicker').textContent = flow.kicker;
+      document.getElementById('flow-count').textContent = `${flow.count} ${String(activeStep + 1).padStart(2, '0')} / ${String(flow.steps.length).padStart(2, '0')}`;
+      document.getElementById('story-index').textContent = `${String(activeStep + 1).padStart(2, '0')} — ${step.code}`;
+      document.getElementById('story-title').textContent = step.title;
+      document.getElementById('story-summary').textContent = step.summary;
+      document.getElementById('person-action').textContent = step.person;
+      document.getElementById('system-action').textContent = step.system;
+      document.getElementById('endpoint').innerHTML = `<b>${step.method}</b><span>${step.path}</span>`;
+      document.getElementById('board-status').textContent = step.status;
+      const illustration = illustrations[activeRole][activeStep];
+      const illustrationCopy = illustration[currentLanguage];
+      const stageImage = document.getElementById('stage-image');
+      if (stageImage.getAttribute('src') !== illustration.src) {
+        stageImage.classList.add('is-changing');
+        stageImage.src = illustration.src;
+      }
+      stageImage.alt = illustrationCopy.alt;
+      stageImage.onload = () => stageImage.classList.remove('is-changing');
+      stageImage.onerror = () => stageImage.classList.remove('is-changing');
+      document.getElementById('illustration-source').textContent = illustration.source[currentLanguage];
+      const privacyMask = document.getElementById('privacy-mask');
+      privacyMask.hidden = !illustration.redact;
+      privacyMask.textContent = translations[currentLanguage].privacyLabel;
+      document.getElementById('illustration-index').textContent = `${String(activeStep + 1).padStart(2, '0')} / ${String(flow.steps.length).padStart(2, '0')}`;
+      document.getElementById('illustration-title').textContent = illustrationCopy.title;
+      document.getElementById('illustration-description').textContent = illustrationCopy.description;
+      document.getElementById('prev-step').disabled = activeStep === 0;
+      document.getElementById('next-step').disabled = activeStep === flow.steps.length - 1;
+      stepNav.replaceChildren(...flow.steps.map((item, index) => {
+        const button = document.createElement('button');
+        button.className = 'step-button';
+        button.type = 'button';
+        button.setAttribute('aria-current', index === activeStep ? 'step' : 'false');
+        button.innerHTML = `<span class="step-number">${String(index + 1).padStart(2, '0')}</span><span class="step-label"></span>`;
+        button.querySelector('.step-label').textContent = item.short;
+        button.addEventListener('click', () => {
+          activeStep = index;
+          renderFlow();
+        });
+        return button;
+      }));
+    }
+
+    function renderLanguage() {
+      const copy = translations[currentLanguage];
+      document.documentElement.lang = currentLanguage;
+      document.title = copy.pageTitle;
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        element.textContent = copy[element.dataset.i18n];
+      });
+      document.getElementById('intro-copy').innerHTML = copy.introCopy;
+      document.querySelectorAll('[data-i18n-aria]').forEach(element => {
+        element.setAttribute('aria-label', copy[element.dataset.i18nAria]);
+      });
+      document.querySelectorAll('[data-i18n-alt]').forEach(element => {
+        element.alt = copy[element.dataset.i18nAlt];
+      });
+      document.querySelectorAll('[data-language]').forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.language === currentLanguage));
+      });
+      renderFlow();
+    }
+
+    document.querySelectorAll('[data-language]').forEach(button => {
+      button.addEventListener('click', () => {
+        currentLanguage = button.dataset.language;
+        try {
+          localStorage.setItem('cocoloco_business_workflow_lang', currentLanguage);
+        } catch (error) {}
+        renderLanguage();
+      });
+    });
+    document.querySelectorAll('[data-role]').forEach(button => {
+      button.addEventListener('click', () => {
+        activeRole = button.dataset.role;
+        activeStep = 0;
+        document.querySelectorAll('[data-role]').forEach(roleButton => {
+          roleButton.setAttribute('aria-pressed', String(roleButton === button));
+        });
+        renderFlow();
+      });
+    });
+    document.getElementById('prev-step').addEventListener('click', () => {
+      if (activeStep > 0) activeStep -= 1;
+      renderFlow();
+    });
+    document.getElementById('next-step').addEventListener('click', () => {
+      if (activeStep < translations[currentLanguage][activeRole].steps.length - 1) activeStep += 1;
+      renderFlow();
+    });
+    renderLanguage();
+  </script>
+</body>
+</html>
