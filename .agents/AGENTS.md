@@ -13,6 +13,7 @@ This file serves as the root index for all agent customizations and governance i
 6. **Quality Gate**: Maintain 100% passing tests on Pytest with code coverage ≥ 85%.
 7. **Task Tracking**: After completing any task or sub-task, **always** update [`Cocoloco FastAPI.md`](file:///Volumes/MacData/fastapi-training/Cocoloco%20FastAPI.md) to reflect the current progress — mark checkboxes `[x]`, update the section header with `✅ Done — <date>`, and change the next task label to `🔜 Next`. (Note: This file is strictly **local-only** and must NEVER be committed to Git).
 8. **Learning Document**: After completing any task, **always** create a detailed Vietnamese teaching document in [`learn-api-python/`](file:///Volumes/MacData/fastapi-training/learn-api-python/) named after the task (e.g. `Docker PostgreSQL.md`). Explain *what* was built, *why* each decision was made, and *how* it fits into the overall architecture. (Note: `learn-api-python/` is strictly **local-only** and must NEVER be committed to Git).
+9. **Pre-Feature Git Protocol**: Never start a new feature on a merged or squashed branch. Always pull the latest target branch and spawn a fresh short-lived branch (`git checkout -b feat/<name>`). Adhere strictly to the 3-step protocol and GitLab conflict prevention tips in [`05-git-workflow.md`](file:///Volumes/MacData/fastapi-training/.agents/rules/05-git-workflow.md).
 
 ## Workspace Customizations Architecture
 Strict operational constraints are modularized in `.agents/rules/`. **You MUST adhere to them:**
@@ -23,7 +24,7 @@ The following files located in `.agents/rules/` contain strict operational const
 - [02-async-concurrency.md](file:///Volumes/MacData/fastapi-training/.agents/rules/02-async-concurrency.md): Native asyncpg, non-blocking Event Loop, N+1 query elimination via `selectinload`, connection pooling.
 - [03-security-rbac.md](file:///Volumes/MacData/fastapi-training/.agents/rules/03-security-rbac.md): Clerk RS256 JWKS verification, PyJWKClient LRU cache, 5s leeway, Soft-Disable Active Guard, Admin Self-Lock guard, 2-Tier RBAC (ADMIN, USER).
 - [04-testing-quality.md](file:///Volumes/MacData/fastapi-training/.agents/rules/04-testing-quality.md): Pytest-Asyncio suite, SQLite in-memory isolation, Negative testing mandate, Ruff linter, Pyright type check.
-- [05-git-workflow.md](file:///Volumes/MacData/fastapi-training/.agents/rules/05-git-workflow.md): Atomic commits, Conventional Commits format, grouping rules, push policy. **One logical change per commit — never bundle unrelated files.**
+- [05-git-workflow.md](file:///Volumes/MacData/fastapi-training/.agents/rules/05-git-workflow.md): Atomic commits, Conventional Commits format, grouping rules, push policy, Pre-feature 3-step protocol, GitLab squash conflict prevention.
 
 ### 🛠 Skills
 The following skills are available in `.agents/skills/` to assist you in complex procedures:

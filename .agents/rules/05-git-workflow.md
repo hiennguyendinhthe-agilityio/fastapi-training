@@ -120,3 +120,57 @@ git push github main
   - All tracking roadmaps ([`Cocoloco FastAPI.md`](file:///Volumes/MacData/fastapi-training/Cocoloco%20FastAPI.md)) and all teaching documents in [`learn-api-python/`](file:///Volumes/MacData/fastapi-training/learn-api-python/) are strictly **local learning artifacts**.
   - **NEVER** edit `.gitignore` to whitelist or track `learn-api-python/` or `Cocoloco FastAPI.md`.
   - **NEVER** stage (`git add`) or commit any markdown file other than `README.md` or `.agents/`.
+
+---
+
+## 7. Quy trình 3 Bước Bắt buộc Trước Khi Triển Khai Tính Năng Mới (Short-Lived Feature Branch Protocol)
+
+Để triệt tiêu 100% rủi ro xung đột (Git Conflicts) do lịch sử phân nhánh (diverged history) hoặc do cơ chế Squash Commits trên GitLab, **AI Agent và Kỹ sư BẮT BUỘC thực hiện đúng 3 bước này TRƯỚC KHI viết bất kỳ dòng code nào**:
+
+### 🔹 Bước 1: Xác nhận nhánh cũ đã hoàn thành nhiệm vụ
+- Sau khi một Merge Request (MR) đã được merge vào nhánh đích trên GitLab/GitHub, nhánh tính năng cũ (feature branch) được coi là **đã hoàn tất vòng đời (Closed/Deprecated)**.
+- **TUYỆT ĐỐI KHÔNG TIẾP TỤC COMMIT TÍNH NĂNG MỚI LÊN NHÁNH CŨ ĐÃ MERGE.**
+
+### 🔹 Bước 2: Chuyển về nhánh đích và kéo code mới nhất (Sync Upstream)
+```bash
+# 1. Chuyển về nhánh đích (nhánh chính hoặc nhánh tích hợp, ví dụ main hoặc feature/training-flutter-advance)
+git checkout <target-branch>
+
+# 2. Kéo toàn bộ mã nguồn và commit squash mới nhất về máy local
+git pull origin <target-branch>   # hoặc git pull gitlab <target-branch>
+```
+
+### 🔹 Bước 3: Tạo nhánh MỚI TINH xuất phát từ code mới nhất
+```bash
+# Tạo nhánh mới có tên mô tả đúng tính năng (Short-lived branch)
+git checkout -b <type>/<short-feature-name>
+
+# Ví dụ thực tế:
+git checkout -b feat/splash-screen-and-icon
+git checkout -b fix/cart-product-id-mapping
+```
+- **Lợi ích sống còn**: Nhánh mới xuất phát 100% từ đỉnh của nhánh đích (`0 commits behind`). Khi tạo MR, nút Merge sẽ luôn sáng xanh (`Ready to merge`) và không bao giờ gặp xung đột do lệch commit hash!
+
+---
+
+## 8. Hai Mẹo Nhỏ Bất Biến Khi Thao Tác Trên GitLab (GitLab Conflict Prevention)
+
+Khi làm việc với GitLab Merge Requests trong các dự án thực tế, AI Agent và Kỹ sư phải tuân thủ 2 mẹo vàng sau:
+
+### 💡 Mẹo 1: Luôn bật tùy chọn "Delete source branch" khi mở Merge Request
+- **Hành động**: Luôn giữ tick chọn ô **`[x] Delete source branch`** trên giao diện tạo/chỉnh sửa Merge Request của GitLab.
+- **Mục đích**: Khi MR được merge thành công, GitLab sẽ tự động xóa nhánh nguồn trên remote. Điều này ngăn chặn triệt để thói quen dùng tiếp nhánh cũ, buộc lập trình viên phải tạo nhánh mới tinh ở bước tiếp theo.
+
+### 💡 Mẹo 2: Quy tắc Đồng bộ Tức thì (Immediate Sync) nếu bắt buộc dùng lại nhánh
+- **Hành động**: Trong trường hợp đặc biệt bắt buộc phải giữ lại nhánh cũ (ví dụ nhánh đào tạo dài hạn):
+  - **NGAY SAU KHI** bấm Merge trên GitLab (đặc biệt khi có tick `Squash commits`), việc đầu tiên phải làm dưới local là kéo nhánh đích về và đồng bộ ngay lập tức **TRƯỚC KHI** viết thêm code:
+    ```bash
+    git fetch gitlab
+    git merge gitlab/<target-branch>
+    ```
+  - **Xử lý file nhị phân (Binary Assets)**: Nếu xảy ra xung đột ở các file ảnh/icon (`.png`, `.jpg`), luôn dùng lệnh ưu tiên phiên bản của nhánh hiện tại:
+    ```bash
+    git checkout --ours <path/to/binary/files>
+    ```
+  - **TUYỆT ĐỐI KHÔNG** bắt đầu code tính năng mới khi chưa hoàn tất bước đồng bộ này.
+
