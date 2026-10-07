@@ -1,0 +1,82 @@
+name: Cocoloco FastAPI CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - 'feature/**'
+  pull_request:
+    branches:
+      - main
+      - master
+      - 'feature/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Code Quality (Ruff & Pyright)
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚡ Setup Astral uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: 🐍 Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 📦 Install Dependencies
+        run: uv sync
+
+      - name: 🔍 Run Ruff Linter
+        run: uv run ruff check .
+
+      - name: 🎨 Run Ruff Formatter Check
+        run: uv run ruff format --check .
+
+      - name: 🛡️ Run Pyright Static Type Checker
+        run: uv run pyright
+
+  test:
+    name: Automated Tests & Coverage Gate (≥85%)
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚡ Setup Astral uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: 🐍 Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 📦 Install Dependencies
+        run: uv sync
+
+      - name: 🧪 Execute Pytest Suite with Coverage
+        run: |
+          uv run pytest --cov=app --cov-report=term-missing --cov-report=xml --cov-fail-under=85
+
+      - name: 📤 Upload Coverage Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 7

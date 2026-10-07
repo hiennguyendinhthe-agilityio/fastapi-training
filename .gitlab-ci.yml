@@ -1,0 +1,47 @@
+# Cocoloco FastAPI Backend — GitLab CI/CD Pipeline
+image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+
+stages:
+  - lint
+  - test
+
+variables:
+  UV_SYSTEM_PYTHON: "0"
+  UV_CACHE_DIR: "$CI_PROJECT_DIR/.uv-cache"
+
+cache:
+  key:
+    files:
+      - pyproject.toml
+      - uv.lock
+  paths:
+    - .uv-cache/
+
+before_script:
+  - uv sync
+
+# 1. Code Quality & Static Type Gate
+fastapi:lint:
+  stage: lint
+  script:
+    - uv run ruff check .
+    - uv run ruff format --check .
+    - uv run pyright
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^feature\//'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+# 2. Automated Pytest Suite & Coverage Gate (≥85%)
+fastapi:test:
+  stage: test
+  script:
+    - uv run pytest --cov=app --cov-report=term-missing --cov-report=xml --cov-fail-under=85
+  coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+%)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^feature\//'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
