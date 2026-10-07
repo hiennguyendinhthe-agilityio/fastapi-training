@@ -179,5 +179,3 @@ app.include_router(api_router, prefix="/api/v1")
 upload_dir = Path("uploads")
 upload_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory="uploads"), name="static")
-
-

@@ -676,9 +676,7 @@ async def test_direct_router_list_and_get(
     """Directly test list_my_orders, get_by_id, list_all, update_status."""
     latte = sample_products["latte"]
     order_dto = await create_order(
-        OrderCreateRequest(
-            items=[OrderItemInput(product_id=latte.id, quantity=1)]
-        ),
+        OrderCreateRequest(items=[OrderItemInput(product_id=latte.id, quantity=1)]),
         customer_one,
         db_session,
     )

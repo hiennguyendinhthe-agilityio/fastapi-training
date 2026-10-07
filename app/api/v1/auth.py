@@ -60,11 +60,7 @@ async def sync_user(
 
     **Returns:** The full `UserResponse` reflecting the current DB state.
     """
-    email = (
-        sync_data.email
-        if sync_data and sync_data.email
-        else current_user.email
-    )
+    email = sync_data.email if sync_data and sync_data.email else current_user.email
     full_name = (
         sync_data.full_name
         if sync_data and sync_data.full_name is not None

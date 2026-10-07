@@ -311,9 +311,7 @@ async def test_update_status(
     assert order.status == OrderStatus.PENDING
 
     # Transition to CONFIRMED
-    confirmed = await order_repo.update_status(
-        db_session, order, OrderStatus.CONFIRMED
-    )
+    confirmed = await order_repo.update_status(db_session, order, OrderStatus.CONFIRMED)
     assert confirmed.status == OrderStatus.CONFIRMED
 
     # Transition to COMPLETED

@@ -19,7 +19,7 @@ from app.models.user import User, UserRole
 
 async def set_user_role(identifier: str, role_str: str = "ADMIN") -> bool:
     target_role = UserRole.ADMIN if role_str.upper() == "ADMIN" else UserRole.USER
-    
+
     async with AsyncSessionLocal() as db:
         result = await db.execute(
             select(User).where(

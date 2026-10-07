@@ -270,4 +270,3 @@ async def test_sync_with_metadata_body_updates_profile_and_avatar(
         assert db_user.avatar_url == "https://img.clerk.com/avatar_test.png"
     finally:
         app.dependency_overrides.clear()
-

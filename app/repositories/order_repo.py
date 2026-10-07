@@ -45,9 +45,7 @@ class ProductUnavailableError(Exception):
     """Raised during order creation when an ordered product is marked unavailable."""
 
     def __init__(self, product_name: str, product_id: uuid.UUID) -> None:
-        super().__init__(
-            f"Product '{product_name}' ({product_id}) is unavailable."
-        )
+        super().__init__(f"Product '{product_name}' ({product_id}) is unavailable.")
         self.product_name = product_name
         self.product_id = product_id
 
