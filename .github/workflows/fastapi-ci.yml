@@ -70,6 +70,10 @@ jobs:
         run: uv sync
 
       - name: 🧪 Execute Pytest Suite with Coverage
+        env:
+          ENVIRONMENT: "testing"
+          DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+          CLERK_JWKS_URL: "https://api.clerk.com/v1/.well-known/jwks.json"
         run: |
           uv run pytest --cov=app --cov-report=term-missing --cov-report=xml --cov-fail-under=85
 

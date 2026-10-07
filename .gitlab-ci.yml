@@ -34,6 +34,10 @@ fastapi:lint:
 # 2. Automated Pytest Suite & Coverage Gate (≥85%)
 fastapi:test:
   stage: test
+  variables:
+    ENVIRONMENT: "testing"
+    DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+    CLERK_JWKS_URL: "https://api.clerk.com/v1/.well-known/jwks.json"
   script:
     - uv run pytest --cov=app --cov-report=term-missing --cov-report=xml --cov-fail-under=85
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+%)/'
