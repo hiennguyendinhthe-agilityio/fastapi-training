@@ -16,9 +16,7 @@ class Settings(BaseSettings):
     """
 
     ENVIRONMENT: str = "development"
-    DATABASE_URL: str = (
-        "postgresql+asyncpg://postgres:postgres@localhost:5432/cocoloco"
-    )
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/cocoloco"
     CLERK_JWKS_URL: str = "https://api.clerk.com/v1/.well-known/jwks.json"
 
     model_config = SettingsConfigDict(
