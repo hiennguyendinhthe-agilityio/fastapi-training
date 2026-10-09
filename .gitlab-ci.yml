@@ -1,6 +1,11 @@
 # Cocoloco FastAPI Backend — GitLab CI/CD Pipeline
 image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
+# Route all jobs to the company instance runner (tagged "shared")
+default:
+  tags:
+    - shared
+
 stages:
   - lint
   - test
